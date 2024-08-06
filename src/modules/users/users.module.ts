@@ -6,6 +6,8 @@ import { otpScema } from './schema/otp.schema';
 import { UsersService } from './services/users.service';
 import { UserRepository } from './repositories/user.repository';
 import { JwtModule } from '@nestjs/jwt';
+import { AdminRepository } from '../admin/repositories/admin.repository';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},

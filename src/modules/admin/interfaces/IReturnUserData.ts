@@ -1,4 +1,4 @@
-import { IUserData } from "./IUserData";
+import { IUserData } from "../../users/interfaces/IUserData";
 
 export interface IReturnUserData {
   userData:IUserData;

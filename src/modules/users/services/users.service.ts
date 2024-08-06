@@ -8,16 +8,16 @@ import { join } from 'path';
 import { MailerService } from '@nestjs-modules/mailer';
 import configuration from 'src/config/configuration';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from '../dtos/createUser.dto';
+import { CreateUserDto } from '../../admin/dtos/createUser.dto';
 import * as bcrypt from 'bcryptjs'
 import { LoginUserDto } from '../dtos/loginUser.dto';
 import { IUserData } from '../interfaces/IUserData';
-import { IReturnUserData } from '../interfaces/IReturnUserData';
-import { EditUserDto } from '../dtos/editUser.dto';
+import { IReturnUserData } from '../../admin/interfaces/IReturnUserData';
+import { EditUserDto } from '../../admin/dtos/editUser.dto';
 
 
 @Injectable()
-export class UsersService implements IUserService {
+export class UsersService {
   constructor(private readonly _usersRepository: UserRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService
@@ -126,58 +126,6 @@ export class UsersService implements IUserService {
     }
   }
 
-  async getUsers(): Promise<IUserData[]> {
-    try {
-      const data = await this._usersRepository.getUsers()
-      const result: IUserData[] = data.map((value) => {
-        return {
-          _id: value._id + '',
-          fullName: value.fullName,
-          email: value.email,
-          isAdmin: value.isAdmin,
-          isBlocked: value.isBlocked,
-          profileImage: value.profileImage,
-          phone: value.phone
-        }
-      })
-      return result
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  async blockUser(email: string): Promise<void> {
-    try {
-      await this._usersRepository.blockUser(email)
-
-    } catch (error) {
-      console.error(error)
-    }
-  }
-  async addUser(userData: RegisterUserDto): Promise<string> {
-    try {
-      const salt = bcrypt.genSaltSync(10);
-      console.log(userData)
-      const hash = bcrypt.hashSync(userData.password, salt);
-      const result = await this._usersRepository.addUser(userData, hash)
-      if (typeof result === 'string') {
-        return result
-      }
-
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  async editUser(userData:EditUserDto):Promise<string> {
-    try {
-      const data = await this._usersRepository.editUser(userData)
-      if(typeof data === 'string') {
-        return data
-      } 
-    } catch (error) {
-      console.error(error)
-    }
-  }
+ 
 
 }

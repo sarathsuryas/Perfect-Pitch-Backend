@@ -5,10 +5,10 @@ import { Request, Response } from 'express';
 import { error } from 'console';
 import { VerifyOtpDto } from '../dtos/verifyOtp.dto';
 import { LoginUserDto } from '../dtos/loginUser.dto';
-import { AuthenticationGuard } from 'src/modules/guards/authentication/authentication.guard';
-import { ICusomRequest } from '../interfaces/ICustomRequest';
-import { CreateUserDto } from '../dtos/createUser.dto';
-import { EditUserDto } from '../dtos/editUser.dto';
+import { AuthenticationGuard } from 'src/modules/admin/guards/authentication/authentication.guard';
+import { ICusomRequest } from '../../admin/interfaces/ICustomRequest';
+import { CreateUserDto } from '../../admin/dtos/createUser.dto';
+import { EditUserDto } from '../../admin/dtos/editUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -63,78 +63,6 @@ export class UsersController {
     }
   }
 
-  @Get('get-users')
-  @UseGuards(AuthenticationGuard)
-  async getUsers(@Req() req: ICusomRequest) {
-    try {
-      if (req.user.isAdmin) {
-        return await this._usersService.getUsers()
-      } else {
-        return 'You are not permitted to this route'
-      }
-    } catch (error) {
-      console.log(error)
-      throw new InternalServerErrorException({ message: "Internal Server Error" })
-    }
-  }
-
-  @Patch('block-user')
-  @UseGuards(AuthenticationGuard)
-  async blockUser(@Req() req: ICusomRequest) {
-    try {
-      if (req.user.isAdmin) {
-        await this._usersService.blockUser(req.body.email)
-        return await this._usersService.getUsers()
-      } else {
-        return 'You are not permitted to this route'
-      }
-       
-    } catch (error) {
-      console.error(error)
-      throw new InternalServerErrorException({ message: "Internal Server Error" })
-    }
-  }
-
- @Post('add-user')
- @UseGuards(AuthenticationGuard)
-   async addUser (@Body() userData:RegisterUserDto,@Req()req:ICusomRequest,@Res() res:Response) {
-     try {
-      
-      if(req.user.isAdmin) {
-        const result = await  this._usersService.addUser(userData)
-          if(typeof result === "string") {
-            res.status(HttpStatus.CONFLICT).json(result)
-          } else {
-            const data = await this._usersService.getUsers()
-            res.status(HttpStatus.OK).json(data)
-          }
-      }
-
-     } catch (error) {
-        console.error(error)
-        throw new InternalServerErrorException({ message: "Internal Server Error" })
-    }
-     }
-    
-     @Patch('edit-user')
-     @UseGuards(AuthenticationGuard)
-     async editUser(@Body() userData:EditUserDto,@Req()req:ICusomRequest,@Res() res:Response) {
-       try {
-        if(req.user.isAdmin) {
-          console.log(userData)
-        const data = await this._usersService.editUser(userData)
-        if(typeof data === 'string') {
-          res.status(HttpStatus.CONFLICT).json(data)
-        } else {
-          const users = await this._usersService.getUsers()
-          res.status(HttpStatus.OK).json(users)
-        }
-      }
-       } catch (error) {
-        console.error(error)
-        throw new InternalServerErrorException({ message: "Internal Server Error" })
-       }
-     }
 
  } 
 

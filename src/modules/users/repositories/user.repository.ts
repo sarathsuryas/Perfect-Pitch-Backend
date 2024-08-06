@@ -5,15 +5,16 @@ import { User } from "../schema/user.schema";
 import { Otp } from "../schema/otp.schema";
 import { Injectable } from "@nestjs/common";
 import { RegisterUserDto } from "../dtos/registerUser.dto";
-import { CreateUserDto } from "../dtos/createUser.dto";
+import { CreateUserDto } from "../../admin/dtos/createUser.dto";
 import { IStoredOtp } from "../interfaces/IStoredOtp";
-import { ICreatedUser } from "../interfaces/ICreatedUser";
+import { ICreatedUser } from "../../admin/interfaces/ICreatedUser";
 import { LoginUserDto } from "../dtos/loginUser.dto";
 import { IUserData } from "../interfaces/IUserData";
-import { EditUserDto } from "../dtos/editUser.dto";
+import { EditUserDto } from "../../admin/dtos/editUser.dto";
+import { AdminRepository } from "src/modules/admin/repositories/admin.repository";
 
 @Injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepository implements IUserRepository{
   constructor(@InjectModel('User') private readonly _userModel: Model<User>,
     @InjectModel('Otp') private readonly _otpModel: Model<Otp>) { }
 
@@ -100,65 +101,7 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async getUsers(): Promise<IUserData[]> {
-    try {
-      const data = await this._userModel.find().lean() as IUserData[]
-      return data
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async blockUser(email: string):Promise<void> {
-    try {
-      const data = await this._userModel.findOne({email:email})
-          
-      if (data.isBlocked) {
-        console.log('blocked')
-        data.isBlocked = false
-      } else {
-        data.isBlocked = true
-      }
-      await data.save()
-      
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  async addUser(userData:RegisterUserDto,hash:string):Promise<string> {
-    try {
-      const data = await this._userModel.findOne({email:userData.email})
-      if(!data) {
-        await this._userModel.create({
-          fullName:userData.fullName,
-          email:userData.email,
-          password:hash,
-          phone:userData.phone
-        })
-      } else {
-        return "the user exist"
-      }  
-
-    } catch (error) {
-      console.error(error)
-    }
-  }
   
-  async editUser(userData:EditUserDto):Promise<string> {
-     try {
-      const data = await this._userModel.findOne({email:userData.email})
-      if(data) {
-        data.email = userData.email
-        data.fullName = userData.fullName
-        data.phone= userData.phone
-        await data.save()
-      }  else {
-        return "user data not found"
-      }
-     } catch (error) {
-      console.error(error)
-     }
-  }
 
+  
 }    

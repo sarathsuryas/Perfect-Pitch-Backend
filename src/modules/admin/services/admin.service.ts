@@ -32,10 +32,11 @@ export class AdminService implements IAdminService {
             isBlocked: admin.isBlocked
           }
           const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "60s" })
-          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
+          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "2m" })
           await this._adminRepository.refreshTokenSetup(refreshToken, admin._id)
           const obj = {
-            token: accessToken,
+            accessToken: accessToken,
+            refreshToken:refreshToken,
             adminData: payload
           }
           return obj
@@ -104,6 +105,49 @@ export class AdminService implements IAdminService {
     } catch (error) {
       console.error(error)
     }
+  }
+  
+async decodeToken(token:string):Promise<IAdminData> {
+  try {
+        const decoded = await this._jwtService.decode(token)
+    const obj:IAdminData =    {
+          _id: decoded._id,
+          email: decoded.email,
+          fullName: decoded.fullName,
+          isAdmin: decoded.isAdmin,
+          isBlocked: decoded.isBlocked,
+        }
+       return obj
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
+  async createAccessToken(payload:IAdminData):Promise<string> {
+    try {
+      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "60s" })
+
+      return accessToken
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getRefreshToken(payload:IAdminData):Promise<string> {
+    try {
+      console.log('payload from ')
+       const refreshToken = await this._adminRepository.getRefreshToken(payload.email)
+       await this._jwtService.verifyAsync(refreshToken,
+        {
+          secret: configuration().jwtSecret
+        }
+      )
+      return refreshToken
+    } catch (error) {
+      console.error(error)
+      return "refreshToken expired"
+    } 
   }
   
 }

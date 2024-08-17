@@ -15,6 +15,7 @@ import { AdminRepository } from "src/modules/admin/repositories/admin.repository
 
 @Injectable()
 export class UserRepository implements IUserRepository{
+  
   constructor(@InjectModel('User') private readonly _userModel: Model<User>,
     @InjectModel('Otp') private readonly _otpModel: Model<Otp>) { }
 
@@ -102,6 +103,16 @@ export class UserRepository implements IUserRepository{
   }
 
   
+  async getRefreshToken(email:string):Promise<string>  {
+    try {
+      const userData = await this._userModel.findOne({email:email})
+     const  {refreshToken}  = userData
+     console.log(refreshToken)
+     return refreshToken
+    } catch (error) {
+      console.error(error)
+    }
+   }
 
   
 }    

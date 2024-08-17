@@ -3,7 +3,7 @@ import { RegisterUserDto } from '../dtos/registerUser.dto';
 import { UsersService } from '../services/users.service';
 import { Request, Response } from 'express';
 import { error } from 'console';
-import { VerifyOtpDto } from '../dtos/verifyOtp.dto';
+import { VerifyOtpDto } from '../dtos/verifyOtp.dto'; 
 import { LoginUserDto } from '../dtos/loginUser.dto';
 import { AuthenticationGuard } from 'src/modules/admin/guards/authentication/authentication.guard';
 import { ICusomRequest } from '../../admin/interfaces/ICustomRequest';
@@ -32,13 +32,17 @@ export class UsersController {
   async verifyOtp(@Res() res: Response, @Body() data: VerifyOtpDto) {
     try {
 
-      const token = await this._usersService.verifyOtp(data.userData, data.otp)
-      if (token === "OTP Not Matching") {
-
-        return res.status(HttpStatus.UNAUTHORIZED).json({ message: token })
+      const result = await this._usersService.verifyOtp(data.userData, data.otp)
+      if (result === "OTP Not Matching") {
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: result })
       }
-      if (typeof token === 'string') {
-        return res.status(HttpStatus.CREATED).json({ token })
+      if (typeof result !== 'string') {
+        res.cookie('userRefreshToken',result.refreshToken,{
+          httpOnly:true,
+          secure:true,
+          sameSite:'strict'
+        })
+        return res.status(HttpStatus.CREATED).send(result)
       } else {
         return res.status(HttpStatus.BAD_REQUEST).json({ message: "bad request" })
       }
@@ -53,6 +57,11 @@ export class UsersController {
     try {
       const data = await this._usersService.login(userData)
       if (typeof data !== "string") {
+        res.cookie('userRefreshToken',data.refreshToken,{
+          httpOnly:true,
+          secure:true,
+          sameSite:'strict'
+        })
         res.status(HttpStatus.OK).json(data)
       } else {
         res.status(HttpStatus.NOT_FOUND).json(data)
@@ -62,10 +71,42 @@ export class UsersController {
       throw new InternalServerErrorException({ message: "Internal Server Error" })
     }
   }
+   
+  @Post('resend-otp')
+  async resendOtp(@Res()res:Response,@Body() userData:VerifyOtpDto) {
+  try {
+    const data = JSON.parse(userData.userData)
+    await this._usersService.resendOtp(data.data.email)
+    res.status(HttpStatus.ACCEPTED).json(userData.userData)
+  } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException({ message: "Internal Server Error" })
+  }
+  }
 
+  @Post('refresh')
+  async refresh(@Res()res:Response,@Req() req: Request) {
+    try {
+      const oldRefreshToken = req.cookies.adminToken
+      const payload = await this._usersService.decodeToken(oldRefreshToken)
+      
+      const newAccessToken = await this._usersService.createAccessToken(payload);
+      const refreshToken = await this._usersService.getRefreshToken(payload);
+      if(refreshToken === "refreshToken expired") {
+        res.status(HttpStatus.FORBIDDEN)
+      }
+      res.cookie('userRefreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict'
+      });
+       
+      return res.send({ accessToken: newAccessToken });
+    } catch (error) {
+      console.error(error) 
+    }
+  }
 
- } 
-
-
+}
  
 

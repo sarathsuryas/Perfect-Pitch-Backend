@@ -18,6 +18,7 @@ import { EditUserDto } from '../../admin/dtos/editUser.dto';
 
 @Injectable()
 export class UsersService {
+
   constructor(private readonly _usersRepository: UserRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService
@@ -68,7 +69,7 @@ export class UsersService {
     }
   }
 
-  async verifyOtp(userData: string, otp: string): Promise<string> {
+  async verifyOtp(userData: string, otp: string): Promise<IUserData | string> {
     try {
       const { storedOtp } = await this._usersRepository.returnOtp()
       const parsedData: CreateUserDto = JSON.parse(userData)
@@ -84,7 +85,16 @@ export class UsersService {
         const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
         const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
         await this._usersRepository.refreshTokenSetup(refreshToken, _id)
-        return accessToken
+        const obj:IUserData = {
+          _id: _id,
+          fullName:fullName,
+          email: email,
+          isBlocked: isBlocked,
+          isAdmin: isAdmin,
+          refreshToken:refreshToken,
+          token:accessToken
+        }
+        return obj
       } else {
         return "OTP Not Matching"
       }
@@ -112,6 +122,7 @@ export class UsersService {
           await this._usersRepository.refreshTokenSetup(refreshToken, user._id)
           const obj = {
             token: accessToken,
+            refreshToken:refreshToken,
             userData: payload
           }
           return obj
@@ -126,6 +137,83 @@ export class UsersService {
     }
   }
 
- 
+ async resendOtp(email:string) {
+  try {
+      function generateOTP() {
+        let digits = '0123456789';
+        let OTP = '';
+        let len = digits.length
+        for (let i = 0; i < 5; i++) {
+          OTP += digits[Math.floor(Math.random() * len)];
+        }
+
+        return OTP;
+      }
+      const otp = generateOTP()
+      console.log(otp, "genereated from Service")
+      const html = readFileSync(join(__dirname + "../../../../../public/otp.html"), "utf-8")
+      const updatedContent = html.replace(
+        '<strong style="font-size: 130%" id="otp"></strong>',
+        `<strong style="font-size: 130%" id="otp">${otp}</strong>`
+      );
+
+      const message = `For Registering your account please use this OTP`;
+      const data = await this._mailService.sendMail({
+        from: configuration().userEmail,
+        to: email,
+        subject: `Otp`,
+        text: message,
+        html: updatedContent
+      });
+      await this._usersRepository.storeOtp(otp)  
+  } catch (error) {
+    console.error(error)
+  }
+ }
+
+
+ async decodeToken(token:string):Promise<IUserData> {
+  try {
+        const decoded = await this._jwtService.decode(token)
+    const obj:IUserData =    {
+          _id: decoded._id,
+          email: decoded.email,
+          fullName: decoded.fullName,
+          isAdmin: decoded.isAdmin,
+          isBlocked: decoded.isBlocked,
+        }
+       return obj
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
+  async createAccessToken(payload:IUserData):Promise<string> {
+    try {
+      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "60s" })
+
+      return accessToken
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getRefreshToken(payload:IUserData):Promise<string> {
+    try {
+      console.log('payload from ')
+       const refreshToken = await this._usersRepository.getRefreshToken(payload.email)
+       await this._jwtService.verifyAsync(refreshToken,
+        {
+          secret: configuration().jwtSecret
+        }
+      )
+      return refreshToken
+    } catch (error) {
+      console.error(error)
+      return "refreshToken expired"
+    } 
+  }
+
 
 }

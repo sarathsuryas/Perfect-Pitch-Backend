@@ -12,7 +12,8 @@ import { AdminModule } from '../admin/admin.module';
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
     {name:'Otp',schema:otpScema}]),
-    JwtModule
+    JwtModule,
+   
   ],
   controllers:[UsersController],
   providers:[UsersService,UserRepository]

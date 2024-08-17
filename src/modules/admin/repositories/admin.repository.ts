@@ -119,11 +119,19 @@ export class AdminRepository implements IAdminRepository {
       
       } catch (error) {
         console.error(error)
-        console.log('/////////////////////////////////////////////')
       }
     }
-
-
+   async getRefreshToken(email:string):Promise<string>  {
+    try {
+      const userData = await this._adminModel.findOne({email:email})
+     const  {refreshToken}  = userData
+     console.log(refreshToken)
+     return refreshToken
+    } catch (error) {
+      console.error(error)
+    }
+   }
+       
   }
    
   

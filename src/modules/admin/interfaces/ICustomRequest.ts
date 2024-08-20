@@ -7,5 +7,7 @@ export interface ICusomRequest extends Request {
       fullName:string
       isAdmin:boolean;
       isBlocked:boolean;
-    }
+    },
+    files?:any
+
 }

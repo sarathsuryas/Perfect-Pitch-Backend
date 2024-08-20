@@ -32,14 +32,14 @@ export class AdminController {
   }
 
   @Post('refresh')
-  async refresh(@Req() req: Request,@Res()res:Response) {
+  async refresh(@Req() req: Request, @Res() res: Response) {
     try {
       const oldRefreshToken = req.cookies.adminToken
       const payload = await this._adminService.decodeToken(oldRefreshToken)
-      
+
       const newAccessToken = await this._adminService.createAccessToken(payload);
       const refreshToken = await this._adminService.getRefreshToken(payload);
-      if(refreshToken === "refreshToken expired") {
+      if (refreshToken === "refreshToken expired") {
         res.status(HttpStatus.FORBIDDEN)
       }
       res.cookie('refreshToken', refreshToken, {
@@ -47,19 +47,23 @@ export class AdminController {
         secure: true,
         sameSite: 'strict'
       });
-       
+
       return res.send({ accessToken: newAccessToken });
     } catch (error) {
-      console.error(error) 
+      console.error(error)
     }
   }
 
-  @Get('get-users')
   @UseGuards(AuthenticationGuard)
+  @Get('get-users')
   async getUsers(@Req() req: ICusomRequest) {
     try {
-      if (req.user) { 
+      if (req.user.isAdmin) {
+        if (req.query.search) {
+          const search = req.query.search as string
+          return await this._adminService.searchUser(search)
 
+        }
         return await this._adminService.getUsers()
       } else {
         return 'You are not permitted to this route'
@@ -70,8 +74,8 @@ export class AdminController {
     }
   }
 
-  @Patch('block-user')
   @UseGuards(AuthenticationGuard)
+  @Patch('block-user')
   async blockUser(@Req() req: ICusomRequest) {
     try {
       if (req.user.isAdmin) {
@@ -81,7 +85,7 @@ export class AdminController {
         return 'You are not permitted to this route'
       }
 
-    } catch (error) { 
+    } catch (error) {
       console.error(error)
       throw new InternalServerErrorException({ message: "Internal Server Error" })
     }
@@ -108,8 +112,8 @@ export class AdminController {
     }
   }
 
+  @UseGuards(AuthenticationGuard)
   @Patch('edit-user')
-
   async editUser(@Body() userData: EditUserDto, @Req() req: ICusomRequest, @Res() res: Response) {
     try {
       if (req.user.isAdmin) {
@@ -128,7 +132,60 @@ export class AdminController {
     }
   }
 
+  @Post('req-reset-password')
+  async resetPassword(@Req() req: Request, @Res() res: Response) {
+    try {
+      if (!req.body.email) {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email is required' });
+      }
+      const user = await this._adminService.existUser(req.body.email)
+      if (!user) {
+        res.status(HttpStatus.CONFLICT).json({ message: "emaill does not exist" })
+      }
+      const result = await this._adminService.savePasswordResetToken(user, req.body.email)
+      if (result) {
+        res.status(HttpStatus.OK).json({ message: "email sent successfully" })
+      }
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException({ message: "Internal Server Error" })
+    } 
+  }
 
+@Post('valid-password-token')
+async validPasswordToken(@Req() req:Request,@Res() res:Response) {
+   try {
+    if(!req.body.token) {
+      res.status(HttpStatus.FORBIDDEN).json({message:'token is required'})
+    }
+    const token = await this._adminService.getResetPasswordToken(req.body.token)
+    if(!token) {
+       res.status(HttpStatus.CONFLICT).json({message:"Invalid URL"})      
+    }
+    res.status(HttpStatus.OK).json({ message: 'Token verified successfully.' ,token});
+   } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException({message:"Internal Server Error"})
+   }
+}
+ 
+@Post('new-password')
+async NewPassword (@Req() req:Request,@Res() res:Response) {
+    try {
+      const {password,AdminId} = req.body
+      const result = await this._adminService.newPassword(password,AdminId)
+      if(result) {
+         res
+        .status(HttpStatus.CREATED)
+        .json({ message: 'Password reset successfully' });
+      } else {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Password can not reset.' });
+      }
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException({message:"Internal Server Error"})
+    }
+}
 
 
 }

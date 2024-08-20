@@ -9,12 +9,16 @@ import { IAdminService } from '../interfaces/IAdminService';
 import { EditUserDto } from 'src/modules/admin/dtos/editUser.dto';
 import { RegisterUserDto } from 'src/modules/users/dtos/registerUser.dto';
 import { IUserData } from 'src/modules/users/interfaces/IUserData';
+import * as crypto from 'crypto'
+import { MailerService } from '@nestjs-modules/mailer';
+import { IResetToken } from '../interfaces/IResetToken';
 
 @Injectable()
 export class AdminService implements IAdminService {
   constructor(
     private readonly _adminRepository: AdminRepository,
-    private readonly _jwtService: JwtService
+    private readonly _jwtService: JwtService,
+    private readonly _mailService: MailerService,
   ) { }
   async login(email: string, password: string): Promise<IReturnAdminData | string> {
 
@@ -31,14 +35,14 @@ export class AdminService implements IAdminService {
             isAdmin: admin.isAdmin,
             isBlocked: admin.isBlocked
           }
-          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "60s" })
-          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "2m" })
+          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
+          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
           await this._adminRepository.refreshTokenSetup(refreshToken, admin._id)
           const obj = {
             accessToken: accessToken,
             refreshToken:refreshToken,
             adminData: payload
-          }
+          } 
           return obj
         } else {
           return "password is wrong"
@@ -126,7 +130,7 @@ async decodeToken(token:string):Promise<IAdminData> {
 
   async createAccessToken(payload:IAdminData):Promise<string> {
     try {
-      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "60s" })
+      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
 
       return accessToken
     } catch (error) {
@@ -149,5 +153,81 @@ async decodeToken(token:string):Promise<IAdminData> {
       return "refreshToken expired"
     } 
   }
-  
+
+  async searchUser(search:string): Promise<IUserData[]> {
+    try {
+      const data = await this._adminRepository.searchUsers(search)
+      const result: IUserData[] = data.map((value) => {
+        return {
+          _id: value._id + '',
+          fullName: value.fullName,
+          email: value.email,
+          isAdmin: value.isAdmin,
+          isBlocked: value.isBlocked,
+          profileImage: value.profileImage,
+          phone: value.phone
+        }
+      })
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async existUser(email:string):Promise<string> {
+    try {
+      const user = await this._adminRepository.existUser(email)
+      return user
+    } catch (error) {
+       console.error(error)
+    }
+  }
+
+  async savePasswordResetToken (id:string,email:string):Promise<boolean> {
+    try {
+       const resetToken =  crypto.randomBytes(16).toString('hex')
+      const result = await this._adminRepository.savePasswordResetToken(id,resetToken)
+      const data = await this._mailService.sendMail({
+        from: configuration().userEmail,
+        to: email,
+        subject:"Password Reset",
+        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+    'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+    'http://localhost:4200/admin/reset-password-form/' + resetToken + '\n\n' +
+    'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+      });
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async getResetPasswordToken(resetToken:string) {
+     try {
+     const data = await  this._adminRepository.getResetPasswordToken(resetToken)
+     return  data
+     } catch (error) {
+        console.error(error)
+     }
+  }
+
+  async newPassword (password:string,AdminId:string):Promise<boolean> {
+    try {
+    const data = await this._adminRepository.newPassword(password,AdminId) as IResetToken 
+    if(data) {
+      const admin = await this._adminRepository.getAdmin(data._adminId)
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(password, salt);
+      const result = await this._adminRepository.updatePassword(data._adminId,password)
+      if(result) {
+        return true
+      } else {
+        return false
+      }
+
+    }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 }

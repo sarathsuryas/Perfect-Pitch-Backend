@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, InternalServerErrorException, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, InternalServerErrorException, NotFoundException, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { AdminService } from '../services/admin.service';
 import { Request, Response } from 'express';
@@ -27,6 +27,7 @@ export class AdminController {
         res.status(HttpStatus.NOT_FOUND).json(data)
       }
     } catch (error) {
+      
       console.log(error)
     }
   }
@@ -34,19 +35,15 @@ export class AdminController {
   @Post('refresh')
   async refresh(@Req() req: Request, @Res() res: Response) {
     try {
-      const oldRefreshToken = req.cookies.adminToken
+      const oldRefreshToken = req.cookies.refreshToken
       const payload = await this._adminService.decodeToken(oldRefreshToken)
 
       const newAccessToken = await this._adminService.createAccessToken(payload);
       const refreshToken = await this._adminService.getRefreshToken(payload);
       if (refreshToken === "refreshToken expired") {
-        res.status(HttpStatus.FORBIDDEN)
+        res.status(HttpStatus.FORBIDDEN).send()
       }
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict'
-      });
+     
 
       return res.send({ accessToken: newAccessToken });
     } catch (error) {
@@ -54,8 +51,8 @@ export class AdminController {
     }
   }
 
-  @UseGuards(AuthenticationGuard)
   @Get('get-users')
+  @UseGuards(AuthenticationGuard)
   async getUsers(@Req() req: ICusomRequest) {
     try {
       if (req.user.isAdmin) {
@@ -74,8 +71,8 @@ export class AdminController {
     }
   }
 
-  @UseGuards(AuthenticationGuard)
   @Patch('block-user')
+  @UseGuards(AuthenticationGuard)
   async blockUser(@Req() req: ICusomRequest) {
     try {
       if (req.user.isAdmin) {
@@ -112,8 +109,8 @@ export class AdminController {
     }
   }
 
-  @UseGuards(AuthenticationGuard)
   @Patch('edit-user')
+  @UseGuards(AuthenticationGuard)
   async editUser(@Body() userData: EditUserDto, @Req() req: ICusomRequest, @Res() res: Response) {
     try {
       if (req.user.isAdmin) {
@@ -186,6 +183,5 @@ async NewPassword (@Req() req:Request,@Res() res:Response) {
       throw new InternalServerErrorException({message:"Internal Server Error"})
     }
 }
-
 
 }

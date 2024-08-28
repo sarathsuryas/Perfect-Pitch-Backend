@@ -3,13 +3,16 @@ import { UsersController } from './controllers/users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { userSchema } from './schema/user.schema';
 import { otpScema } from './schema/otp.schema';
-import { UsersService } from './services/users.service';
 import { UserRepository } from './repositories/user.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { AdminRepository } from '../admin/repositories/admin.repository';
 import { AdminModule } from '../admin/admin.module';
 import { UserResetTokenSchema } from './schema/userResetToken';
 import { CloudinaryProvider } from './providers/cloudinary.provider';
+import { UserAuthenticationGuard } from './guards/user-authentication/user-authentication.guard';
+import { UploadService } from './services/upload/upload.service';
+import { UsersService } from './services/users/users.service';
+import { s3ClientProvider } from 'src/config/aws.config';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
@@ -18,6 +21,6 @@ import { CloudinaryProvider } from './providers/cloudinary.provider';
    
   ],
   controllers:[UsersController],
-  providers:[UsersService,UserRepository,CloudinaryProvider]
+  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider]
 })
 export class UsersModule {}

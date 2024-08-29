@@ -98,7 +98,7 @@ export class AdminService implements IAdminService {
     } catch (error) {
       console.error(error)
     }
-  }
+  }  
 
   async editUser(userData:EditUserDto):Promise<string> {
     try {
@@ -217,12 +217,12 @@ async decodeToken(token:string):Promise<IAdminData> {
       const admin = await this._adminRepository.getAdmin(data._adminId)
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(password, salt);
-      const result = await this._adminRepository.updatePassword(data._adminId,password)
+      const result = await this._adminRepository.updatePassword(data._adminId,hash)
       if(result) {
         return true
       } else {
         return false
-      }
+      } 
 
     }
     } catch (error) {

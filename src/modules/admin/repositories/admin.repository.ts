@@ -16,7 +16,9 @@ import { IResetToken } from "../interfaces/IResetToken";
 @Injectable()
 export class AdminRepository implements IAdminRepository {
 
-  constructor(@InjectModel('Admin') private readonly _adminModel: Model<Admin>, @InjectModel('User') private readonly _userModel: Model<User>, @InjectModel('ResetToken') private readonly _resetTokenModel: Model<PasswordResetToken>, private _jwtService: JwtService) {
+  constructor(@InjectModel('Admin') private readonly _adminModel: Model<Admin>,
+   @InjectModel('User') private readonly _userModel: Model<User>,
+    @InjectModel('ResetToken') private readonly _resetTokenModel: Model<PasswordResetToken>) {
 
   }
   async exist(email: string): Promise<IAdminData | null> {
@@ -39,6 +41,7 @@ export class AdminRepository implements IAdminRepository {
       console.error(error)
     }
   }
+  
   async refreshTokenSetup(refreshToken: string, _id: string): Promise<void> {
     try {
       await this._adminModel.findByIdAndUpdate(_id, { refreshToken: refreshToken })
@@ -198,5 +201,6 @@ export class AdminRepository implements IAdminRepository {
   }
 
 
-}
-
+} 
+  
+  

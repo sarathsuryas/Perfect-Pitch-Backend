@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { UsersModule } from '../users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from 'src/config/configuration';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AdminModule } from '../admin/admin.module';
+import { RequestLoggerMiddleware } from 'src/global-middlewares/request-logger.middlware';
 
 @Module({
   imports: [UsersModule,AdminModule,ConfigModule.forRoot({
@@ -26,9 +27,13 @@ import { AdminModule } from '../admin/admin.module';
           pass:configuration().emailPassword
         }
       }
-    })
+    }),
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

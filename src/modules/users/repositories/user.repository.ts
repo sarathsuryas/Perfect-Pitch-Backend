@@ -119,15 +119,9 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUserId(email: string): Promise<string> {
-    try {
       const user = await this._userModel.findOne({ email: email }).lean()
-      if (user) {
-        return user._id + ''
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+        return user?._id+"" 
+  }  
 
   async savePasswordResetToken(id: string, resetToken: string): Promise<boolean> {
     try {
@@ -178,7 +172,8 @@ export class UserRepository implements IUserRepository {
   async getUser(id: string): Promise<IUserData> {
     try {
       const data = await this._userModel.findOne({ _id: id + '' }).lean() as IUserData
-
+    
+      
       if (data) {
         return data
       }
@@ -190,8 +185,11 @@ export class UserRepository implements IUserRepository {
 
   async updateProfileImage(_id: string, link: string): Promise<string> {
     try {
-      const data = await this._userModel.findByIdAndUpdate(_id, { profileImage: link })
-      return data.profileImage
+      const data = await this._userModel.findById({_id:_id})
+       data.profileImage = link
+      
+       await data.save()
+       return "success"
     } catch (error) {
       console.error(error)
     }
@@ -208,4 +206,13 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-}    
+  async resetPassword(_id:string,password:string) {
+    try {
+      const user = await this._userModel.findOneAndUpdate({_id:_id},{password:password})
+      return user
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+}     

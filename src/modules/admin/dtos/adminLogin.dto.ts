@@ -10,5 +10,5 @@ export class AdminLoginDto {
   @IsString()
   @MinLength(8)
   @Matches(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*/)
-  password:string
-}
+  password:string;
+}    

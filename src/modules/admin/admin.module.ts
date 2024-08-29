@@ -6,9 +6,10 @@ import { adminSchema } from './schema/admin.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { AdminRepository } from './repositories/admin.repository';
 import { userSchema } from '../users/schema/user.schema';
+import { ResetTokenSchema } from './schema/resetToken.schema';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Admin',schema:adminSchema}]),MongooseModule.forFeature([{name:'User',schema:userSchema}]),JwtModule],
+  imports:[MongooseModule.forFeature([{name:'Admin',schema:adminSchema}]),MongooseModule.forFeature([{name:'User',schema:userSchema}]),MongooseModule.forFeature([{name:'ResetToken',schema:ResetTokenSchema}]),JwtModule],
   controllers: [AdminController],
   providers: [AdminService,AdminRepository],
   

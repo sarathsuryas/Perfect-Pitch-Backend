@@ -13,7 +13,11 @@ import * as bcrypt from 'bcryptjs'
 import { LoginUserDto } from '../dtos/loginUser.dto';
 import { IUserData } from '../interfaces/IUserData';
 import { IReturnUserData } from '../../admin/interfaces/IReturnUserData';
-import { EditUserDto } from '../../admin/dtos/editUser.dto';
+import { IUserResetToken } from '../interfaces/IUserResetToken';
+import * as crypto from 'crypto'
+import { EditUserDto } from 'src/modules/admin/dtos/editUser.dto';
+import { EditProfileDto } from '../dtos/editProfile.dto';
+import { IReturnEdit } from '../interfaces/IReturnEdit';
 
 
 @Injectable()
@@ -21,7 +25,8 @@ export class UsersService {
 
   constructor(private readonly _usersRepository: UserRepository,
     private readonly _mailService: MailerService,
-    private readonly _jwtService: JwtService
+    private readonly _jwtService: JwtService,
+    
   ) { }
 
 
@@ -83,7 +88,7 @@ export class UsersService {
         const { _id, fullName, email, isAdmin, isBlocked } = result
         const payload = { _id, fullName, email, isAdmin, isBlocked }
         const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
-        const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
+        const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "2d" })
         await this._usersRepository.refreshTokenSetup(refreshToken, _id)
         const obj:IUserData = {
           _id: _id,
@@ -216,4 +221,85 @@ export class UsersService {
   }
 
 
+  async existUser(email:string):Promise<string> {
+    try {
+      const user = await this._usersRepository.getUserId(email)
+      return user
+    } catch (error) {
+       console.error(error)
+    }
+  }
+
+  async savePasswordResetToken (id:string,email:string):Promise<boolean> {
+    try {
+       const resetToken =  crypto.randomBytes(16).toString('hex')
+      const result = await this._usersRepository.savePasswordResetToken(id,resetToken)
+      const data = await this._mailService.sendMail({
+        from: configuration().userEmail,
+        to: email,
+        subject:"Password Reset",
+        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+    'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+    'http://localhost:4200/reset-password-form/' + resetToken + '\n\n' +
+    'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+      });
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async getResetPasswordToken(resetToken:string) {
+     try {
+     const data = await  this._usersRepository.getResetPasswordToken(resetToken)
+     return  data
+     } catch (error) {
+        console.error(error)
+     }
+  }
+
+  async newPassword (password:string,UserId:string):Promise<boolean> {
+    try {
+    const data = await this._usersRepository.newPassword(password,UserId) as IUserResetToken
+    if(data) {
+      const admin = await this._usersRepository.getUser(data._userId)
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(password, salt);
+      const result = await this._usersRepository.updatePassword(data._userId,hash)
+      if(result) {
+        return true
+      } else {
+        return false
+      }
+
+    }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+   async  getUserData(id:string):Promise<IUserData> {
+    try {
+       const user =  await  this._usersRepository.getUser(id)
+       return user
+    } catch (error) {
+      console.error(error)
+    }
+   }
+   async updateProfileImage(_id:string,link:string):Promise<string> {
+       try {
+        const imageLink = await this._usersRepository.updateProfileImage(_id,link) 
+        return  imageLink
+       } catch (error) {
+        console.error(error)
+       }
+   }
+
+   async editProfile(data:EditProfileDto,email:string):Promise<IReturnEdit> {
+    try {
+        const updatedData = await  this._usersRepository.editProfile(data,email)
+       return updatedData
+    } catch (error) {
+      console.error(error)
+    }
+   }
+   
 }

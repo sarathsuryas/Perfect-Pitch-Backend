@@ -10,4 +10,5 @@ export interface IUserData {
   isBlocked: boolean;
   isAdmin: boolean;
   profileImage?: string;
+  
 }

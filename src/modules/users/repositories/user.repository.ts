@@ -12,12 +12,16 @@ import { LoginUserDto } from "../dtos/loginUser.dto";
 import { IUserData } from "../interfaces/IUserData";
 import { EditUserDto } from "../../admin/dtos/editUser.dto";
 import { AdminRepository } from "src/modules/admin/repositories/admin.repository";
+import { UserPasswordResetToken } from "../schema/userResetToken";
+import { IUserResetToken } from "../interfaces/IUserResetToken";
+import { EditProfileDto } from "../dtos/editProfile.dto";
+import { IReturnEdit } from "../interfaces/IReturnEdit";
 
 @Injectable()
-export class UserRepository implements IUserRepository{
-  
+export class UserRepository implements IUserRepository {
+
   constructor(@InjectModel('User') private readonly _userModel: Model<User>,
-    @InjectModel('Otp') private readonly _otpModel: Model<Otp>) { }
+    @InjectModel('Otp') private readonly _otpModel: Model<Otp>, @InjectModel('UserResetToken') private readonly _resetTokenModel: Model<UserPasswordResetToken>) { }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
     try {
@@ -102,17 +106,106 @@ export class UserRepository implements IUserRepository{
     }
   }
 
-  
-  async getRefreshToken(email:string):Promise<string>  {
+
+  async getRefreshToken(email: string): Promise<string> {
     try {
-      const userData = await this._userModel.findOne({email:email})
-     const  {refreshToken}  = userData
-     console.log(refreshToken)
-     return refreshToken
+      const userData = await this._userModel.findOne({ email: email })
+      const { refreshToken } = userData
+      console.log(refreshToken)
+      return refreshToken
     } catch (error) {
       console.error(error)
     }
-   }
+  }
 
-  
+  async getUserId(email: string): Promise<string> {
+    try {
+      const user = await this._userModel.findOne({ email: email }).lean()
+      if (user) {
+        return user._id + ''
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async savePasswordResetToken(id: string, resetToken: string): Promise<boolean> {
+    try {
+      const resetTokenInstance = new this._resetTokenModel({ _userId: id, resetToken: resetToken })
+      await resetTokenInstance.save(
+        await this._resetTokenModel.find({ _userId: id, resetToken: { $ne: resetTokenInstance.resetToken } }).deleteOne().exec())
+      return true
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async getResetPasswordToken(resetToken: string) {
+    try {
+      const data = await this._resetTokenModel.findOne({ resetToken: resetToken })
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async newPassword(password: string, AdminId: string): Promise<IUserResetToken | boolean> {
+    try {
+      const data = await this._resetTokenModel.findOne({ _adminId: AdminId }).lean() as IUserResetToken
+      const expirationTime = new Date(data.createdAt.getTime() + 3600 * 1000);
+      const currentTime = new Date();
+      if (currentTime < expirationTime) {
+        return data
+      } else {
+        return false
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async updatePassword(id: string, password: string): Promise<IUserData> {
+    try {
+      const data = await this._userModel.findByIdAndUpdate(id, { password: password }).lean() as IUserData
+      if (data) {
+        return data
+      } else {
+        return data
+      }
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getUser(id: string): Promise<IUserData> {
+    try {
+      const data = await this._userModel.findOne({ _id: id + '' }).lean() as IUserData
+
+      if (data) {
+        return data
+      }
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async updateProfileImage(_id: string, link: string): Promise<string> {
+    try {
+      const data = await this._userModel.findByIdAndUpdate(_id, { profileImage: link })
+      return data.profileImage
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async editProfile(data: EditProfileDto,email:string):Promise<IReturnEdit> {
+    try {
+      const update = await this._userModel.findOneAndUpdate({email:email},{fullName:data.fullName,phone:data.phone}).lean() 
+       return {
+        fullName:update.fullName,
+        phone:update.phone
+       } 
+    } catch (error) {
+        console.error(error)
+    }
+  }
+
 }    

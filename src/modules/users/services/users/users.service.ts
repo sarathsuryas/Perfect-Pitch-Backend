@@ -19,6 +19,8 @@ import { IReturnEdit } from '../../interfaces/IReturnEdit';
 import { EditProfileDto } from '../../dtos/editProfile.dto';
 import { UploadService } from '../upload/upload.service';
 import { v4 as uuidv4 } from 'uuid';
+import { IVideoDto } from '../../dtos/IVideo.dto';
+import { IVideoList } from '../../interfaces/IVideoList';
 
 
 @Injectable()
@@ -27,7 +29,7 @@ export class UsersService {
   constructor(private readonly _usersRepository: UserRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService,
-    private readonly _uploadService:UploadService
+    private readonly _uploadService: UploadService
   ) { }
 
 
@@ -112,17 +114,17 @@ export class UsersService {
   async login(userData: LoginUserDto): Promise<IReturnUserData | string> {
     try {
       const user = await this._usersRepository.existUser(userData)
-      if(user.isBlocked) {
+      if (user.isBlocked) {
         return 'you cant login'
       }
-      
+
       if (user) {
         const success = await bcrypt.compare(userData.password, user.password)
         if (success) {
           const payload = {
             _id: user._id + '',
             email: user.email,
-            fullName: user.fullName, 
+            fullName: user.fullName,
             isAdmin: user.isAdmin,
             isBlocked: user.isBlocked
           }
@@ -130,11 +132,11 @@ export class UsersService {
           const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
           await this._usersRepository.refreshTokenSetup(refreshToken, user._id)
           const obj = {
-            token: accessToken, 
+            token: accessToken,
             refreshToken: refreshToken,
             userData: payload
           }
-          return obj 
+          return obj
         } else {
           return "the password is wrong"
         }
@@ -146,7 +148,7 @@ export class UsersService {
     }
   }
 
-  async resendOtp(email: string):Promise<void> {
+  async resendOtp(email: string): Promise<void> {
     try {
       function generateOTP() {
         let digits = '0123456789';
@@ -164,7 +166,7 @@ export class UsersService {
       const updatedContent = html.replace(
         '<strong style="font-size: 130%" id="otp"></strong>',
         `<strong style="font-size: 130%" id="otp">${otp}</strong>`
-      ); 
+      );
 
       const message = `For Registering your account please use this OTP`;
       const data = await this._mailService.sendMail({
@@ -210,7 +212,7 @@ export class UsersService {
 
   async getRefreshToken(payload: IUserData): Promise<string> {
     try {
-    
+
       const refreshToken = await this._usersRepository.getRefreshToken(payload.email)
       console.log(refreshToken)
       await this._jwtService.verifyAsync(refreshToken,
@@ -218,21 +220,21 @@ export class UsersService {
           secret: configuration().jwtSecret
         }
       )
-      return refreshToken 
+      return refreshToken
 
     } catch (error) {
       console.error(error)
       return "refreshToken expired"
-    } 
-  } 
+    }
+  }
 
 
   async existUser(email: string): Promise<string> {
     try {
       const user = await this._usersRepository.getUserId(email)
-      if(user === "undefined") {
+      if (user === "undefined") {
         return user
-      }  else {
+      } else {
         return user
       }
     } catch (error) {
@@ -290,13 +292,13 @@ export class UsersService {
     try {
       const user = await this._usersRepository.getUser(id)
       const now = new Date();
-      if(user.profileImageUrlExpiresAt < now ) {
-         const key = `perfect-pitch`
-          const url = await this._uploadService.getPresignedSignedUrl(key)
-          const image =   await this._usersRepository.updateProfileImage(user._id,url.url)
-        }     
+      if (user.profileImageUrlExpiresAt < now) {
+        const key = `perfect-pitch`
+        const url = await this._uploadService.getPresignedSignedUrl(key)
+        const image = await this._usersRepository.updateProfileImage(user._id, url.url)
+      }
       return user
-    } catch (error) { 
+    } catch (error) {
       console.error(error)
     }
   }
@@ -318,27 +320,27 @@ export class UsersService {
     }
   }
 
-  async checkPassword(password: string,checkPassword:string):Promise<boolean> {
+  async checkPassword(password: string, checkPassword: string): Promise<boolean> {
     try {
-      
+
       const success = await bcrypt.compare(checkPassword, password)
-      if(success) {
+      if (success) {
         return true
-      }  
+      }
       else {
         return false
       }
     } catch (error) {
-        console.error(error)
+      console.error(error)
     }
   }
 
-  async resetPassword(_id:string,password:string):Promise<boolean> {
+  async resetPassword(_id: string, password: string): Promise<boolean> {
     try {
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(password, salt);
-      const user = await this._usersRepository.resetPassword(_id,hash)
-      if(user) {
+      const user = await this._usersRepository.resetPassword(_id, hash)
+      if (user) {
         return true
       } else {
         return false
@@ -348,6 +350,24 @@ export class UsersService {
     }
   }
 
+  async SubmitVideoDetails(videoName:string,videoDescription:string,genre:string,userId:string,videoLink:string,thumbNailLink:string) {
+    try {
+      const data = await this._usersRepository.uploadVideo(videoName,videoDescription,genre,userId,videoLink,thumbNailLink)
+      return data._id
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+async listVideos():Promise<IVideoList[]> {
+  try {
+    return await this._usersRepository.listVideos()
+  } catch (error) {
+    console.error(error)
+  }
 }
 
+
+
+}
 

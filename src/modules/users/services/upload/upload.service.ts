@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import configuration from 'src/config/configuration';
@@ -30,37 +30,23 @@ export class UploadService {
  
   }
  
-  async uploadSingleFile({
-    file,
-    isPublic = true,
-  }: {
-    file: Express.Multer.File;
-    isPublic: boolean;
-  }) {
+  async uploadProfileImage(file:Express.Multer.File,fileName:string) {
     try {
-      const key = `perfect-pitch`
+      const key = fileName
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ACL: isPublic ? 'public-read' : 'private',
+        ACL: 'private',
  
         Metadata: {
           originalName: file.originalname,
         },
       });
  
-      const uploadResult = await this.client.send(command);
- 
-  
-      return {
-        url: isPublic
-          ? (await this.getFileUrl(key)).url
-          : (await this.getPresignedSignedUrl(key)).url,
-        key,
-        isPublic,
-      };
+      const uploadResult = await this.client.send(command)
+      return  this.getFileUrl(fileName)
     } catch (error) {
       console.log(error)
       console.log('error is come')
@@ -74,13 +60,14 @@ export class UploadService {
   
   async getPresignedSignedUrl(key: string) {
     try {
-      const command = new GetObjectCommand({
+      const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
+      
       }); 
     
       const url = await getSignedUrl(this.client, command, {
-        expiresIn:60 * 60 * 24 * 6 + 60 * 60, // 7 day and one hour
+        expiresIn:60 * 60 * 24 * 6 + 60 * 60, // 6 day and one hour
       });
   
       return { url };
@@ -89,6 +76,26 @@ export class UploadService {
     }
   }
 
+async uploadVideo (file:Express.Multer.File,originalName:string):Promise<string> {
+  const fileName = `${uuidv4()}-${originalName}`;
+  const encodeFileName = encodeURIComponent(fileName);
+
+ const command = new PutObjectCommand({
+  Bucket:this.bucketName,
+  Key:fileName,
+  ACL: 'private',
+  Body:file.buffer,
+  ContentType: file.mimetype
+ })
+ try {
+  const result = await  this.client.send(command)
+  if(result) {
+   return  `https://${this.bucketName}.s3.amazonaws.com/${encodeFileName}`;
+  }
+ } catch (error) {
+  console.error(error)
+ }
+}
  
 
 }

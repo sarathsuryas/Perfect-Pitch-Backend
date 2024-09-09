@@ -3,7 +3,7 @@ import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { AdminService } from '../services/admin.service';
 import { Request, Response } from 'express';
 import { AuthenticationGuard } from '../guards/authentication/authentication.guard';
-import { ICusomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
 import { EditUserDto } from 'src/modules/admin/dtos/editUser.dto';
 import { RegisterUserDto } from 'src/modules/users/dtos/registerUser.dto';
 import { IReturnAdminData } from '../interfaces/IReturnAdminData';
@@ -53,7 +53,7 @@ export class AdminController {
 
   @Get('get-users')
   @UseGuards(AuthenticationGuard)
-  async getUsers(@Req() req: ICusomRequest) {
+  async getUsers(@Req() req: ICustomRequest) {
     try {
       if (req.user.isAdmin) {
         if (req.query.search) {
@@ -73,7 +73,7 @@ export class AdminController {
 
   @Patch('block-user')
   @UseGuards(AuthenticationGuard)
-  async blockUser(@Req() req: ICusomRequest) {
+  async blockUser(@Req() req: ICustomRequest) {
     try {
       if (req.user.isAdmin) {
         await this._adminService.blockUser(req.body.email)
@@ -90,7 +90,7 @@ export class AdminController {
 
   @Post('add-user')
 
-  async addUser(@Body() userData: RegisterUserDto, @Req() req: ICusomRequest, @Res() res: Response) {
+  async addUser(@Body() userData: RegisterUserDto, @Req() req: ICustomRequest, @Res() res: Response) {
     try {
 
       if (req.user.isAdmin) {
@@ -111,7 +111,7 @@ export class AdminController {
 
   @Patch('edit-user')
   @UseGuards(AuthenticationGuard)
-  async editUser(@Body() userData: EditUserDto, @Req() req: ICusomRequest, @Res() res: Response) {
+  async editUser(@Body() userData: EditUserDto, @Req() req: ICustomRequest, @Res() res: Response) {
     try {
       if (req.user.isAdmin) {
 

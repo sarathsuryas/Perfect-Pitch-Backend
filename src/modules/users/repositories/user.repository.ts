@@ -16,12 +16,14 @@ import { EditProfileDto } from "../dtos/editProfile.dto";
 import { IReturnEdit } from "../interfaces/IReturnEdit";
 import { Video } from "../schema/video.schema";
 import { IVideoList } from "../interfaces/IVideoList";
+import { Album } from "../schema/audio.schema";
+import { IAlbumDetails } from "../interfaces/albumDetails";
 
 @Injectable()
 export class UserRepository implements IUserRepository {
 
   constructor(@InjectModel('User') private readonly _userModel: Model<User>,
-    @InjectModel('Otp') private readonly _otpModel: Model<Otp>, @InjectModel('UserResetToken') private readonly _resetTokenModel: Model<UserPasswordResetToken>,@InjectModel('Video') private readonly _videoModel:Model<Video>) { }
+    @InjectModel('Otp') private readonly _otpModel: Model<Otp>, @InjectModel('UserResetToken') private readonly _resetTokenModel: Model<UserPasswordResetToken>,@InjectModel('Video') private readonly _videoModel:Model<Video>,@InjectModel('Album') private readonly _albumModel:Model<Album>) { }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
     try {
@@ -234,6 +236,14 @@ async listVideos():Promise<IVideoList[]> {
   try {
    const videos = await this._videoModel.find({},{title:1,description:1,thumbnailLink:1,visibility:1}).lean() as IVideoList[]
   return videos
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async submitAlbumDetails(details:IAlbumDetails) {
+  try {
+    const details = await this._albumModel.create({songs:[]})
   } catch (error) {
     console.error(error)
   }

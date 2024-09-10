@@ -15,10 +15,11 @@ import { UsersService } from './services/users/users.service';
 import { s3ClientProvider } from 'src/config/aws.config';
 import { videoSchema } from './schema/video.schema';
 import { PresignedUrlService } from './services/presigned-url/presigned-url.service';
+import { albumSchema } from './schema/audio.schema';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
-    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema}]),
+    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema},{name:'Album',schema:albumSchema}]),
     JwtModule,
    
   ],

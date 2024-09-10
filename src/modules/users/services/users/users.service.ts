@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -7,7 +6,6 @@ import configuration from 'src/config/configuration';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs'
 import * as crypto from 'crypto'
-import { EditUserDto } from 'src/modules/admin/dtos/editUser.dto';
 import { UserRepository } from '../../repositories/user.repository';
 import { RegisterUserDto } from '../../dtos/registerUser.dto';
 import { IUserData } from '../../interfaces/IUserData';
@@ -18,9 +16,8 @@ import { IUserResetToken } from '../../interfaces/IUserResetToken';
 import { IReturnEdit } from '../../interfaces/IReturnEdit';
 import { EditProfileDto } from '../../dtos/editProfile.dto';
 import { UploadService } from '../upload/upload.service';
-import { v4 as uuidv4 } from 'uuid';
-import { IVideoDto } from '../../dtos/IVideo.dto';
 import { IVideoList } from '../../interfaces/IVideoList';
+import { IAlbumDetails } from '../../interfaces/albumDetails';
 
 
 @Injectable()
@@ -367,7 +364,14 @@ async listVideos():Promise<IVideoList[]> {
   }
 }
 
-
+async submitAlbumDetails(details:IAlbumDetails) {
+  try {
+   const album = await this._usersRepository.submitAlbumDetails(details)
+   return album
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 }
 

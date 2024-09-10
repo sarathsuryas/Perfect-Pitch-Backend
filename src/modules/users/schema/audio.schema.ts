@@ -2,29 +2,26 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Document } from "mongoose";
 
 @Schema()
-export class Video extends Document {
+export class Album extends Document {
 @Prop({required:true})  
 title: string;
-@Prop({required:true})
+@Prop()
 description:string;
 @Prop()
-like:[]
+artistName:string;
 @Prop()
-link:string;
-@Prop()
-thumbnailLink:string
+thumbNailLink:string
 @Prop({default:true})
 visibility:boolean;
 @Prop()
 access:string;
 @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User' }) 
-userId:string;
+artistId:string;
 @Prop()
 section:string;
-@Prop()
-genre:string
-@Prop({default:false})
-shorts:boolean;
+@Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+songs: {songName:string,like:[],artistName:string,thumbNailLink:string,link:string}[]
+
 }
 
-export const videoSchema = SchemaFactory.createForClass(Video)
+export const albumSchema = SchemaFactory.createForClass(Album)

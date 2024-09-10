@@ -37,7 +37,7 @@ export class PresignedUrlService {
      
       
       const url = await getSignedUrl(this.client, command, {
-        expiresIn:30, // 30 seconds
+        expiresIn:120, // 30 seconds
       });
        const uniqueKey = '_id'+userId + fileName
        const uniqueUrl =  this.getFileUrl(uniqueKey) 
@@ -45,7 +45,7 @@ export class PresignedUrlService {
       //   await this._userRepository.updateProfileImage(userId,uniqueUrl)
       //  }
     
-      return  {url,uniqueKey}
+      return  {url,uniqueKey} 
     } catch (error) {   
       throw new InternalServerErrorException(error);
     }

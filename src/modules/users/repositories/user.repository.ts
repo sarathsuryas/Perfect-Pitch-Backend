@@ -10,18 +10,18 @@ import { IStoredOtp } from "../interfaces/IStoredOtp";
 import { ICreatedUser } from "../../admin/interfaces/ICreatedUser";
 import { LoginUserDto } from "../dtos/loginUser.dto";
 import { IUserData } from "../interfaces/IUserData";
-import { EditUserDto } from "../../admin/dtos/editUser.dto";
-import { AdminRepository } from "src/modules/admin/repositories/admin.repository";
 import { UserPasswordResetToken } from "../schema/userResetToken";
 import { IUserResetToken } from "../interfaces/IUserResetToken";
 import { EditProfileDto } from "../dtos/editProfile.dto";
 import { IReturnEdit } from "../interfaces/IReturnEdit";
+import { Video } from "../schema/video.schema";
+import { IVideoList } from "../interfaces/IVideoList";
 
 @Injectable()
 export class UserRepository implements IUserRepository {
 
   constructor(@InjectModel('User') private readonly _userModel: Model<User>,
-    @InjectModel('Otp') private readonly _otpModel: Model<Otp>, @InjectModel('UserResetToken') private readonly _resetTokenModel: Model<UserPasswordResetToken>) { }
+    @InjectModel('Otp') private readonly _otpModel: Model<Otp>, @InjectModel('UserResetToken') private readonly _resetTokenModel: Model<UserPasswordResetToken>,@InjectModel('Video') private readonly _videoModel:Model<Video>) { }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
     try {
@@ -172,8 +172,6 @@ export class UserRepository implements IUserRepository {
   async getUser(id: string): Promise<IUserData> {
     try {
       const data = await this._userModel.findOne({ _id: id + '' }).lean() as IUserData
-    
-      
       if (data) {
         return data
       }
@@ -214,5 +212,31 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+
+  async uploadVideo(videoName:string,videoDescription:string,genre:string,userId:string,videoLink:string,thumbNailLink:string) {
+    try {
+      const result = await this._videoModel.create({
+      title:videoName,
+      description:videoDescription,
+      genre:genre,
+      userId:userId,
+      link:videoLink,
+      thumbnailLink:thumbNailLink
+      })
+      
+     return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+async listVideos():Promise<IVideoList[]> {
+  try {
+   const videos = await this._videoModel.find({},{title:1,description:1,thumbnailLink:1,visibility:1}).lean() as IVideoList[]
+  return videos
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 }     

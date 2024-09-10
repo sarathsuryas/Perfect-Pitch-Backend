@@ -13,14 +13,17 @@ import { UserAuthenticationGuard } from './guards/user-authentication/user-authe
 import { UploadService } from './services/upload/upload.service';
 import { UsersService } from './services/users/users.service';
 import { s3ClientProvider } from 'src/config/aws.config';
+import { videoSchema } from './schema/video.schema';
+import { PresignedUrlService } from './services/presigned-url/presigned-url.service';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
-    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema}]),
+    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema}]),
     JwtModule,
    
   ],
   controllers:[UsersController],
-  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider]
+  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider, PresignedUrlService]
 })
-export class UsersModule {}
+export class UsersModule {} 
+ 

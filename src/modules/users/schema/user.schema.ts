@@ -4,21 +4,21 @@ import { Document } from "mongoose";
 @Schema()
 export class User extends Document {
   @Prop({required:true})
-  fullName: string
+  fullName: string;
   @Prop({required:true})
-  email: string
+  email: string;
   @Prop({required:true})
-  password: string
+  password: string;
   @Prop({required:true})
-  phone: number
+  phone: number;
   @Prop()
-  refreshToken: string
+  refreshToken: string;
   @Prop({default:false})
-  isBlocked: boolean
+  isBlocked: boolean;
   @Prop({default:false})
-  isAdmin: boolean
+  isAdmin: boolean;
   @Prop()
-  profileImage: string
+  profileImage: string;
   @Prop()
   profileImageUrlExpiresAt: Date;
 } 

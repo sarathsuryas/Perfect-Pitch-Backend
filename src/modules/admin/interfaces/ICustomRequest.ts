@@ -1,6 +1,6 @@
 import { Request } from "express";
 
-export interface ICusomRequest extends Request {
+export interface ICustomRequest extends Request {
     user?:{
       _id:string;
       email:string;

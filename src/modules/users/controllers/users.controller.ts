@@ -1,25 +1,26 @@
 import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RegisterUserDto } from '../dtos/registerUser.dto';
-import { Request, Response } from 'express';
+import { Request, response, Response } from 'express';
 import { VerifyOtpDto } from '../dtos/verifyOtp.dto';
 import { LoginUserDto } from '../dtos/loginUser.dto';
-import { ICusomRequest } from '../../admin/interfaces/ICustomRequest';
 import { UserAuthenticationGuard } from '../guards/user-authentication/user-authentication.guard';
 import { IncomingForm } from 'formidable'
 import { EditProfileDto } from '../dtos/editProfile.dto';
 import configuration from 'src/config/configuration';
 import { v4 as uuid } from 'uuid';
-import { readFileSync } from 'fs';
 import { UploadService } from '../services/upload/upload.service';
 import { UsersService } from '../services/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { IVideoDto } from '../dtos/IVideo.dto';
+import { PresignedUrlService } from '../services/presigned-url/presigned-url.service';
+import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
 
 
 
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService) { }
+  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService,private readonly _presignedUrlService:PresignedUrlService) { }
   @Post('register')
   async registerUser(@Res() res: Response, @Body() userData: RegisterUserDto) {
     try {
@@ -46,7 +47,7 @@ export class UsersController {
       if (typeof result !== 'string') {
         res.cookie('userRefreshToken', result.refreshToken, {
           httpOnly: true,
-          secure: true,
+          secure: true, 
           sameSite: 'strict'
         })
         return res.status(HttpStatus.CREATED).send(result)
@@ -169,7 +170,7 @@ export class UsersController {
   }
   @UseGuards(UserAuthenticationGuard)
   @Get('get-user-data')
-  async userData(@Req() req: ICusomRequest, @Res() res: Response) {
+  async userData(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const user = await this._usersService.getUserData(req.user._id)
       const obj = {
@@ -207,19 +208,17 @@ export class UsersController {
       }),
     )
     file: Express.Multer.File,
-    @Body('isPublic') isPublic: string, @Req() req: ICusomRequest, @Res() res: Response
-  ) { 
+    @Body('isPublic') isPublic: string, @Req() req: ICustomRequest, @Res() res: Response
+  ) {
     try {
-     
-      const isPublicBool = isPublic === 'true' ? true : false;
-      const url = await this._uploadService.uploadSingleFile({ file, isPublic: isPublicBool });
+      const url = await this._uploadService.uploadProfileImage(file,'userProfilePicture');
       if (!url) {
         return res.status(HttpStatus.BAD_REQUEST).send()
       }
       const result = await this._usersService.updateProfileImage(req.user._id, url.url)
 
-      console.log("User profile picture updated:",result);
-      return res.status(HttpStatus.OK).json({ success: true, message: "Image uploaded successfull"});
+      console.log("User profile picture updated:", result);
+      return res.status(HttpStatus.OK).json({ success: true, message: "Image uploaded successfull" });
 
     } catch (error) {
       console.error(error)
@@ -229,7 +228,7 @@ export class UsersController {
 
   @UseGuards(UserAuthenticationGuard)
   @Put('edit-profile')
-  async editProfile(@Req() req: ICusomRequest, @Res() res: Response) {
+  async editProfile(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const obj: EditProfileDto = {
         fullName: req.body.fullName,
@@ -250,7 +249,7 @@ export class UsersController {
   }
   @UseGuards(UserAuthenticationGuard)
   @Post('check-old-password')
-  async checkOldPassword(@Req() req: ICusomRequest, @Res() res: Response) {
+  async checkOldPassword(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const user = await this._usersService.getUserData(req.user._id)
       if (user) {
@@ -271,7 +270,7 @@ export class UsersController {
 
   @UseGuards(UserAuthenticationGuard)
   @Put('change-password')
-  async changePassword(@Req() req: ICusomRequest, @Res() res: Response) {
+  async changePassword(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const success = await this._usersService.resetPassword(req.user._id, req.body.password)
       if (success) {
@@ -285,6 +284,88 @@ export class UsersController {
     }
   }
 
+  // @UseGuards(UserAuthenticationGuard)
+  // @Post('upload-video')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadVideo(@UploadedFile() file: Express.Multer.File, @Req() req: ICustomRequest, @Res() res: Response) {
+
+  //   try { 
+  //     const { videoName, videoDescription, genre } = req.body
+  //      console.log(file)
+  //     const url = await this._uploadService.uploadVideo(file,videoName);
+  //     const obj: IVideoDto = {
+  //       videoName: videoName,
+  //       videoDescription: videoDescription,
+  //       genre: genre,
+  //       link: url,
+  //       userId:req.user._id
+  //     }
+  //     console.log(url)
+  //     if (url) {
+  //       const data = await this._usersService.uploadVideo(obj)
+  //       if (data) {
+  //         return res.status(HttpStatus.OK).send({message:"video uploaded"})
+  //       } 
+  //     } else {
+  //     return res.status(HttpStatus.BAD_REQUEST).send({error:"internal server error"})
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // } 
+
+ @UseGuards(UserAuthenticationGuard)
+ @Post('generate-presigned-url')
+ async generatePresignedUrl(@Req() req:ICustomRequest,@Res() res:Response) {
+    try {
+     const {fileName,contentType} = req.body
+     const presignedUrl = await this._presignedUrlService.getPresignedSignedUrl(req.user._id,fileName,contentType)
+    if (presignedUrl) {
+      return res.status(HttpStatus.ACCEPTED).json({success:true,presignedUrl})
+    }  else {
+      return res.status(HttpStatus.BAD_REQUEST).json({message:"something went wrong"})
+    }
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+ } 
+
+@UseGuards(UserAuthenticationGuard) 
+@Post('post-video-details')
+async submitVideoDetails(@Req() req:ICustomRequest,@Res() res:Response) {
+   try {
+    const {videoName,videoDescription, genre, uniqueKeyVideo,uniqueKeyThumbNail} = req.body
+      const videoLink =  this._presignedUrlService.getFileUrl(uniqueKeyVideo)
+      const thumbnailLink = this._presignedUrlService.getFileUrl(uniqueKeyThumbNail)
+    const videoId = await this._usersService.SubmitVideoDetails(videoName,videoDescription,genre,req.user._id,videoLink,thumbnailLink)
+    if(videoId) {
+      return res.status(HttpStatus.ACCEPTED).json({success:true,videoId})
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({success:false,error:"error message"})
+    }
+   } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException()
+   }  
+} 
+// video list
+@UseGuards(UserAuthenticationGuard) 
+@Get('video-list')
+async videoList(@Res()res:Response ) {
+   try {
+     const videos = await this._usersService.listVideos()
+     if(videos) {
+      return res.status(HttpStatus.ACCEPTED).json(videos)
+     } else {
+      return res.status(HttpStatus.NOT_FOUND).json({message:"videos not found"})
+     } 
+
+   } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException()
+   }
 }
 
-
+}
+  

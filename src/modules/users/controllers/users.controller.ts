@@ -349,7 +349,7 @@ async submitVideoDetails(@Req() req:ICustomRequest,@Res() res:Response) {
     throw new InternalServerErrorException()
    }  
 } 
-
+// video list
 @UseGuards(UserAuthenticationGuard) 
 @Get('video-list')
 async videoList(@Res()res:Response ) {

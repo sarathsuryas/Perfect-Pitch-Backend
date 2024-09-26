@@ -1,16 +1,19 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
+import { Document } from "mongoose";
 
 @Schema()
-export class Album extends Document {
+export class Audio extends Document {
 @Prop({required:true})  
 title: string;
-@Prop()
-description:string;
-@Prop()
+@Prop({required:true})
 artistName:string;
 @Prop()
-thumbNailLink:string
+like:[]
+@Prop()
+link:string;
+@Prop() 
+thumbnailLink:string
 @Prop({default:true})
 visibility:boolean;
 @Prop()
@@ -19,9 +22,8 @@ access:string;
 artistId:string;
 @Prop()
 section:string;
-@Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-songs: {songName:string,like:[],artistName:string,thumbNailLink:string,link:string}[]
-
+@Prop()
+genre:string;
 }
 
-export const albumSchema = SchemaFactory.createForClass(Album)
+export const audioSchema = SchemaFactory.createForClass(Audio)

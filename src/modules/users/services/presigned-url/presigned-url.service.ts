@@ -1,7 +1,7 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {  PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import configuration from 'src/config/configuration';
+import configuration from '../../../../config/configuration';
 import { UserRepository } from '../../repositories/user.repository';
 
 @Injectable()
@@ -37,13 +37,13 @@ export class PresignedUrlService {
      
       
       const url = await getSignedUrl(this.client, command, {
-        expiresIn:120, // 30 seconds
+        expiresIn:60*5, // 30 seconds
       });
        const uniqueKey = '_id'+userId + fileName
        const uniqueUrl =  this.getFileUrl(uniqueKey) 
-      //  if(uploadType === "userProfilePicture") {
-      //   await this._userRepository.updateProfileImage(userId,uniqueUrl)
-      //  }
+       
+        
+      
     
       return  {url,uniqueKey} 
     } catch (error) {   
@@ -51,7 +51,7 @@ export class PresignedUrlService {
     }
   }
 
-   getFileUrl(key: string) {
+ getFileUrl(key: string) {
     return  `https://${this.bucketName}.s3.${configuration().aws_region}.amazonaws.com/${key}` ;
   }
   

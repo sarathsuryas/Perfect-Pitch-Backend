@@ -1,23 +1,21 @@
-import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RegisterUserDto } from '../dtos/registerUser.dto';
-import { Request, response, Response } from 'express';
+import { Request, Response } from 'express';
 import { VerifyOtpDto } from '../dtos/verifyOtp.dto';
 import { LoginUserDto } from '../dtos/loginUser.dto';
 import { UserAuthenticationGuard } from '../guards/user-authentication/user-authentication.guard';
-import { IncomingForm } from 'formidable'
 import { EditProfileDto } from '../dtos/editProfile.dto';
-import configuration from 'src/config/configuration';
-import { v4 as uuid } from 'uuid';
 import { UploadService } from '../services/upload/upload.service';
 import { UsersService } from '../services/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IVideoDto } from '../dtos/IVideo.dto';
 import { PresignedUrlService } from '../services/presigned-url/presigned-url.service';
 import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
-import { User } from '../schema/user.schema';
 import { IAlbumGenPresignedUrlDto } from '../dtos/IAlbumGenPresignedUrl.dto';
 import { IAlbumDetailsDto } from '../dtos/IAlbumDetails.dto';
 import { IAlbumDetails } from '../interfaces/albumDetails';
+import { IAudioDto } from '../dtos/IAudio.dto';
+import { storeError } from 'src/errorStore/storeError';
+import { IVideoCommentDto } from '../dtos/IVideoComment.dto';
 
 
 
@@ -342,7 +340,7 @@ export class UsersController {
       const { videoName, videoDescription, genre, uniqueKeyVideo, uniqueKeyThumbNail } = req.body
       const videoLink = this._presignedUrlService.getFileUrl(uniqueKeyVideo)
       const thumbnailLink = this._presignedUrlService.getFileUrl(uniqueKeyThumbNail)
-      const videoId = await this._usersService.SubmitVideoDetails(videoName, videoDescription, genre, req.user._id, videoLink, thumbnailLink)
+      const videoId = await this._usersService.SubmitVideoDetails(videoName, videoDescription, genre, req.user._id, videoLink, thumbnailLink, req.user.fullName)
       if (videoId) {
         return res.status(HttpStatus.ACCEPTED).json({ success: true, videoId })
       } else {
@@ -358,6 +356,7 @@ export class UsersController {
   @Get('video-list')
   async videoList(@Res() res: Response) {
     try {
+
       const videos = await this._usersService.listVideos()
       if (videos) {
         return res.status(HttpStatus.ACCEPTED).json(videos)
@@ -367,6 +366,8 @@ export class UsersController {
 
     } catch (error) {
       console.error(error)
+
+      storeError(error, new Date())
       throw new InternalServerErrorException()
     }
   }
@@ -388,26 +389,150 @@ export class UsersController {
   }
   @UseGuards(UserAuthenticationGuard)
   @Post('submit-album-details')
-  async submitAlbumDetails(@Req() req: ICustomRequest,@Res() res:Response) {
+  async submitAlbumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const albumDetails = JSON.parse(req.body.files) as IAlbumDetailsDto
-      const thumbNailLink =  this._presignedUrlService.getFileUrl(albumDetails.thumbnailKey)
-      const array:{title:string,link:string,artistName:string,thumbNailLink:string}[] = []
-      for(let i = 0; i < albumDetails.songs.length-1; i++) {
-        const songLink =  this._presignedUrlService.getFileUrl(albumDetails.songs[i].uniqueKey)
-         array.push({title:albumDetails.songs[i].title,link:songLink,artistName:req.user.fullName,thumbNailLink:thumbNailLink})
+      const thumbNailLink = this._presignedUrlService.getFileUrl(albumDetails.thumbnailKey)
+      const array: { title: string, link: string, artistName: string, thumbNailLink: string }[] = []
+      for (let i = 0; i < albumDetails.songs.length - 1; i++) {
+        const songLink = this._presignedUrlService.getFileUrl(albumDetails.songs[i].uniqueKey)
+        array.push({ title: albumDetails.songs[i].title, link: songLink, artistName: req.user.fullName, thumbNailLink: thumbNailLink })
       }
-      const obj:IAlbumDetails = {
-        title:albumDetails.title,
-        artistName:req.user.fullName,
-        thumbNailLink:thumbNailLink,
-        songs:array
+      const obj: IAlbumDetails = {
+        title: albumDetails.title,
+        artistName: req.user.fullName,
+        thumbNailLink: thumbNailLink,
+        songs: array
       }
       const album = await this._usersService.submitAlbumDetails(obj)
+      return res.status(HttpStatus.OK).json(album)
     } catch (error) {
       console.error(error)
       throw new InternalServerErrorException()
     }
   }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-albums')
+  async getAlbums(@Res() res: Response) {
+    try {
+      const result = await this._usersService.getAlbums()
+      if (result) {
+        return res.status(HttpStatus.OK).json(result)
+      }
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('submit-audio-details')
+  async submitAudioDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = JSON.parse(req.body.file)
+      const obj: IAudioDto = {
+        title: '',
+        genre: '',
+        thumbNailLink: '',
+        link: '',
+        artistName: '',
+        artistId: ''
+      }
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('album-details')
+  async albumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+   
+      const id = req.query.id as string
+      const data = await this._usersService.getAlbumDetails(id)
+      if (data) {
+        return res.status(HttpStatus.OK).json(data)
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: "data not found" })
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-video-page-details')
+  async getVideoDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+     
+      const result = await this._usersService.getVideoDetails(req.query.id as string,req.user._id)
+      result.userId = req.user._id
+      result.userName = req.user.fullName
+      return res.status(HttpStatus.OK).json(result)
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Put('like-video')
+  async likeVideo(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._usersService.likeVideo(req.body.videoId, req.user._id)
+      res.status(HttpStatus.OK).json(req.user._id)
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Put('subscribe-user')
+  async subscribeUser(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+    await this._usersService.subscribeArtist(req.user._id,req.body.subscribedUserId)
+    return res.status(HttpStatus.ACCEPTED).json({success:true})
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard) 
+  @Put('submit-profile-image-details')
+  async submitProfileImageDetails(@Req() req:ICustomRequest,@Res() res:Response) {
+    try {
+       await   this._usersService.submitProfileImageDetails(req.body.uniqueKey,req.user._id)
+       res.status(HttpStatus.ACCEPTED).json({success:true})
+    } catch (error) {
+      console.error(error)
+      storeError(error,new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+@UseGuards(UserAuthenticationGuard) 
+@Post('add-video-comment')
+async  addVideoComment(@Req() req:ICustomRequest,@Res() res:Response)  {
+    try {
+      const comment:IVideoCommentDto = {
+        videoId:req.body.videoId,
+       commentDetails:{
+        userId: req.user._id,
+        userName:req.body.userName,
+        comment: req.body.comment,
+        profileImage:req.body.profileImage
+       }
+      }
+      await this._usersService.addVideoComment(comment)
+      res.status(HttpStatus.OK).json({message:"comment added",success:true})
+    } catch (error) {
+      console.error(error)
+      storeError(error,new Date())
+      throw new InternalServerErrorException()
+    }
+}
+  
+
 
 }

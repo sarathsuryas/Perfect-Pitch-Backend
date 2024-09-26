@@ -2,22 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { MailerService } from '@nestjs-modules/mailer';
-import configuration from 'src/config/configuration';
+import configuration from '../../../../config/configuration';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs'
 import * as crypto from 'crypto'
 import { UserRepository } from '../../repositories/user.repository';
 import { RegisterUserDto } from '../../dtos/registerUser.dto';
 import { IUserData } from '../../interfaces/IUserData';
-import { CreateUserDto } from 'src/modules/admin/dtos/createUser.dto';
+import { CreateUserDto } from '../../../admin/dtos/createUser.dto';
 import { LoginUserDto } from '../../dtos/loginUser.dto';
-import { IReturnUserData } from 'src/modules/admin/interfaces/IReturnUserData';
+import { IReturnUserData } from '../../../admin/interfaces/IReturnUserData';
 import { IUserResetToken } from '../../interfaces/IUserResetToken';
 import { IReturnEdit } from '../../interfaces/IReturnEdit';
 import { EditProfileDto } from '../../dtos/editProfile.dto';
 import { UploadService } from '../upload/upload.service';
 import { IVideoList } from '../../interfaces/IVideoList';
 import { IAlbumDetails } from '../../interfaces/albumDetails';
+import { IAlbumData } from '../../interfaces/IAlbumData';
+import { IResponseVideo } from '../../interfaces/IResponseVideo';
+import { PresignedUrlService } from '../presigned-url/presigned-url.service';
+import { IVideoCommentDto } from '../../dtos/IVideoComment.dto';
 
 
 @Injectable()
@@ -26,7 +30,8 @@ export class UsersService {
   constructor(private readonly _usersRepository: UserRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService,
-    private readonly _uploadService: UploadService
+    private readonly _uploadService: UploadService,
+    private readonly _presignedUrlService:PresignedUrlService
   ) { }
 
 
@@ -48,7 +53,7 @@ export class UsersService {
         }
         const otp = generateOTP()
         console.log(otp, "genereated from Service")
-        const html = readFileSync(join(__dirname + "../../../../../public/otp.html"), "utf-8")
+        const html = readFileSync(join(__dirname,'../../../../../public/otp.html'), "utf-8")
         const updatedContent = html.replace(
           '<strong style="font-size: 130%" id="otp"></strong>',
           `<strong style="font-size: 130%" id="otp">${otp}</strong>`
@@ -123,7 +128,7 @@ export class UsersService {
             email: user.email,
             fullName: user.fullName,
             isAdmin: user.isAdmin,
-            isBlocked: user.isBlocked
+            isBlocked: user.isBlocked 
           }
           const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
           const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
@@ -347,9 +352,9 @@ export class UsersService {
     }
   }
 
-  async SubmitVideoDetails(videoName:string,videoDescription:string,genre:string,userId:string,videoLink:string,thumbNailLink:string) {
+  async SubmitVideoDetails(videoName:string,videoDescription:string,genre:string,artistId:string,videoLink:string,thumbNailLink:string,artist:string) {
     try {
-      const data = await this._usersRepository.uploadVideo(videoName,videoDescription,genre,userId,videoLink,thumbNailLink)
+      const data = await this._usersRepository.uploadVideo(videoName,videoDescription,genre,artistId,videoLink,thumbNailLink,artist)
       return data._id
     } catch (error) {
       console.error(error)
@@ -371,6 +376,62 @@ async submitAlbumDetails(details:IAlbumDetails) {
   } catch (error) {
     console.error(error)
   }
+}
+
+async getAlbums():Promise<IAlbumData[]> {
+  try {
+    return await this._usersRepository.getAlbums() 
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async getAlbumDetails(id:string):Promise<IAlbumDetails> {
+   try {
+     return await this._usersRepository.getAlbumDetails(id)
+   } catch (error) {
+    console.log(error)
+   }
+}
+
+async getVideoDetails(id:string,userId:string):Promise<IResponseVideo> {
+  try {
+    return this._usersRepository.getVideoDetails(id,userId)
+  } catch (error) { 
+    console.error(error)
+  }
+}
+async likeVideo(videoId:string,userId:string) {
+  try {
+    return await this._usersRepository.likeVideo(videoId,userId)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async subscribeArtist(subscribedUserId:string,artistId:string) {
+  try {
+    await this._usersRepository.subscribeArtist(subscribedUserId,artistId)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async submitProfileImageDetails(uniqueKey:string,userId:string) {
+ try {
+    const uniqueUrl =  this._presignedUrlService.getFileUrl(uniqueKey)
+    await this._usersRepository.updateProfileImage(userId,uniqueUrl)
+ } catch (error) {
+  console.error(error)
+ }
+}
+
+async addVideoComment(comment:IVideoCommentDto) {
+ try {
+   await this._usersRepository.addVideoComment(comment)
+ } catch (error) {
+  console.error(error)
+ }
 }
 
 }

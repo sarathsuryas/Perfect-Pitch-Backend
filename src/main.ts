@@ -31,7 +31,7 @@ async function bootstrap() {
            format.printf((info) => {
              return `${info.timestamp} ${info.level}: ${info.message}`;
            }),
-          ),
+          ), 
       }),
       ],
     }),
@@ -49,7 +49,7 @@ async function bootstrap() {
   Logger.log(`~ Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
-
+ 
 
 
 

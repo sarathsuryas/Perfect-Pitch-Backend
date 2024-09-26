@@ -2,19 +2,15 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Document } from "mongoose";
 
 @Schema()
-export class Video extends Document {
-@Prop({required:true})
-artist:string  
+export class Album extends Document {
 @Prop({required:true})  
 title: string;
-@Prop({required:true})
+@Prop()
 description:string;
 @Prop()
-like:[]
+artistName:string;
 @Prop()
-link:string;
-@Prop()
-thumbnailLink:string
+thumbNailLink:string
 @Prop({default:true})
 visibility:boolean;
 @Prop()
@@ -24,9 +20,7 @@ artistId:string;
 @Prop()
 section:string;
 @Prop()
-genre:string
-@Prop({default:false})
-shorts:boolean;
+songs: {title:string,artistName:string,thumbNailLink:string,link:string}[]
 }
 
-export const videoSchema = SchemaFactory.createForClass(Video)
+export const albumSchema = SchemaFactory.createForClass(Album)

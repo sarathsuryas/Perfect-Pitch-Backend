@@ -3,10 +3,9 @@ import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { AdminService } from '../services/admin.service';
 import { Request, Response } from 'express';
 import { AuthenticationGuard } from '../guards/authentication/authentication.guard';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
-import { EditUserDto } from 'src/modules/admin/dtos/editUser.dto';
-import { RegisterUserDto } from 'src/modules/users/dtos/registerUser.dto';
-import { IReturnAdminData } from '../interfaces/IReturnAdminData';
+import { ICustomRequest } from '../../../modules/admin/interfaces/ICustomRequest';
+import { EditUserDto } from '../../../modules/admin/dtos/editUser.dto';
+import { RegisterUserDto } from '../../../modules/users/dtos/registerUser.dto';
 
 @Controller('admin')
 export class AdminController {

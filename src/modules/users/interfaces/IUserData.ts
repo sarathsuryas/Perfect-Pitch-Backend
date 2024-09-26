@@ -12,4 +12,5 @@ export interface IUserData {
   profileImage?: string;
   profileImageUrlGeneratedAt?:Date
   profileImageUrlExpiresAt?:Date
+  subscribers?:[]
 }

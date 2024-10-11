@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, ObjectId } from "mongoose";
 
 @Schema()
 export class Album extends Document {
@@ -7,8 +7,6 @@ export class Album extends Document {
 title: string;
 @Prop()
 description:string;
-@Prop()
-artistName:string;
 @Prop()
 thumbNailLink:string
 @Prop({default:true})
@@ -19,8 +17,10 @@ access:string;
 artistId:string;
 @Prop()
 section:string;
-@Prop()
-songs: {title:string,artistName:string,thumbNailLink:string,link:string}[]
+@Prop({type: mongoose.Schema.Types.ObjectId,ref:'Genre'})
+genreId:ObjectId
+@Prop({type:[mongoose.Schema.Types.ObjectId]})
+songs:ObjectId[] 
 }
 
 export const albumSchema = SchemaFactory.createForClass(Album)

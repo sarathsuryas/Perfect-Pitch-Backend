@@ -1,6 +1,9 @@
+import { IAudioDto } from "../dtos/IAudio.dto";
+
 export interface IAlbumDetails {
   title:string;
-  artistName:string;
+ artistId:string;
   thumbNailLink:string;
-  songs:{title:string,link:string,artistName:string}[]
+  genreId:string;
+  songs:IAudioDto[]
 }

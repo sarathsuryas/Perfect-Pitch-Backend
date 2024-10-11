@@ -11,9 +11,9 @@ fs.appendFile("logs/error.txt",JSON.stringify(data), (err) => {
       console.log(err);
   }
   else {
-      // Get the file contents after the append operation 
-      console.log("\nFile Contents of file after append:",
-          fs.readFileSync("logs/error.txt", "utf8"));
+      // // Get the file contents after the append operation 
+      // console.log("\nFile Contents of file after append:",
+      //     fs.readFileSync("logs/error.txt", "utf8"));
   }
 });
 }

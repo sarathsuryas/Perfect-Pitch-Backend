@@ -7,10 +7,8 @@ export class User extends Document {
   fullName: string;
   @Prop({required:true})
   email: string;
-  @Prop({required:true})
+  @Prop()
   password: string;
-  @Prop({required:true})
-  phone: number;
   @Prop()
   refreshToken: string;
   @Prop({default:false})

@@ -1,8 +1,8 @@
 import { ObjectId } from "mongoose";
 
-export interface IVideoCommentDto {
-  videoId: string;
+export interface ICommentReplyDto {
+  commentId: string;
   userId: string;
   likes: ObjectId[];
-  comment: string;
+  reply: string;
 }

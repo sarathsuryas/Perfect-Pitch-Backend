@@ -1,8 +1,11 @@
+import { ObjectId } from "mongoose";
+
 export interface IAudioDto {
+  albumId?:ObjectId
   title:string;
-  genre:string;
+  genreId:string;
   thumbNailLink:string;
   link:string;
-  artistName:string;
   artistId:string;
+
 }

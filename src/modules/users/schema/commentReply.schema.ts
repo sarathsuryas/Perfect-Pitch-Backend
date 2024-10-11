@@ -3,18 +3,20 @@ import mongoose, { Document } from "mongoose";
 import { ObjectId } from "mongoose";
 
 @Schema({timestamps:true})
-export class VideoComment extends Document {
+export class CommentReply extends Document {
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Video' })
-  videoId:ObjectId;
+  commentId:ObjectId;
   @Prop({default:''})
-  comment:string;
+  reply:string;
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   userId:ObjectId;
   @Prop({type: [mongoose.Schema.Types.ObjectId],default:[] })
   likes:ObjectId[];
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  tag:ObjectId
   @Prop()
   createdAt?: Date
 }
 
-export const videoCommentSchema = SchemaFactory.createForClass(VideoComment)
+export const commentReplySchema = SchemaFactory.createForClass(CommentReply)
 

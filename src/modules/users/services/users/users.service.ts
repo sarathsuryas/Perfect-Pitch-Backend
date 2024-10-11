@@ -22,6 +22,19 @@ import { IAlbumData } from '../../interfaces/IAlbumData';
 import { IResponseVideo } from '../../interfaces/IResponseVideo';
 import { PresignedUrlService } from '../presigned-url/presigned-url.service';
 import { IVideoCommentDto } from '../../dtos/IVideoComment.dto';
+import { IGoogleLoginDto } from '../../dtos/IGoogleLogin.dto';
+import { ICommentResponse } from '../../interfaces/ICommentResponse';
+import { ICommentReplyDto } from '../../dtos/ICommentReply.dto';
+import { IShortsDto } from '../../dtos/IShorts.dto';
+import { IVideoDetails } from '../../interfaces/IVideoDetails';
+import { IResponseShorts } from '../../interfaces/IResponseShorts';
+import { ObjectId } from 'mongoose';
+import { IAlbumResponse } from '../../interfaces/IAlbumResponse';
+import { ICreatePlaylistDto } from '../../dtos/ICreatePlaylist.dto';
+import { IUserPlaylists } from '../../interfaces/IUserPlaylists';
+import { IPlaylistSongs } from '../../interfaces/IPlaylistSongs';
+import { IGenres } from 'src/modules/admin/interfaces/IGenres';
+import { ISongsSameGenre } from '../../interfaces/ISongsSameGenre';
 
 
 @Injectable()
@@ -31,7 +44,7 @@ export class UsersService {
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService,
     private readonly _uploadService: UploadService,
-    private readonly _presignedUrlService:PresignedUrlService
+    private readonly _presignedUrlService: PresignedUrlService
   ) { }
 
 
@@ -53,7 +66,7 @@ export class UsersService {
         }
         const otp = generateOTP()
         console.log(otp, "genereated from Service")
-        const html = readFileSync(join(__dirname,'../../../../../public/otp.html'), "utf-8")
+        const html = readFileSync(join(__dirname, '../../../../../public/otp.html'), "utf-8")
         const updatedContent = html.replace(
           '<strong style="font-size: 130%" id="otp"></strong>',
           `<strong style="font-size: 130%" id="otp">${otp}</strong>`
@@ -115,7 +128,9 @@ export class UsersService {
 
   async login(userData: LoginUserDto): Promise<IReturnUserData | string> {
     try {
-      const user = await this._usersRepository.existUser(userData)
+
+      const user = await this._usersRepository.existUser(userData.email)
+
       if (user.isBlocked) {
         return 'you cant login'
       }
@@ -128,7 +143,7 @@ export class UsersService {
             email: user.email,
             fullName: user.fullName,
             isAdmin: user.isAdmin,
-            isBlocked: user.isBlocked 
+            isBlocked: user.isBlocked
           }
           const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
           const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
@@ -149,6 +164,60 @@ export class UsersService {
       console.error(error)
     }
   }
+
+
+
+  async googleLogin(userData: IGoogleLoginDto): Promise<IReturnUserData | string> {
+    try {
+
+      const user = await this._usersRepository.existUser(userData.email)
+      if (user?.isBlocked) {
+        return 'you cant login'
+      }
+
+      if (user) {
+        const payload = {
+          _id: user._id + '',
+          email: user.email,
+          fullName: user.fullName,
+          isAdmin: user.isAdmin,
+          isBlocked: user.isBlocked
+        }
+        const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
+        const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
+        await this._usersRepository.refreshTokenSetup(refreshToken, user._id)
+        const obj = {
+          token: accessToken,
+          refreshToken: refreshToken,
+          userData: payload
+        }
+        return obj
+      } else {
+        const data = await this._usersRepository.createUserUsingGoogleLogin(userData)
+
+        const payload = {
+          _id: data._id + '',
+          email: data.email,
+          fullName: data.fullName,
+          isAdmin: data.isAdmin,
+          isBlocked: data.isBlocked
+        }
+        const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
+        const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
+        await this._usersRepository.refreshTokenSetup(refreshToken, data._id)
+        const obj = {
+          token: accessToken,
+          refreshToken: refreshToken,
+          userData: payload
+        }
+        return obj
+
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
   async resendOtp(email: string): Promise<void> {
     try {
@@ -216,7 +285,7 @@ export class UsersService {
     try {
 
       const refreshToken = await this._usersRepository.getRefreshToken(payload.email)
-      console.log(refreshToken)
+
       await this._jwtService.verifyAsync(refreshToken,
         {
           secret: configuration().jwtSecret
@@ -352,87 +421,205 @@ export class UsersService {
     }
   }
 
-  async SubmitVideoDetails(videoName:string,videoDescription:string,genre:string,artistId:string,videoLink:string,thumbNailLink:string,artist:string) {
+  async SubmitVideoDetails(videoName: string, videoDescription: string, genre: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
     try {
-      const data = await this._usersRepository.uploadVideo(videoName,videoDescription,genre,artistId,videoLink,thumbNailLink,artist)
+      const data = await this._usersRepository.uploadVideo(videoName, videoDescription, genre, artistId, videoLink, thumbNailLink, artist)
       return data._id
     } catch (error) {
       console.error(error)
     }
   }
 
-async listVideos():Promise<IVideoList[]> {
-  try {
-    return await this._usersRepository.listVideos()
-  } catch (error) {
-    console.error(error)
+  async listVideos(): Promise<IVideoList[]> {
+    try {
+      return await this._usersRepository.listVideos()
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-async submitAlbumDetails(details:IAlbumDetails) {
-  try {
-   const album = await this._usersRepository.submitAlbumDetails(details)
-   return album
-  } catch (error) {
-    console.error(error)
+  async submitAlbumDetails(details: IAlbumDetails) {
+    try {
+      const album = await this._usersRepository.submitAlbumDetails(details)
+      for(let i = 0; i < details.songs.length; i++) {
+        details.songs[i].albumId = album._id as ObjectId
+        details.songs[i].genreId = details.genreId 
+      }
+      const data = await this._usersRepository.submitAudioDetails(details)
+      return album
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-async getAlbums():Promise<IAlbumData[]> {
-  try {
-    return await this._usersRepository.getAlbums() 
-  } catch (error) {
-    console.error(error)
+  async getAlbums(): Promise<IAlbumData[]> {
+    try {
+      return await this._usersRepository.getAlbums()
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-async getAlbumDetails(id:string):Promise<IAlbumDetails> {
+  async getAlbumDetails(id: string):Promise<IAlbumResponse>  {
+    try {
+      return await this._usersRepository.getAlbumDetails(id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async getShorts(userId:string):Promise<IResponseShorts> {
+    try {
+      return await this._usersRepository.getShorts(userId)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async getVideoDetails(id: string, userId: string): Promise<IResponseVideo> {
+    try {
+      return this._usersRepository.getVideoDetails(id, userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async likeVideo(videoId: string, userId: string) {
+    try {
+      return await this._usersRepository.likeVideo(videoId, userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async subscribeArtist(subscribedUserId: string, artistId: string) {
+    try {
+      await this._usersRepository.subscribeArtist(subscribedUserId, artistId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async submitProfileImageDetails(uniqueKey: string, userId: string) {
+    try {
+      const uniqueUrl = this._presignedUrlService.getFileUrl(uniqueKey)
+      await this._usersRepository.updateProfileImage(userId, uniqueUrl)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async addVideoComment(comment: IVideoCommentDto) {
+    try {
+      return await this._usersRepository.addVideoComment(comment)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async likeComment(commentId: string, userId: string) {
+    try {
+      return await this._usersRepository.likeComment(commentId, userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getComments(videoId: string): Promise<ICommentResponse[]> {
+    try {
+      return await this._usersRepository.getComments(videoId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async replyComment(data:ICommentReplyDto) {
+    try {
+     await this._usersRepository.replyComment(data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getReplies(commentId:string) {
+    try {
+      return await this._usersRepository.getReplies(commentId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async likeReply(replyId:string,userId:string) {
+    try {
+      await this._usersRepository.likeReply(replyId,userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+async submitShortsDetails(data:IShortsDto) {
    try {
-     return await this._usersRepository.getAlbumDetails(id)
+    await this._usersRepository.submitShortsDetails(data)
    } catch (error) {
-    console.log(error)
+    console.error(error)
    }
 }
 
-async getVideoDetails(id:string,userId:string):Promise<IResponseVideo> {
+async createPlaylist(data:ICreatePlaylistDto) {
   try {
-    return this._usersRepository.getVideoDetails(id,userId)
-  } catch (error) { 
-    console.error(error)
-  }
-}
-async likeVideo(videoId:string,userId:string) {
-  try {
-    return await this._usersRepository.likeVideo(videoId,userId)
+   return await this._usersRepository.createPlaylist(data)
   } catch (error) {
     console.error(error)
   }
 }
 
-async subscribeArtist(subscribedUserId:string,artistId:string) {
+async getUserPlaylist(userId:string):Promise<IUserPlaylists[]> {
   try {
-    await this._usersRepository.subscribeArtist(subscribedUserId,artistId)
+    return await this._usersRepository.getUserPlaylist(userId) 
   } catch (error) {
     console.error(error)
   }
 }
 
-async submitProfileImageDetails(uniqueKey:string,userId:string) {
+async addToPlaylist(playlistId:string,songId:string) {
+  try {
+    return await this._usersRepository.addToPlaylsit(playlistId,songId)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async getPlaylistSongs(playlistId:string):Promise<IUserPlaylists> {
  try {
-    const uniqueUrl =  this._presignedUrlService.getFileUrl(uniqueKey)
-    await this._usersRepository.updateProfileImage(userId,uniqueUrl)
+   return await this._usersRepository.getPlaylistSongs(playlistId)
  } catch (error) {
   console.error(error)
  }
 }
 
-async addVideoComment(comment:IVideoCommentDto) {
- try {
-   await this._usersRepository.addVideoComment(comment)
- } catch (error) {
-  console.error(error)
- }
+async getGenres():Promise<IGenres[]> {
+  try {
+    return await this._usersRepository.getGenres()
+  } catch (error) {
+    console.error(error)
+  }
 }
+
+async getSameGenreSongs(genreId:string):Promise<ISongsSameGenre[]> {
+  try {
+    return await this._usersRepository.getSameGenreSongs(genreId)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async getArtists():Promise<IUserData[]> {
+  try {
+    return await this._usersRepository.getArtists()
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 
 }
 

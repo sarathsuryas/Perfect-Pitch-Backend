@@ -1,6 +1,12 @@
-import { ICommentDetails } from "./ICommentDetails"
+import { ObjectId } from "mongoose"
 
 export interface ICommentResponse {
-    _id:string;
-    comments:ICommentDetails[]
+    _id:ObjectId,
+    videoId:ObjectId,
+    comment:string,
+    userId: {
+      fullName:string;
+      profileImage:string 
+    }
+    likes:[],
 }

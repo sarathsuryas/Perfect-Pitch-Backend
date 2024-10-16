@@ -20,7 +20,7 @@ export interface IUserRepository {
 
   refreshTokenSetup(token: string, id: string): Promise<void>
 
-  existUser(user: LoginUserDto): Promise<IUserData | null>
+  existUser(email:string): Promise<IUserData | null>
   
   getRefreshToken(email: string): Promise<string>
 

@@ -11,11 +11,6 @@ export class RegisterUserDto {
   @IsEmail()
   email:string
 
-  @IsNotEmpty()
-  @IsNumber()
-  @MinLength(10)
-  @MaxLength(10)
-  phone:number 
 
   @IsNotEmpty()
   @IsString()

@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AdminModule } from '../admin/admin.module';
 import { RequestLoggerMiddleware } from 'src/global-middlewares/request-logger.middlware';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [UsersModule,AdminModule,ConfigModule.forRoot({
@@ -28,6 +29,7 @@ import { RequestLoggerMiddleware } from 'src/global-middlewares/request-logger.m
         }
       }
     }),
+    ScheduleModule.forRoot()
   ],
   controllers: [],
   providers: [],

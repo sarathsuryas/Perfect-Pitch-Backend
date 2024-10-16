@@ -1,26 +1,36 @@
-import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Patch, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RegisterUserDto } from '../dtos/registerUser.dto';
-import { Request, response, Response } from 'express';
+import { Request, Response } from 'express';
 import { VerifyOtpDto } from '../dtos/verifyOtp.dto';
 import { LoginUserDto } from '../dtos/loginUser.dto';
 import { UserAuthenticationGuard } from '../guards/user-authentication/user-authentication.guard';
-import { IncomingForm } from 'formidable'
 import { EditProfileDto } from '../dtos/editProfile.dto';
-import configuration from 'src/config/configuration';
-import { v4 as uuid } from 'uuid';
 import { UploadService } from '../services/upload/upload.service';
 import { UsersService } from '../services/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IVideoDto } from '../dtos/IVideo.dto';
 import { PresignedUrlService } from '../services/presigned-url/presigned-url.service';
 import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
-
-
-
+import { IAlbumGenPresignedUrlDto } from '../dtos/IAlbumGenPresignedUrl.dto';
+import { IAlbumDetailsDto } from '../dtos/IAlbumDetails.dto';
+import { IAlbumDetails } from '../interfaces/albumDetails';
+import { IAudioDto } from '../dtos/IAudio.dto';
+import { storeError } from 'src/errorStore/storeError';
+import { IVideoCommentDto } from '../dtos/IVideoComment.dto';
+import { IGoogleLoginDto } from '../dtos/IGoogleLogin.dto';
+import { IVideoDto } from '../dtos/IVideo.dto';
+import Ffmpeg from 'fluent-ffmpeg';
+import * as fs from 'fs'
+import { spawn } from 'child_process';
+import * as path from 'path';
+import { IShortsDto } from '../dtos/IShorts.dto';
+import { IAlbumData } from '../interfaces/IAlbumData';
+import { ICreatePlaylistDto } from '../dtos/ICreatePlaylist.dto';
+import { IPlaylistSongs } from '../interfaces/IPlaylistSongs';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService,private readonly _presignedUrlService:PresignedUrlService) { }
+
+  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService, private readonly _presignedUrlService: PresignedUrlService) { }
   @Post('register')
   async registerUser(@Res() res: Response, @Body() userData: RegisterUserDto) {
     try {
@@ -47,7 +57,7 @@ export class UsersController {
       if (typeof result !== 'string') {
         res.cookie('userRefreshToken', result.refreshToken, {
           httpOnly: true,
-          secure: true, 
+          secure: true,
           sameSite: 'strict'
         })
         return res.status(HttpStatus.CREATED).send(result)
@@ -84,6 +94,33 @@ export class UsersController {
       throw new InternalServerErrorException({ message: "Internal Server Error" })
     }
   }
+
+  @Post('google-login')
+  async googleLogin(@Res() res: Response, @Body() userData: IGoogleLoginDto) {
+    try {
+
+      const data = await this._usersService.googleLogin(userData)
+
+      if (typeof data !== "string") {
+        const refreshToken = data.refreshToken
+        res.cookie('userRefreshToken', refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict'
+        })
+
+
+        res.status(HttpStatus.OK).json(data)
+      } else {
+        res.status(HttpStatus.NOT_FOUND).json(data)
+      }
+    } catch (error) {
+      console.log(error)
+      throw new InternalServerErrorException({ message: "Internal Server Error" })
+    }
+  }
+
+
 
   @Post('resend-otp')
   async resendOtp(@Res() res: Response, @Body() userData: VerifyOtpDto) {
@@ -211,7 +248,7 @@ export class UsersController {
     @Body('isPublic') isPublic: string, @Req() req: ICustomRequest, @Res() res: Response
   ) {
     try {
-      const url = await this._uploadService.uploadProfileImage(file,'userProfilePicture');
+      const url = await this._uploadService.uploadProfileImage(file, 'userProfilePicture');
       if (!url) {
         return res.status(HttpStatus.BAD_REQUEST).send()
       }
@@ -284,88 +321,502 @@ export class UsersController {
     }
   }
 
-  // @UseGuards(UserAuthenticationGuard)
-  // @Post('upload-video')
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadVideo(@UploadedFile() file: Express.Multer.File, @Req() req: ICustomRequest, @Res() res: Response) {
+  @UseGuards(UserAuthenticationGuard)
+  @Post('upload-shorts')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadVideo(@UploadedFile() file: Express.Multer.File, @Req() req: ICustomRequest, @Res() res: Response) {
 
-  //   try { 
-  //     const { videoName, videoDescription, genre } = req.body
-  //      console.log(file)
-  //     const url = await this._uploadService.uploadVideo(file,videoName);
-  //     const obj: IVideoDto = {
-  //       videoName: videoName,
-  //       videoDescription: videoDescription,
-  //       genre: genre,
-  //       link: url,
-  //       userId:req.user._id
-  //     }
-  //     console.log(url)
-  //     if (url) {
-  //       const data = await this._usersService.uploadVideo(obj)
-  //       if (data) {
-  //         return res.status(HttpStatus.OK).send({message:"video uploaded"})
-  //       } 
-  //     } else {
-  //     return res.status(HttpStatus.BAD_REQUEST).send({error:"internal server error"})
-  //     }
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // } 
-
- @UseGuards(UserAuthenticationGuard)
- @Post('generate-presigned-url')
- async generatePresignedUrl(@Req() req:ICustomRequest,@Res() res:Response) {
     try {
-     const {fileName,contentType} = req.body
-     const presignedUrl = await this._presignedUrlService.getPresignedSignedUrl(req.user._id,fileName,contentType)
-    if (presignedUrl) {
-      return res.status(HttpStatus.ACCEPTED).json({success:true,presignedUrl})
-    }  else {
-      return res.status(HttpStatus.BAD_REQUEST).json({message:"something went wrong"})
+      const { videoName, videoDescription, genre } = req.body
+      console.log(file)
+      const url = await this._uploadService.uploadVideo(file, videoName);
+      const obj: IVideoDto = {
+        videoName: videoName,
+        videoDescription: videoDescription,
+        genre: genre,
+        link: url,
+        userId: req.user._id
+      }
+      console.log(url)
+      // if (url) {
+      //   const data = await this._usersService.uploadVideo(obj)
+      //   if (data) {
+      //     return res.status(HttpStatus.OK).send({message:"video uploaded"})
+      //   } 
+      // } else {
+      // return res.status(HttpStatus.BAD_REQUEST).send({error:"internal server error"})
+      // }
+    } catch (error) {
+      console.error(error)
     }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('trim-video')
+  async trimVideo(@UploadedFile() file: Express.Multer.File, @Req() req: ICustomRequest, @Res() res: Response) {
+    const videoPath = path.join(__dirname, "input.mp4");
+    const outputPath = path.join(__dirname, "output.mp4");
+    const { start, end } = req.body;
+
+    fs.writeFileSync(videoPath, file.buffer);
+
+    const ffmpegArgs = [
+      "-i", videoPath, // Input file
+      "-ss", start,    // Start time (e.g., '00:00:10')
+      "-to", end,      // End time (e.g., '00:00:20')
+      "-c", "copy",    // Copy codec to avoid re-encoding
+      outputPath       // Output file
+    ];
+
+
+    // Spawn FFmpeg process
+    const ffmpegProcess = spawn("ffmpeg", ffmpegArgs);
+
+    ffmpegProcess.on("close", (code) => {
+      if (code === 0) {
+        // FFmpeg completed successfully, send the trimmed video back
+        const trimmedBuffer = fs.readFileSync(outputPath);
+        console.log(trimmedBuffer)
+        res.download(outputPath, "trimmed-video.mp4", (err) => {
+          if (err) {
+            return res.status(500).send("Error sending file");
+          }
+        });
+      } else {
+        // Error in FFmpeg processing
+        res.status(500).send("Error trimming video");
+      }
+    });
+
+    ffmpegProcess.on("error", (err) => {
+      console.error("Error with FFmpeg:", err);
+      res.status(500).send("FFmpeg error");
+    });
+
+
+  }
+
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('generate-presigned-url')
+  async generatePresignedUrl(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const { fileName, contentType } = req.body
+      const presignedUrl = await this._presignedUrlService.getPresignedSignedUrl(req.user._id, fileName, contentType)
+      if (presignedUrl) {
+        return res.status(HttpStatus.ACCEPTED).json({ success: true, presignedUrl })
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: "something went wrong" })
+      }
     } catch (error) {
       console.error(error)
       throw new InternalServerErrorException()
     }
- } 
+  }
 
-@UseGuards(UserAuthenticationGuard) 
-@Post('post-video-details')
-async submitVideoDetails(@Req() req:ICustomRequest,@Res() res:Response) {
-   try {
-    const {videoName,videoDescription, genre, uniqueKeyVideo,uniqueKeyThumbNail} = req.body
-      const videoLink =  this._presignedUrlService.getFileUrl(uniqueKeyVideo)
+  @UseGuards(UserAuthenticationGuard)
+  @Post('post-video-details')
+  async submitVideoDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const { videoName, videoDescription, genre, uniqueKeyVideo, uniqueKeyThumbNail } = req.body
+      const videoLink = this._presignedUrlService.getFileUrl(uniqueKeyVideo)
       const thumbnailLink = this._presignedUrlService.getFileUrl(uniqueKeyThumbNail)
-    const videoId = await this._usersService.SubmitVideoDetails(videoName,videoDescription,genre,req.user._id,videoLink,thumbnailLink)
-    if(videoId) {
-      return res.status(HttpStatus.ACCEPTED).json({success:true,videoId})
-    } else {
-      return res.status(HttpStatus.NOT_FOUND).json({success:false,error:"error message"})
+      const videoId = await this._usersService.SubmitVideoDetails(videoName, videoDescription, genre, req.user._id, videoLink, thumbnailLink, req.user.fullName)
+      if (videoId) {
+        return res.status(HttpStatus.ACCEPTED).json({ success: true, videoId })
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ success: false, error: "error message" })
+      }
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
     }
-   } catch (error) {
-    console.error(error)
-    throw new InternalServerErrorException()
-   }  
-} 
-// video list
-@UseGuards(UserAuthenticationGuard) 
-@Get('video-list')
-async videoList(@Res()res:Response ) {
-   try {
-     const videos = await this._usersService.listVideos()
-     if(videos) {
-      return res.status(HttpStatus.ACCEPTED).json(videos)
-     } else {
-      return res.status(HttpStatus.NOT_FOUND).json({message:"videos not found"})
-     } 
+  }
+  // video list
+  @UseGuards(UserAuthenticationGuard)
+  @Get('video-list')
+  async videoList(@Res() res: Response) {
+    try {
 
-   } catch (error) {
-    console.error(error)
-    throw new InternalServerErrorException()
-   }
-}
+      const videos = await this._usersService.listVideos()
+      if (videos) {
+        return res.status(HttpStatus.ACCEPTED).json(videos)
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
+      }
+
+    } catch (error) {
+      console.error(error)
+
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Post('generate-pre-signed-urls')
+  async generateSignedUrlsForAlbum(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const parseData: IAlbumGenPresignedUrlDto[] = JSON.parse(req.body.post_params)
+      const presignedUrls = []
+      for (let i = 0; i < parseData.length; i++) {
+        const data = await this._presignedUrlService.getPresignedSignedUrl(req.user._id, parseData[i].name, parseData[i].type)
+        presignedUrls.push(data)
+      }
+      res.status(HttpStatus.OK).json({ success: true, message: "presigned urls for album", presignedUrls })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Post('submit-album-details')
+  async submitAlbumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const albumDetails = JSON.parse(req.body.files) as IAlbumDetailsDto
+      const thumbNailLink = this._presignedUrlService.getFileUrl(albumDetails.thumbnailKey)
+      const array: IAudioDto[] = []
+      for (let i = 0; i < albumDetails.songs.length - 1; i++) {
+        const songLink = this._presignedUrlService.getFileUrl(albumDetails.songs[i].uniqueKey)
+        array.push({ title: albumDetails.songs[i].title, link: songLink, artistId: req.user._id, thumbNailLink: thumbNailLink, genreId: albumDetails.genreId })
+      }
+      const obj: IAlbumDetails = {
+        title: albumDetails.title,
+        genreId:albumDetails.genreId,
+        artistId: req.user._id,
+        thumbNailLink: thumbNailLink,
+        songs: array,
+      }
+
+      const album = await this._usersService.submitAlbumDetails(obj)
+      return res.status(HttpStatus.OK).json(album)
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-albums')
+  async getAlbums(@Res() res: Response) {
+    try {
+      const result = await this._usersService.getAlbums()
+      if (result) {
+        return res.status(HttpStatus.OK).json(result)
+      }
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('submit-audio-details')
+  async submitAudioDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = JSON.parse(req.body.file)
+      const obj: IAudioDto = {
+        title: '',
+        genreId: '',
+        thumbNailLink: '',
+        link: '',
+
+        artistId: ''
+      }
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('submit-shorts-details')
+  async submitShortsDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const videoLink = this._presignedUrlService.getFileUrl(req.body.uniqueKey)
+      const obj: IShortsDto = {
+        caption: req.body.caption,
+        description: req.body.description,
+        shorts: true,
+        link: videoLink,
+        fullName: req.user.fullName,
+        artistId: req.user._id
+      }
+      await this._usersService.submitShortsDetails(obj)
+      res.status(HttpStatus.ACCEPTED).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('album-details')
+  async albumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+
+      const id = req.query.id as string
+      const data = await this._usersService.getAlbumDetails(id)
+      if (data) {
+        return res.status(HttpStatus.OK).json(data)
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: "data not found" })
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-shorts')
+  async getShorts(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const shorts = await this._usersService.getShorts(req.user._id)
+      res.status(HttpStatus.OK).json(shorts)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-video-page-details')
+  async getVideoDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const result = await this._usersService.getVideoDetails(req.query.id as string, req.user._id)
+      result.userId = req.user._id
+      result.userName = req.user.fullName
+      return res.status(HttpStatus.OK).json(result)
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Put('like-video')
+  async likeVideo(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._usersService.likeVideo(req.body.videoId, req.user._id)
+      res.status(HttpStatus.OK).json(req.user._id)
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Put('subscribe-user')
+  async subscribeUser(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      await this._usersService.subscribeArtist(req.user._id, req.body.artistId)
+      return res.status(HttpStatus.ACCEPTED).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Put('submit-profile-image-details')
+  async submitProfileImageDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      await this._usersService.submitProfileImageDetails(req.body.uniqueKey, req.user._id)
+      res.status(HttpStatus.ACCEPTED).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('add-video-comment')
+  async addVideoComment(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const comment: IVideoCommentDto = {
+        videoId: req.body.videoId,
+        userId: req.user._id,
+        likes: [],
+        comment: req.body.comment
+      }
+
+      const commentId = await this._usersService.addVideoComment(comment)
+
+      res.status(HttpStatus.OK).json({ message: "comment added", success: true, commentId })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Patch('like-comment')
+  async likeComment(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      await this._usersService.likeComment(req.body.commentId, req.user._id)
+      res.status(HttpStatus.ACCEPTED).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-comments')
+  async getComments(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const comments = await this._usersService.getComments(req.query.id as string)
+      if (comments) {
+        return res.status(HttpStatus.OK).json(comments)
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+      }
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Post('reply-comment')
+  async replyComment(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      await this._usersService.replyComment(req.body.reply)
+      res.status(HttpStatus.OK).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-replies')
+  async getReplies(@Req() req: Request, @Res() res: Response) {
+    try {
+      const result = await this._usersService.getReplies(req.query.id as string)
+      res.status(HttpStatus.OK).json(result)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Patch('like-reply')
+  async likeReply(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      await this._usersService.likeReply(req.body.replyId, req.user._id)
+      res.status(HttpStatus.ACCEPTED).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('create-Playlist')
+  async createPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const obj: ICreatePlaylistDto = {
+        userId: req.user._id,
+        songId: req.body.songId,
+        title: req.body.title,
+        visibility: req.body.visibility
+      }
+       const data =   await this._usersService.createPlaylist(obj)
+      res.status(HttpStatus.OK).json({ success: true,playlistId:data._id })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-user-playlist')
+  async getUserPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._usersService.getUserPlaylist(req.user._id)
+      res.status(HttpStatus.OK).json(data)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Put('add-to-playlist')
+  async addToPlaylist(@Req() req:ICustomRequest,@Res() res:Response) {
+    try {
+      const data = await this._usersService.addToPlaylist(req.body.playlistId,req.body.songId)
+       if(data) {
+         res.status(HttpStatus.OK).json({success:true,exist:true})
+       } else {
+        res.status(HttpStatus.OK).json({success:true,exist:false})
+       }
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-playlist-songs')
+  async getPlaylistSongs(@Req() req:ICustomRequest,@Res() res:Response) {
+    try {
+      const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string)
+      res.status(HttpStatus.OK).json(data)
+    } catch (error) { 
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-genres')
+  async getGenres() {
+    try {
+      return this._usersService.getGenres()
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+ 
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-genre-songs')
+  async getSameGenreSongs(@Query() id:{genreId:string},@Res() res:Response) {
+     try {
+       const data = await this._usersService.getSameGenreSongs(id.genreId)
+       res.status(HttpStatus.OK).json(data)
+     } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+     }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-artists')
+  async getArtists(@Req() req:ICustomRequest,@Res() res:Response) {
+    try {
+      const artists = await this._usersService.getArtists()
+      const userId = req.user._id
+      res.status(HttpStatus.OK).json({artists,userId})
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
 
 }
-  

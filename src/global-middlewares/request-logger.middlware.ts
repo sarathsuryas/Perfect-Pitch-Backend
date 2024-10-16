@@ -14,7 +14,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
         this.logger.log(`[${req.method}] ${req.url} - ${statusCode}`)
       }
     });
-
+ 
     next();
   }
 }

@@ -8,17 +8,20 @@ import { User } from "src/modules/users/schema/user.schema";
 import { IUserData } from "src/modules/users/interfaces/IUserData";
 import { RegisterUserDto } from "src/modules/users/dtos/registerUser.dto";
 import { EditUserDto } from "src/modules/admin/dtos/editUser.dto";
-import { JwtService } from "@nestjs/jwt";
-import configuration from "src/config/configuration";
 import { PasswordResetToken } from "../schema/resetToken.schema";
 import { IResetToken } from "../interfaces/IResetToken";
+import { Genres } from "src/modules/users/schema/genres.schema";
+import { IGenres } from "../interfaces/IGenres";
 
 @Injectable()
 export class AdminRepository implements IAdminRepository {
 
-  constructor(@InjectModel('Admin') private readonly _adminModel: Model<Admin>,
-   @InjectModel('User') private readonly _userModel: Model<User>,
-    @InjectModel('ResetToken') private readonly _resetTokenModel: Model<PasswordResetToken>) {
+  constructor(
+    @InjectModel('Admin') private readonly _adminModel: Model<Admin>,
+    @InjectModel('User') private readonly _userModel: Model<User>,
+    @InjectModel('ResetToken') private readonly _resetTokenModel: Model<PasswordResetToken>,
+    @InjectModel('Genre') private readonly _genreModel: Model<Genres>,
+  ) {
 
   }
   async exist(email: string): Promise<IAdminData | null> {
@@ -41,7 +44,7 @@ export class AdminRepository implements IAdminRepository {
       console.error(error)
     }
   }
-  
+
   async refreshTokenSetup(refreshToken: string, _id: string): Promise<void> {
     try {
       await this._adminModel.findByIdAndUpdate(_id, { refreshToken: refreshToken })
@@ -84,7 +87,6 @@ export class AdminRepository implements IAdminRepository {
           fullName: userData.fullName,
           email: userData.email,
           password: hash,
-          phone: userData.phone
         })
       } else {
         return "the user exist"
@@ -101,7 +103,6 @@ export class AdminRepository implements IAdminRepository {
       if (data) {
         data.email = userData.email
         data.fullName = userData.fullName
-        data.phone = userData.phone
         await data.save()
       } else {
         return "user data not found"
@@ -200,7 +201,27 @@ export class AdminRepository implements IAdminRepository {
     }
   }
 
+  async addGenre(genre: string,newId:number,color:string) {
+    try {
+      const data = await this._genreModel.findOne({ Genre: { $regex: `^${genre}$`, $options: '' } });
+      if (data) {
+        return false
+      } else {
+        await this._genreModel.create({ Genre: genre,newId:newId,color:color })
+      }
+      return true
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
+async getGenre():Promise<IGenres[]> {
+  try {
+    return await this._genreModel.find().lean()
+  } catch (error) {
+    console.error(error)
+  }
 } 
-  
-  
+
+}
+

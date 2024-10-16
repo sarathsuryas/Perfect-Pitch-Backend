@@ -7,10 +7,8 @@ export class User extends Document {
   fullName: string;
   @Prop({required:true})
   email: string;
-  @Prop({required:true})
+  @Prop()
   password: string;
-  @Prop({required:true})
-  phone: number;
   @Prop()
   refreshToken: string;
   @Prop({default:false})
@@ -20,15 +18,9 @@ export class User extends Document {
   @Prop()
   profileImage: string;
   @Prop()
-  profileImageUrlExpiresAt: Date;
+  subscribers:[]
 } 
 
 export const userSchema = SchemaFactory.createForClass(User)
 
- userSchema.pre('save',function(next){
-  if(this.isModified('profileImage')) {
-    const now = new Date();
-    this.profileImageUrlExpiresAt = new Date(now.getTime() + 6 * 24 * 60 * 60 * 1000);
-  }
-  next()
-})
+ 

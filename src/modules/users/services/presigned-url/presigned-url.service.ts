@@ -31,15 +31,14 @@ export class PresignedUrlService {
     try {
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
-        Key: '_id'+userId + fileName,
+        Key: userId + fileName,
         ContentType:contentType
       }); 
      
-      
       const url = await getSignedUrl(this.client, command, {
         expiresIn:60*5, // 30 seconds
       });
-       const uniqueKey = '_id'+userId + fileName
+       const uniqueKey = userId + fileName
        const uniqueUrl =  this.getFileUrl(uniqueKey) 
        
         

@@ -98,7 +98,6 @@ export class UsersController {
   @Post('google-login')
   async googleLogin(@Res() res: Response, @Body() userData: IGoogleLoginDto) {
     try {
-
       const data = await this._usersService.googleLogin(userData)
 
       if (typeof data !== "string") {
@@ -476,9 +475,10 @@ export class UsersController {
       const albumDetails = JSON.parse(req.body.files) as IAlbumDetailsDto
       const thumbNailLink = this._presignedUrlService.getFileUrl(albumDetails.thumbnailKey)
       const array: IAudioDto[] = []
-      for (let i = 0; i < albumDetails.songs.length - 1; i++) {
+      for (let i = 0; i < albumDetails.songs.length ; i++) {
         const songLink = this._presignedUrlService.getFileUrl(albumDetails.songs[i].uniqueKey)
-        array.push({ title: albumDetails.songs[i].title, link: songLink, artistId: req.user._id, thumbNailLink: thumbNailLink, genreId: albumDetails.genreId })
+        const songThumbNailLink = this._presignedUrlService.getFileUrl(albumDetails.songs[i].thumbNailUniqueKey)
+        array.push({ title: albumDetails.songs[i].title, link: songLink, artistId: req.user._id, thumbNailLink: songThumbNailLink, genreId: albumDetails.genreId })
       }
       const obj: IAlbumDetails = {
         title: albumDetails.title,
@@ -557,7 +557,6 @@ export class UsersController {
   @Get('album-details')
   async albumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-
       const id = req.query.id as string
       const data = await this._usersService.getAlbumDetails(id)
       if (data) {
@@ -818,5 +817,18 @@ export class UsersController {
       throw new InternalServerErrorException()
     }
   }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-medias')
+  async getMedias() {
+    try {
+      
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
 
 }

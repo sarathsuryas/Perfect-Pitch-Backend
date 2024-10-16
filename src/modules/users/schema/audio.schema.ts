@@ -11,7 +11,7 @@ export class Audio extends Document {
   @Prop()
   link: string;
   @Prop()
-  thumbnailLink: string
+  thumbNailLink: string
   @Prop({ default: true })
   visibility: boolean;
   @Prop()

@@ -61,7 +61,7 @@ export class UserRepository implements IUserRepository {
     @InjectModel('Playlist') private readonly _playlistModel: Model<Playlist>,
     @InjectModel('Genre') private readonly _genreModel: Model<Genres>
   ) { 
-    this.getSameGenreSongs('670580c6551f0d5fa3b2040b')
+    
   }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
@@ -135,7 +135,7 @@ export class UserRepository implements IUserRepository {
           password: exist.password,
           isAdmin: exist.isAdmin,
           isBlocked: exist.isBlocked
-        }
+        } 
         return obj
       } else {
         return null
@@ -153,7 +153,7 @@ export class UserRepository implements IUserRepository {
         email: data.email,
         profileImage: data.photoUrl
       })
-      const obj: ICreatedUser = {
+      const obj: ICreatedUser = { 
         _id: result._id + '',
         fullName: result.fullName,
         email: result.email,
@@ -328,7 +328,7 @@ export class UserRepository implements IUserRepository {
     try {
       const result = await this._audioModel.insertMany(songs.songs)
     } catch (error) {
-      console.error(error)
+      console.error(error) 
     }
   }
 

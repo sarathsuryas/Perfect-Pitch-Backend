@@ -20,14 +20,16 @@ import { videoCommentSchema } from './schema/videoComment.schema';
 import { commentReplySchema } from './schema/commentReply.schema';
 import { playlistSchema } from './schema/playlist.schema';
 import { genresSchema } from './schema/genres.schema';
+import { SocketGateway } from './gateway/socket.gateway';
+import {  replyToReplySchema } from './schema/replyToReply.schema';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
-    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'VideoComment',schema:videoCommentSchema},{name:'CommentReply',schema:commentReplySchema},{name:'Playlist',schema:playlistSchema},{name:'Genre',schema:genresSchema}]),
+    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'VideoComment',schema:videoCommentSchema},{name:'CommentReply',schema:commentReplySchema},{name:'Playlist',schema:playlistSchema},{name:'Genre',schema:genresSchema},{name:'ReplyToReply',schema:replyToReplySchema}]),
     JwtModule, 
   ],
   controllers:[UsersController],
-  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider, PresignedUrlService, TaskService]
+  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider, PresignedUrlService, TaskService,SocketGateway]
 })
 export class UsersModule {} 
  

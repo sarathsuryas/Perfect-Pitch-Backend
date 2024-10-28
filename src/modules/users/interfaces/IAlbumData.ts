@@ -1,10 +1,14 @@
+import { IAudioData } from "./IAudioData";
+
 export interface IAlbumData {
   _id:string;
   title:string;
-  artistId:{
+  uuid:string
+  visibility:boolean;
+  thumbNailLink:string;
+  artistDetails:{
     _id:string;
     fullName:string;
   }
-  visibility:boolean;
-  thumbNailLink:string;
+  songs:IAudioData[]
 }

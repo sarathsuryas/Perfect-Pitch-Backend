@@ -7,5 +7,5 @@ export interface IAudioDto {
   thumbNailLink:string;
   link:string;
   artistId:string;
-
+  uuid:string;
 }

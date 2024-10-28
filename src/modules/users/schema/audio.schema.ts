@@ -10,6 +10,8 @@ export class Audio extends Document {
   like: []
   @Prop()
   link: string;
+  @Prop({default:false})
+  single: boolean
   @Prop()
   thumbNailLink: string
   @Prop({ default: true })
@@ -22,6 +24,8 @@ export class Audio extends Document {
   albumId:ObjectId
   @Prop()
   section: string;
+  @Prop()
+  uuid:string
   @Prop({type:mongoose.Schema.Types.ObjectId,ref:'Genre',required:true})
   genreId: ObjectId;
 }

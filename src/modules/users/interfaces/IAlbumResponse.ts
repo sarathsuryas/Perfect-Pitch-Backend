@@ -3,5 +3,5 @@ import { IAudioData } from "./IAudioData";
 
 export interface IAlbumResponse {
   album:IAlbumData
-  songs:IAudioData[]
+  
 }

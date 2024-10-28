@@ -13,7 +13,6 @@ import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
 import { IAlbumGenPresignedUrlDto } from '../dtos/IAlbumGenPresignedUrl.dto';
 import { IAlbumDetailsDto } from '../dtos/IAlbumDetails.dto';
 import { IAlbumDetails } from '../interfaces/albumDetails';
-import { IAudioDto } from '../dtos/IAudio.dto';
 import { storeError } from 'src/errorStore/storeError';
 import { IVideoCommentDto } from '../dtos/IVideoComment.dto';
 import { IGoogleLoginDto } from '../dtos/IGoogleLogin.dto';
@@ -26,6 +25,13 @@ import { IShortsDto } from '../dtos/IShorts.dto';
 import { IAlbumData } from '../interfaces/IAlbumData';
 import { ICreatePlaylistDto } from '../dtos/ICreatePlaylist.dto';
 import { IPlaylistSongs } from '../interfaces/IPlaylistSongs';
+import { ISubmitSongDetailsDto } from '../dtos/ISubmitSongDetails.dto';
+import { IAudioDto } from '../dtos/IAudio.dto';
+import { ISubmitSongDetails } from '../interfaces/ISubmitSongDetails';
+import { v4 as uuidv4 } from 'uuid';
+import { MessageBody, SubscribeMessage } from '@nestjs/websockets';
+import { IReplyToReplyDto } from '../dtos/IReplyToReply.dto';
+
 
 @Controller('users')
 export class UsersController {
@@ -155,7 +161,6 @@ export class UsersController {
 
   @Post('req-reset-password')
   async resetPassword(@Req() req: Request, @Res() res: Response) {
-
     if (!req.body.email) {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email is required' });
     }
@@ -475,20 +480,24 @@ export class UsersController {
       const albumDetails = JSON.parse(req.body.files) as IAlbumDetailsDto
       const thumbNailLink = this._presignedUrlService.getFileUrl(albumDetails.thumbnailKey)
       const array: IAudioDto[] = []
-      for (let i = 0; i < albumDetails.songs.length ; i++) {
+      for (let i = 0; i < albumDetails.songs.length; i++) {
         const songLink = this._presignedUrlService.getFileUrl(albumDetails.songs[i].uniqueKey)
         const songThumbNailLink = this._presignedUrlService.getFileUrl(albumDetails.songs[i].thumbNailUniqueKey)
-        array.push({ title: albumDetails.songs[i].title, link: songLink, artistId: req.user._id, thumbNailLink: songThumbNailLink, genreId: albumDetails.genreId })
+        array.push({ title: albumDetails.songs[i].title, link: songLink, artistId: req.user._id, thumbNailLink: songThumbNailLink, genreId: albumDetails.genreId, uuid: uuidv4() })
       }
       const obj: IAlbumDetails = {
         title: albumDetails.title,
-        genreId:albumDetails.genreId,
+        genreId: albumDetails.genreId,
         artistId: req.user._id,
         thumbNailLink: thumbNailLink,
         songs: array,
       }
+      const uuids: string[] = []
+      for (let i = 0; i < obj.songs.length; i++) {
+        uuids.push(obj.songs[i].uuid)
+      }
+      const album = await this._usersService.submitAlbumDetails(obj, uuids)
 
-      const album = await this._usersService.submitAlbumDetails(obj)
       return res.status(HttpStatus.OK).json(album)
     } catch (error) {
       console.error(error)
@@ -502,6 +511,7 @@ export class UsersController {
     try {
       const result = await this._usersService.getAlbums()
       if (result) {
+
         return res.status(HttpStatus.OK).json(result)
       }
       return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
@@ -512,18 +522,21 @@ export class UsersController {
   }
 
   @UseGuards(UserAuthenticationGuard)
-  @Post('submit-audio-details')
-  async submitAudioDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+  @Post('submit-single-details')
+  async submitSingleDetails(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const data = JSON.parse(req.body.file)
-      const obj: IAudioDto = {
-        title: '',
-        genreId: '',
-        thumbNailLink: '',
-        link: '',
-
-        artistId: ''
+      const data = JSON.parse(req.body.file) as ISubmitSongDetailsDto
+      const thumbNailLink = this._presignedUrlService.getFileUrl(data.thumbNailUniqueKey)
+      const songLink = this._presignedUrlService.getFileUrl(data.songUniqueKey)
+      const obj: ISubmitSongDetails = {
+        title: data.title,
+        genreId: data.genreId,
+        thumbNailLink: thumbNailLink,
+        songLink: songLink,
+        userId: req.user._id
       }
+      const result = await this._usersService.submitSingleDetails(obj)
+      return res.status(HttpStatus.OK).json(result)
     } catch (error) {
       console.error(error)
       throw new InternalServerErrorException()
@@ -717,6 +730,23 @@ export class UsersController {
   }
 
   @UseGuards(UserAuthenticationGuard)
+  @Patch('like-reply-to-reply')
+  async likeReplyToReply(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      await this._usersService.likeReplyToReply(req.body.replyToReplyId, req.user._id)
+      console.log(req.body)
+      res.status(HttpStatus.ACCEPTED).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
+
+  @UseGuards(UserAuthenticationGuard)
   @Post('create-Playlist')
   async createPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
@@ -726,8 +756,8 @@ export class UsersController {
         title: req.body.title,
         visibility: req.body.visibility
       }
-       const data =   await this._usersService.createPlaylist(obj)
-      res.status(HttpStatus.OK).json({ success: true,playlistId:data._id })
+      const data = await this._usersService.createPlaylist(obj)
+      res.status(HttpStatus.OK).json({ success: true, playlistId: data._id })
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -750,14 +780,14 @@ export class UsersController {
 
   @UseGuards(UserAuthenticationGuard)
   @Put('add-to-playlist')
-  async addToPlaylist(@Req() req:ICustomRequest,@Res() res:Response) {
+  async addToPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const data = await this._usersService.addToPlaylist(req.body.playlistId,req.body.songId)
-       if(data) {
-         res.status(HttpStatus.OK).json({success:true,exist:true})
-       } else {
-        res.status(HttpStatus.OK).json({success:true,exist:false})
-       }
+      const data = await this._usersService.addToPlaylist(req.body.playlistId, req.body.songId)
+      if (data) {
+        res.status(HttpStatus.OK).json({ success: true, exist: true })
+      } else {
+        res.status(HttpStatus.OK).json({ success: true, exist: false })
+      }
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -767,11 +797,11 @@ export class UsersController {
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-playlist-songs')
-  async getPlaylistSongs(@Req() req:ICustomRequest,@Res() res:Response) {
+  async getPlaylistSongs(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string)
       res.status(HttpStatus.OK).json(data)
-    } catch (error) { 
+    } catch (error) {
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
@@ -789,28 +819,29 @@ export class UsersController {
       throw new InternalServerErrorException()
     }
   }
- 
+
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-genre-songs')
-  async getSameGenreSongs(@Query() id:{genreId:string},@Res() res:Response) {
-     try {
-       const data = await this._usersService.getSameGenreSongs(id.genreId)
-       res.status(HttpStatus.OK).json(data)
-     } catch (error) {
+  async getSameGenreSongs(@Query() id: { genreId: string }, @Res() res: Response) {
+    try {
+      const data = await this._usersService.getSameGenreSongs(id.genreId)
+      console.log(data)
+      res.status(HttpStatus.OK).json(data)
+    } catch (error) {
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
-     }
+    }
   }
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-artists')
-  async getArtists(@Req() req:ICustomRequest,@Res() res:Response) {
+  async getArtists(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const artists = await this._usersService.getArtists()
       const userId = req.user._id
-      res.status(HttpStatus.OK).json({artists,userId})
+      res.status(HttpStatus.OK).json({ artists, userId })
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -822,7 +853,7 @@ export class UsersController {
   @Get('get-medias')
   async getMedias() {
     try {
-      
+
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -830,5 +861,56 @@ export class UsersController {
     }
   }
 
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-song')
+  async getSong(@Query() data, @Res() res: Response) {
+    try {
+      const { songId } = data
+      const result = await this._usersService.getSong(songId)
+      res.status(HttpStatus.OK).json(result)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('create-live')
+  async createLive(@UploadedFile() file: Express.Multer.File, @Req() req: ICustomRequest, @Res() res: Response) {
+
+
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Post('reply-to-reply')
+  async replyToReply(@Body() data: IReplyToReplyDto, @Res() res: Response) {
+    try {
+      const result = await this._usersService.replyToReply(data)
+      if (result) {
+        res.status(HttpStatus.CREATED).json({ success: true })
+      }
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-replies-to-reply') 
+  async getRepliesToReply(@Query() query:{replyId:string},@Res() res:Response) {
+     try {
+      const data = await this._usersService.getRepliesToReply(query.replyId)
+      res.status(HttpStatus.OK).json(data)
+     } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+     }
+
+  }
 
 }

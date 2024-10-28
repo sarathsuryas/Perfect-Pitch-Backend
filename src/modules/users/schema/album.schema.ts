@@ -5,6 +5,8 @@ import mongoose, { Document, ObjectId } from "mongoose";
 export class Album extends Document {
 @Prop({required:true})  
 title: string;
+@Prop({required:true})
+uuid:string
 @Prop()
 description:string;
 @Prop()
@@ -19,8 +21,8 @@ artistId:string;
 section:string;
 @Prop({type: mongoose.Schema.Types.ObjectId,ref:'Genre'})
 genreId:ObjectId
-@Prop({type:[mongoose.Schema.Types.ObjectId]})
-songs:ObjectId[] 
+@Prop({type:[mongoose.Schema.Types.String]})
+songs:string[] 
 }
 
 export const albumSchema = SchemaFactory.createForClass(Album)

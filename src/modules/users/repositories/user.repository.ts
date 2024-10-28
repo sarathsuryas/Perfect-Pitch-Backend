@@ -44,6 +44,14 @@ import { IPlaylistSongs } from "../interfaces/IPlaylistSongs";
 import { Genres } from "../schema/genres.schema";
 import { IGenres } from "src/modules/admin/interfaces/IGenres";
 import { ISongsSameGenre } from "../interfaces/ISongsSameGenre";
+import { ISubmitSongDetailsDto } from "../dtos/ISubmitSongDetails.dto";
+import { ISubmitSongDetails } from "../interfaces/ISubmitSongDetails";
+import { v4 as uuidv4 } from 'uuid';
+import { title } from "process";
+import { ISongData } from "../interfaces/ISongData";
+import { ReplyToReply } from "../schema/replyToReply.schema";
+import { IReplyToReplyDto } from "../dtos/IReplyToReply.dto";
+import { IReplyToReply } from "../interfaces/IReplyToReply";
 
 
 @Injectable()
@@ -59,9 +67,10 @@ export class UserRepository implements IUserRepository {
     @InjectModel('VideoComment') private readonly _videoCommentModel: Model<VideoComment>,
     @InjectModel('CommentReply') private readonly _commentReplyModel: Model<CommentReply>,
     @InjectModel('Playlist') private readonly _playlistModel: Model<Playlist>,
-    @InjectModel('Genre') private readonly _genreModel: Model<Genres>
-  ) { 
-    
+    @InjectModel('Genre') private readonly _genreModel: Model<Genres>,
+    @InjectModel('ReplyToReply') private _replyToReplyModel: Model<ReplyToReply>
+  ) {
+
   }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
@@ -135,7 +144,7 @@ export class UserRepository implements IUserRepository {
           password: exist.password,
           isAdmin: exist.isAdmin,
           isBlocked: exist.isBlocked
-        } 
+        }
         return obj
       } else {
         return null
@@ -153,7 +162,7 @@ export class UserRepository implements IUserRepository {
         email: data.email,
         profileImage: data.photoUrl
       })
-      const obj: ICreatedUser = { 
+      const obj: ICreatedUser = {
         _id: result._id + '',
         fullName: result.fullName,
         email: result.email,
@@ -315,9 +324,9 @@ export class UserRepository implements IUserRepository {
 
 
 
-  async submitAlbumDetails(details: IAlbumDetails) {
+  async submitAlbumDetails(details: IAlbumDetails, uuids: string[]) {
     try {
-      const result = await this._albumModel.create({ title: details.title, artistId: details.artistId, thumbNailLink: details.thumbNailLink,genreId:details.genreId })
+      const result = await this._albumModel.create({ title: details.title, artistId: details.artistId, thumbNailLink: details.thumbNailLink, genreId: details.genreId, uuid: uuidv4(), songs: uuids })
       return result
     } catch (error) {
       console.error(error)
@@ -328,13 +337,13 @@ export class UserRepository implements IUserRepository {
     try {
       const result = await this._audioModel.insertMany(songs.songs)
     } catch (error) {
-      console.error(error) 
+      console.error(error)
     }
   }
 
   async getAlbums(): Promise<IAlbumData[]> {
     try {
-      const result = await this._albumModel.find({}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1 })
+      const result = await this._albumModel.find({}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
         .populate('artistId', "fullName")
         .lean() as IAlbumData[]
 
@@ -344,21 +353,70 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-
-
-  async getAlbumDetails(id: string): Promise<IAlbumResponse> {
+  async submitSingleDetails(data: ISubmitSongDetails) {
     try {
-      const result = await this._albumModel.findById(id)
-        .populate('artistId', "fullName")
-        .lean() as IAlbumData
-      const songs = await this._audioModel.find({ albumId: id })
-        .populate('albumId', 'title')
-        .lean() as IAudioData[]
-      const data: IAlbumResponse = {
-        album: result,
-        songs: songs
-      }
-      return data
+      return await this._audioModel.create({ title: data.title, thumbNailLink: data.thumbNailLink, link: data.songLink, genreId: data.genreId, single: true, artistId: data.userId })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getAlbumDetails(id: string): Promise<IAlbumData[]> {
+    try {
+      const result = await this._albumModel.aggregate([
+        { $match: { uuid: id } },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'artistId',
+            foreignField: '_id',
+            as: 'artistDetails'
+          }
+        },
+        {
+          $lookup: {
+            from: 'audios',
+            localField: 'songs',
+            foreignField: 'uuid',
+            as: "songsDetails"
+          }
+        },
+        { $unwind: '$artistDetails' },
+        { $unwind: '$songsDetails' },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            uuid: 1,
+            visibility: 1,
+            thumbNailLink: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            },
+            songsDetails: {
+              _id: 1,
+              title: 1,
+              uuid: 1,
+              genreId: 1,
+              thumbNailLink: 1
+            }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            title: { $first: '$title' },
+            uuid: { $first: '$uuid' },
+            thumbNailLink: { $first: "$thumbNailLink" },
+            artistDetails: { $first: '$artistDetails' },
+            songs: {
+              $push: "$songsDetails"
+            }
+          }
+        }
+      ]) as IAlbumData[]
+      return result
     } catch (error) {
       console.error(error)
     }
@@ -543,77 +601,187 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async createPlaylist(data:ICreatePlaylistDto) {
+  async createPlaylist(data: ICreatePlaylistDto) {
     try {
-      const value = await this._playlistModel.create({title:data.title,songsId:data.songId,access:data.visibility,userId:data.userId})
+      const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId })
       return value
     } catch (error) {
       console.error(error)
     }
   }
 
-  async getUserPlaylist(userId:string){
+  async getUserPlaylist(userId: string) {
     try {
-      return await this._playlistModel.find({userId:userId}).lean() as IUserPlaylists[]
+      return await this._playlistModel.find({ userId: userId }).lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)
     }
   }
 
-  async addToPlaylsit(playlistId:string,songId:string):Promise<boolean> {
+  async addToPlaylsit(playlistId: string, songId: string): Promise<boolean> {
     try {
-      const data = await this._playlistModel.findOne({_id:playlistId,songsId:{$in:[songId]}})
-        if(data) {
-         return true
-        } else {
-          await this._playlistModel.findOneAndUpdate({_id:playlistId},{$push:{songsId:songId}})
-          return false
-        }
-        
+      const data = await this._playlistModel.findOne({ _id: playlistId, songsId: { $in: [songId] } })
+      if (data) {
+        return true
+      } else {
+        await this._playlistModel.findOneAndUpdate({ _id: playlistId }, { $push: { songsId: songId } })
+        return false
+      }
+
     } catch (error) {
       console.error(error)
     }
   }
 
-  async getPlaylistSongs(playlistId:string):Promise<IUserPlaylists> {
+  async getPlaylistSongs(playlistId: string): Promise<IUserPlaylists> {
     try {
-      return await this._playlistModel.findOne({_id:playlistId})
-      .populate('songsId')
-      .lean() 
+      return await this._playlistModel.findOne({ _id: playlistId })
+        .populate('songsId')
+        .lean()
     } catch (error) {
       console.error(error)
     }
   }
 
-  async getGenres():Promise<IGenres[]> {
+  async getGenres(): Promise<IGenres[]> {
     try {
       return await this._genreModel.find().lean()
     } catch (error) {
       console.error(error)
     }
   }
-  
 
-async getSameGenreSongs(genreId:string):Promise<ISongsSameGenre[]> {
-  try {
-    
-     return await this._audioModel.find({genreId:genreId})
-                                  .populate('albumId','title thumbNailLink')
-                                  .populate('artistId','fullName')
-                                  .lean() as ISongsSameGenre[]
-                    
-  } catch (error) {
-    console.error(error)
+
+  async getSameGenreSongs(genreId: string): Promise<ISongsSameGenre[]> {
+    try {
+
+      return await this._audioModel.find({ genreId: genreId })
+        .populate('albumId', 'title thumbNailLink')
+        .populate('artistId', 'fullName')
+        .lean() as ISongsSameGenre[]
+
+    } catch (error) {
+      console.error(error)
+    }
   }
- }
 
-async getArtists():Promise<IUserData[]> {
-  try {
-    return await this._userModel.find()
-  } catch (error) {
-    console.error(error)
+  async getArtists(): Promise<IUserData[]> {
+    try {
+      return await this._userModel.find()
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
+
+  async getSong(songId: string): Promise<ISongData> {
+    try {
+      const data = await this._audioModel.aggregate([
+        { $match: { uuid: songId } },
+        {
+          $lookup: {
+            from: 'albums',
+            localField: 'albumId',
+            foreignField: '_id',
+            as: 'albumDetails'
+          }
+        },
+        { $unwind: '$albumDetails' },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            link: 1,
+            thumbNailLink: 1,
+            albumDetails: {
+              _id: 1,
+              title: 1,
+              songs: 1
+            }
+          }
+        }
+      ])
+      return data[0]
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async replyToReply(replyToReply: IReplyToReplyDto) {
+    try {
+      return await this._replyToReplyModel.create({
+        replyId: replyToReply.replyId,
+        likes: replyToReply.likes,
+        replyToReply: replyToReply.replyToReply,
+        userId: replyToReply.userId
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // _id:string;
+  // reply:string;
+  // userId:{
+  //   profileImage:string;
+  //   fullName:string;
+  // };
+  // likes:ObjectId[];
+  // tag:ObjectId
+
+  async getrepliesToReply(replyId: string):Promise<IReplyToReply[]> {
+    try {
+      const data = await this._replyToReplyModel
+        .aggregate([
+          { $match: { replyId: new mongoose.Types.ObjectId(replyId) } },
+          {
+            $lookup: {
+              from: 'users',
+              foreignField: '_id',
+              localField: 'userId',
+              as: 'userData'
+            }
+          },
+          { $unwind: '$userData' },
+          {
+            $project: {
+              _id: 1,
+              replyToReply: 1,
+              likes: 1,
+              userData: {
+                _id:1,
+                profileImage: 1,
+                fullName: 1
+              }
+            }
+          }
+        ]) as IReplyToReply[]
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+ 
+  async likeReplyToReply(replyToReplyId: string, userId: string) {
+    try {
+      const data = await this._replyToReplyModel.aggregate([{
+        $match: { _id: new mongoose.Types.ObjectId(replyToReplyId) }
+      }, { $match: { likes: new mongoose.Types.ObjectId(userId) } }])
+      if (data.length) {
+        console.log("dislike")
+        const dislike = await this._replyToReplyModel.findByIdAndUpdate(replyToReplyId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } }).lean()
+      }
+      if (data.length === 0) {
+        console.log("like")
+        const liked = await this._replyToReplyModel.findByIdAndUpdate(replyToReplyId, { likes: new mongoose.Types.ObjectId(userId) })
+        console.log(replyToReplyId)
+      }
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
 
-}     
+
+}       

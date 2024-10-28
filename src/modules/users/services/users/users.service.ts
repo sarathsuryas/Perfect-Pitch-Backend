@@ -32,15 +32,20 @@ import { ObjectId } from 'mongoose';
 import { IAlbumResponse } from '../../interfaces/IAlbumResponse';
 import { ICreatePlaylistDto } from '../../dtos/ICreatePlaylist.dto';
 import { IUserPlaylists } from '../../interfaces/IUserPlaylists';
-import { IPlaylistSongs } from '../../interfaces/IPlaylistSongs';
 import { IGenres } from 'src/modules/admin/interfaces/IGenres';
 import { ISongsSameGenre } from '../../interfaces/ISongsSameGenre';
+import { ISubmitSongDetailsDto } from '../../dtos/ISubmitSongDetails.dto';
+import { ISubmitSongDetails } from '../../interfaces/ISubmitSongDetails';
+import { ISongData } from '../../interfaces/ISongData';
+import { IReplyToReplyDto } from '../../dtos/IReplyToReply.dto';
+import { IReplyToReply } from '../../interfaces/IReplyToReply';
 
 
 @Injectable()
 export class UsersService {
 
-  constructor(private readonly _usersRepository: UserRepository,
+  constructor(
+    private readonly _usersRepository: UserRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService,
     private readonly _uploadService: UploadService,
@@ -438,9 +443,9 @@ export class UsersService {
     }
   }
 
-  async submitAlbumDetails(details: IAlbumDetails) {
+  async submitAlbumDetails(details: IAlbumDetails,uuids:string[]) {
     try {
-      const album = await this._usersRepository.submitAlbumDetails(details)
+      const album = await this._usersRepository.submitAlbumDetails(details,uuids)
       for(let i = 0; i < details.songs.length; i++) {
         details.songs[i].albumId = album._id as ObjectId
         details.songs[i].genreId = details.genreId 
@@ -460,7 +465,16 @@ export class UsersService {
     }
   }
 
-  async getAlbumDetails(id: string):Promise<IAlbumResponse>  {
+
+  async submitSingleDetails(data:ISubmitSongDetails) {
+     try {
+      return await this._usersRepository.submitSingleDetails(data)
+     } catch (error) {
+      console.error(error)
+     }
+  }
+
+  async getAlbumDetails(id: string):Promise<IAlbumData[]>  {
     try {
       return await this._usersRepository.getAlbumDetails(id)
     } catch (error) {
@@ -555,6 +569,14 @@ export class UsersService {
       console.error(error)
     }
   }
+  async likeReplyToReply(replyToReplyId:string,userId:string) {
+    try {
+      await this._usersRepository.likeReplyToReply(replyToReplyId,userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
 async submitShortsDetails(data:IShortsDto) {
    try {
@@ -620,6 +642,29 @@ async getArtists():Promise<IUserData[]> {
   }
 }
 
+async getSong(songId:string):Promise<ISongData> {
+  try {
+   return await this._usersRepository.getSong(songId)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async replyToReply(data:IReplyToReplyDto) {
+  try {
+    return await this._usersRepository.replyToReply(data)
+  } catch (error) {
+    console.error(error)
+  }
+}
+async getRepliesToReply(replyId:string):Promise<IReplyToReply[]> {
+  try {
+    return await this._usersRepository.getrepliesToReply(replyId)
+  } catch (error) {
+     console.error(error)
+  }
+}
 
 }
 
+ 

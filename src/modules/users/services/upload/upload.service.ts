@@ -69,7 +69,7 @@ export class UploadService {
       const url = await getSignedUrl(this.client, command, {
         expiresIn:60 * 60 * 24 * 6 + 60 * 60, // 6 day and one hour
       });
-  
+    
       return { url };
     } catch (error) { 
       throw new InternalServerErrorException(error);

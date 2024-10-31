@@ -9,12 +9,17 @@ constructor() {
 server: Server;
 @SubscribeMessage('offer')
 getOffer(@MessageBody() data) {
+  console.log("count000",this.count)
+  this.count++
   // socket.to(data.userId).emit("getOffer",data.offer)
   this.server.emit("sendOffer",data)
   // data consists of userId of the viewer and offer from streamer
 }
+
+count: number = 1
 @SubscribeMessage('findOffer')
 findOffer(@MessageBody() data) {
+
   this.server.to(data.streamId).emit('getOffer',{userId:data.userId})
 }
 
@@ -25,7 +30,6 @@ startLive(@MessageBody() data) {
 
 @SubscribeMessage('answer')
 answer(@MessageBody() data) {
-
 this.server.emit('answer',data)
 }
 // socket.join(userId)

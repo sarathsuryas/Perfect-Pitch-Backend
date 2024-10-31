@@ -474,7 +474,7 @@ export class UsersService {
      }
   }
 
-  async getAlbumDetails(id: string):Promise<IAlbumData[]>  {
+  async getAlbumDetails(id: string):Promise<IAlbumData>  {
     try {
       return await this._usersRepository.getAlbumDetails(id)
     } catch (error) {

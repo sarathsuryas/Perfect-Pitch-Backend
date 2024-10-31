@@ -22,6 +22,7 @@ import { playlistSchema } from './schema/playlist.schema';
 import { genresSchema } from './schema/genres.schema';
 import { SocketGateway } from './gateway/socket.gateway';
 import {  replyToReplySchema } from './schema/replyToReply.schema';
+import { PaymentService } from './services/payment/payment.service';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
@@ -29,7 +30,7 @@ import {  replyToReplySchema } from './schema/replyToReply.schema';
     JwtModule, 
   ],
   controllers:[UsersController],
-  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider, PresignedUrlService, TaskService,SocketGateway]
+  providers:[UsersService,UserRepository,CloudinaryProvider,UserAuthenticationGuard, UploadService,s3ClientProvider, PresignedUrlService, TaskService,SocketGateway, PaymentService]
 })
 export class UsersModule {} 
  

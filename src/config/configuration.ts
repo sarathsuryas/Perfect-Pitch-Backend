@@ -13,5 +13,9 @@ export default () => ({
   aws_bucket_name:process.env.AWS_BUCKET_NAME,
   database:{
     connectionString:process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost:27017'
-  }
+  },
+  stripe_secret_key:process.env.STRIPE_SECRET_KEY,
+  currency:process.env.CURRENCY,
+  success_url:process.env.SUCCESS_URL,
+  cancel_url:process.env.CANCEL_URL
 });  

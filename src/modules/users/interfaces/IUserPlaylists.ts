@@ -7,5 +7,6 @@ export interface IUserPlaylists {
   visibility: true,
   access: string
   userId: string
+  thumbNailLink:string
   songsId:IAudioData[]
 }

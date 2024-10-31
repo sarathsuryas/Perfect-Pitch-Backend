@@ -31,12 +31,15 @@ import { ISubmitSongDetails } from '../interfaces/ISubmitSongDetails';
 import { v4 as uuidv4 } from 'uuid';
 import { MessageBody, SubscribeMessage } from '@nestjs/websockets';
 import { IReplyToReplyDto } from '../dtos/IReplyToReply.dto';
+import Stripe from 'stripe';
+import configuration from 'src/config/configuration';
+import { PaymentService } from '../services/payment/payment.service';
 
 
 @Controller('users')
 export class UsersController {
 
-  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService, private readonly _presignedUrlService: PresignedUrlService) { }
+  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService, private readonly _presignedUrlService: PresignedUrlService,private readonly _paymentService: PaymentService) { }
   @Post('register')
   async registerUser(@Res() res: Response, @Body() userData: RegisterUserDto) {
     try {
@@ -754,7 +757,8 @@ export class UsersController {
         userId: req.user._id,
         songId: req.body.songId,
         title: req.body.title,
-        visibility: req.body.visibility
+        visibility: req.body.visibility,
+        thumbNailLink: req.body.thumbNailLink
       }
       const data = await this._usersService.createPlaylist(obj)
       res.status(HttpStatus.OK).json({ success: true, playlistId: data._id })
@@ -800,6 +804,7 @@ export class UsersController {
   async getPlaylistSongs(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string)
+      console.log(data.songsId[0])
       res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)
@@ -826,7 +831,6 @@ export class UsersController {
   async getSameGenreSongs(@Query() id: { genreId: string }, @Res() res: Response) {
     try {
       const data = await this._usersService.getSameGenreSongs(id.genreId)
-      console.log(data)
       res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)
@@ -910,7 +914,23 @@ export class UsersController {
       storeError(error, new Date())
       throw new InternalServerErrorException()
      }
-
   }
+  // @UseGuards(UserAuthenticationGuard)
+  @Post('create-checkout-session')
+  async StripePayment(@Req() req:ICustomRequest,@Res() res:Response) {
+    try {
+         const data =  await this._paymentService.createSession(req.body.priceId)
+         res.status(HttpStatus.OK).json(data)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+ 
+
+ 
+
 
 }

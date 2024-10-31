@@ -3,5 +3,9 @@ export interface IAudioData {
   title:string;
   thumbNailLink:string
   uuid:string
-  genre:string
+  genre:string;
+  artistId:{
+    _id:string;
+    fullName:string;
+  }
 }

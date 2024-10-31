@@ -10,6 +10,8 @@ enum access {
 export class Playlist extends Document {
 @Prop({required:true})  
 title: string;
+@Prop({required:true})
+thumbNailLink:string;
 @Prop({default:true})
 visibility:boolean;
 @Prop({type:String,enum:access})

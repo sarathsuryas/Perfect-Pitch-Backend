@@ -52,6 +52,7 @@ import { ISongData } from "../interfaces/ISongData";
 import { ReplyToReply } from "../schema/replyToReply.schema";
 import { IReplyToReplyDto } from "../dtos/IReplyToReply.dto";
 import { IReplyToReply } from "../interfaces/IReplyToReply";
+import { DataExchange } from "aws-sdk";
 
 
 @Injectable()
@@ -361,7 +362,7 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async getAlbumDetails(id: string): Promise<IAlbumData[]> {
+  async getAlbumDetails(id: string): Promise<IAlbumData> {
     try {
       const result = await this._albumModel.aggregate([
         { $match: { uuid: id } },
@@ -416,7 +417,7 @@ export class UserRepository implements IUserRepository {
           }
         }
       ]) as IAlbumData[]
-      return result
+      return result[0]
     } catch (error) {
       console.error(error)
     }
@@ -602,8 +603,8 @@ export class UserRepository implements IUserRepository {
   }
 
   async createPlaylist(data: ICreatePlaylistDto) {
-    try {
-      const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId })
+    try {console.log(data)
+      const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId, thumbNailLink:data.thumbNailLink })
       return value
     } catch (error) {
       console.error(error)
@@ -636,8 +637,17 @@ export class UserRepository implements IUserRepository {
   async getPlaylistSongs(playlistId: string): Promise<IUserPlaylists> {
     try {
       return await this._playlistModel.findOne({ _id: playlistId })
-        .populate('songsId')
+        .populate({
+          path:'songsId',
+          populate:{
+            path:'artistId',
+            model:'User',
+            select:'_id fullName'
+          },
+        
+        })
         .lean()
+        
     } catch (error) {
       console.error(error)
     }
@@ -685,7 +695,14 @@ export class UserRepository implements IUserRepository {
             as: 'albumDetails'
           }
         },
+         {$lookup:{
+          from:'users',
+          localField:'artistId',
+          foreignField:'_id',
+          as:'artistDetails'
+         }},
         { $unwind: '$albumDetails' },
+        {$unwind:'$artistDetails'},
         {
           $project: {
             _id: 1,
@@ -696,6 +713,10 @@ export class UserRepository implements IUserRepository {
               _id: 1,
               title: 1,
               songs: 1
+            },
+            artistDetails:{
+              _id:1,
+              fullName:1,
             }
           }
         }
@@ -705,6 +726,16 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+
+async getPlaylistSong(playlistId:string) {
+  try {
+  
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
 
   async replyToReply(replyToReply: IReplyToReplyDto) {
     try {

@@ -11,6 +11,8 @@ export class User extends Document {
   password: string;
   @Prop()
   refreshToken: string;
+  @Prop({default:false}) 
+  premiumUser:boolean
   @Prop({default:false})
   isBlocked: boolean;
   @Prop({default:false})

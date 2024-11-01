@@ -6,6 +6,7 @@ import { AuthenticationGuard } from '../guards/authentication/authentication.gua
 import { ICustomRequest } from '../../../modules/admin/interfaces/ICustomRequest';
 import { EditUserDto } from '../../../modules/admin/dtos/editUser.dto';
 import { RegisterUserDto } from '../../../modules/users/dtos/registerUser.dto';
+import { AddMemberShipDto } from '../dtos/addMembership.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -88,7 +89,6 @@ export class AdminController {
   }
 
   @Post('add-user')
-
   async addUser(@Body() userData: RegisterUserDto, @Req() req: ICustomRequest, @Res() res: Response) {
     try {
 
@@ -184,6 +184,7 @@ async NewPassword (@Req() req:Request,@Res() res:Response) {
 }
 
 @Post('add-genres')
+@UseGuards(AuthenticationGuard)
 async newPassword(@Req() req:ICustomRequest,@Res() res:Response) {
   try {
     const {genre,newId,color} = req.body
@@ -199,6 +200,7 @@ async newPassword(@Req() req:ICustomRequest,@Res() res:Response) {
 }
 
 @Get('get-genres')
+@UseGuards(AuthenticationGuard)
 async getGenres() {
   try {
     return await this._adminService.getGenre()
@@ -208,5 +210,40 @@ async getGenres() {
   }
 }
 
+@Post('add-membership')
+@UseGuards(AuthenticationGuard)
+async createMemberShip(@Req() req:Request,@Res() res:Response) {
+  try {
+  const data = await  this._adminService.createMemberShip(req.body as AddMemberShipDto)
+  res.status(HttpStatus.OK).json({success:true}) 
+  } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException({message:"Internal Server Error"})
+  }
+}
+
+@UseGuards(AuthenticationGuard)
+@Get('get-membership')
+async getMemberShip() {
+  try {
+    return await this._adminService.getMemberShip()
+  } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException({message:"Internal Server Error"})
+  }
+}
+
+@UseGuards(AuthenticationGuard)
+@Post('block-unblock')
+async blockUnblock(@Req() req:Request,@Res() res:Response) {
+  try {
+    
+     await this._adminService.blockUnblock(req.body.id,req.body.isBlocked)
+     res.status(HttpStatus.ACCEPTED).json({success:true})
+  } catch (error) {
+    console.error(error)
+    throw new InternalServerErrorException({message:"Internal Server Error"})
+  }
+}
 
 }

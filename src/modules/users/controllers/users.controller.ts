@@ -34,12 +34,13 @@ import { IReplyToReplyDto } from '../dtos/IReplyToReply.dto';
 import Stripe from 'stripe';
 import configuration from 'src/config/configuration';
 import { PaymentService } from '../services/payment/payment.service';
+import { PaymentSuccessDto } from '../dtos/paymentSuccess.dto';
 
 
 @Controller('users')
 export class UsersController {
 
-  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService, private readonly _presignedUrlService: PresignedUrlService,private readonly _paymentService: PaymentService) { }
+  constructor(private readonly _usersService: UsersService, private readonly _uploadService: UploadService, private readonly _presignedUrlService: PresignedUrlService, private readonly _paymentService: PaymentService) { }
   @Post('register')
   async registerUser(@Res() res: Response, @Body() userData: RegisterUserDto) {
     try {
@@ -222,18 +223,19 @@ export class UsersController {
         fullName: user.fullName,
         email: user.email,
         profileImage: user.profileImage,
-        phone: user.phone
+        phone: user.phone,
+        premiumUser:user.premiumUser
       }
       if (user) {
         res.status(HttpStatus.OK).json(obj)
       } else {
         res.status(HttpStatus.NOT_FOUND).json({ message: "user data not found" })
-      }
-    } catch (error) {
+      } 
+    } catch (error) { 
       console.error(error)
       throw new InternalServerErrorException()
     }
-  }
+  } 
 
   @UseGuards(UserAuthenticationGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -904,33 +906,91 @@ export class UsersController {
   }
 
   @UseGuards(UserAuthenticationGuard)
-  @Get('get-replies-to-reply') 
-  async getRepliesToReply(@Query() query:{replyId:string},@Res() res:Response) {
-     try {
+  @Get('get-replies-to-reply')
+  async getRepliesToReply(@Query() query: { replyId: string }, @Res() res: Response) {
+    try {
       const data = await this._usersService.getRepliesToReply(query.replyId)
       res.status(HttpStatus.OK).json(data)
-     } catch (error) {
-      console.error(error)
-      storeError(error, new Date())
-      throw new InternalServerErrorException()
-     }
-  }
-  // @UseGuards(UserAuthenticationGuard)
-  @Post('create-checkout-session')
-  async StripePayment(@Req() req:ICustomRequest,@Res() res:Response) {
-    try {
-         const data =  await this._paymentService.createSession(req.body.priceId)
-         res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
     }
   }
+  @UseGuards(UserAuthenticationGuard)
+  @Post('create-checkout-session')
+  async StripePayment(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._paymentService.createSession(req.body.priceId, req.user._id)
+      res.status(HttpStatus.OK).json(data)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  @UseGuards(UserAuthenticationGuard)
+  @Post('payment-success')
+  async paymentSuccess(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const stripe = new Stripe(configuration().stripe_secret_key);
+      const session = await stripe.checkout.sessions.retrieve(req.body.sessionId)
+      const dtoObject: PaymentSuccessDto = {
+        id: session.id,
+        amount_subtotal: session.amount_subtotal,  
+        created: session.created,
+        currency: session.currency,
+        customer_details: {
+          email: session.customer_details.email,
+          name: session.customer_details.email,
+          userId: req.user._id 
+        },
+        expires_at: session.expires_at,
+        payment_intent: session.payment_intent as string,
+        payment_status: session.payment_status,
+        payment_method_types: session.payment_method_types,
+        status: session.status,
+        memberShipId: req.body.memberShipId
+      }
+      await this._paymentService.paymentSuccess(dtoObject)
+      res.status(HttpStatus.OK).json(session)
+    } catch (error) {
+      console.error(error) 
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    } 
+  }
 
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-membership')
+  async getMemberShip(@Req() req:ICustomRequest, @Res() res:Response) {
+    try {
+       const data = await this._usersService.getMemberShip()
+       const userId = req.user._id
+       res.status(HttpStatus.OK).json({data,userId})
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    
+    }
+  }
  
-
- 
-
+  @UseGuards(UserAuthenticationGuard)
+  @Post('check-active-membership')
+  async checkActiveMemberShip(@Body() data:{userId:string},@Res() res:Response) {
+   try {
+    const result = await this._usersService.checkActiveMemberShip(data.userId)
+    if(result) {
+      res.status(HttpStatus.OK).json(result)
+    } else {
+      res.status(HttpStatus.OK).json(result)
+    }
+   } catch (error) {
+    console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+   }
+  }
 
 }

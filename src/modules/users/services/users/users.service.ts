@@ -443,12 +443,12 @@ export class UsersService {
     }
   }
 
-  async submitAlbumDetails(details: IAlbumDetails,uuids:string[]) {
+  async submitAlbumDetails(details: IAlbumDetails, uuids: string[]) {
     try {
-      const album = await this._usersRepository.submitAlbumDetails(details,uuids)
-      for(let i = 0; i < details.songs.length; i++) {
+      const album = await this._usersRepository.submitAlbumDetails(details, uuids)
+      for (let i = 0; i < details.songs.length; i++) {
         details.songs[i].albumId = album._id as ObjectId
-        details.songs[i].genreId = details.genreId 
+        details.songs[i].genreId = details.genreId
       }
       const data = await this._usersRepository.submitAudioDetails(details)
       return album
@@ -466,15 +466,15 @@ export class UsersService {
   }
 
 
-  async submitSingleDetails(data:ISubmitSongDetails) {
-     try {
+  async submitSingleDetails(data: ISubmitSongDetails) {
+    try {
       return await this._usersRepository.submitSingleDetails(data)
-     } catch (error) {
+    } catch (error) {
       console.error(error)
-     }
+    }
   }
 
-  async getAlbumDetails(id: string):Promise<IAlbumData>  {
+  async getAlbumDetails(id: string): Promise<IAlbumData> {
     try {
       return await this._usersRepository.getAlbumDetails(id)
     } catch (error) {
@@ -482,7 +482,7 @@ export class UsersService {
     }
   }
 
-  async getShorts(userId:string):Promise<IResponseShorts> {
+  async getShorts(userId: string): Promise<IResponseShorts> {
     try {
       return await this._usersRepository.getShorts(userId)
     } catch (error) {
@@ -546,15 +546,15 @@ export class UsersService {
     }
   }
 
-  async replyComment(data:ICommentReplyDto) {
+  async replyComment(data: ICommentReplyDto) {
     try {
-     await this._usersRepository.replyComment(data)
+      await this._usersRepository.replyComment(data)
     } catch (error) {
       console.error(error)
     }
   }
 
-  async getReplies(commentId:string) {
+  async getReplies(commentId: string) {
     try {
       return await this._usersRepository.getReplies(commentId)
     } catch (error) {
@@ -562,109 +562,124 @@ export class UsersService {
     }
   }
 
-  async likeReply(replyId:string,userId:string) {
+  async likeReply(replyId: string, userId: string) {
     try {
-      await this._usersRepository.likeReply(replyId,userId)
+      await this._usersRepository.likeReply(replyId, userId)
     } catch (error) {
       console.error(error)
     }
   }
-  async likeReplyToReply(replyToReplyId:string,userId:string) {
+  async likeReplyToReply(replyToReplyId: string, userId: string) {
     try {
-      await this._usersRepository.likeReplyToReply(replyToReplyId,userId)
+      await this._usersRepository.likeReplyToReply(replyToReplyId, userId)
     } catch (error) {
       console.error(error)
     }
   }
 
 
-async submitShortsDetails(data:IShortsDto) {
-   try {
-    await this._usersRepository.submitShortsDetails(data)
-   } catch (error) {
-    console.error(error)
-   }
-}
+  async submitShortsDetails(data: IShortsDto) {
+    try {
+      await this._usersRepository.submitShortsDetails(data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-async createPlaylist(data:ICreatePlaylistDto) {
+  async createPlaylist(data: ICreatePlaylistDto) {
+    try {
+      return await this._usersRepository.createPlaylist(data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getUserPlaylist(userId: string): Promise<IUserPlaylists[]> {
+    try {
+      return await this._usersRepository.getUserPlaylist(userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async addToPlaylist(playlistId: string, songId: string) {
+    try {
+      return await this._usersRepository.addToPlaylsit(playlistId, songId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getPlaylistSongs(playlistId: string): Promise<IUserPlaylists> {
+    try {
+      return await this._usersRepository.getPlaylistSongs(playlistId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getGenres(): Promise<IGenres[]> {
+    try {
+      return await this._usersRepository.getGenres()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getSameGenreSongs(genreId: string): Promise<ISongsSameGenre[]> {
+    try {
+      return await this._usersRepository.getSameGenreSongs(genreId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getArtists(): Promise<IUserData[]> {
+    try {
+      return await this._usersRepository.getArtists()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getSong(songId: string): Promise<ISongData> {
+    try {
+      return await this._usersRepository.getSong(songId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async replyToReply(data: IReplyToReplyDto) {
+    try {
+      return await this._usersRepository.replyToReply(data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async getRepliesToReply(replyId: string): Promise<IReplyToReply[]> {
+    try {
+      return await this._usersRepository.getrepliesToReply(replyId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+async getMemberShip() {
   try {
-   return await this._usersRepository.createPlaylist(data)
+    return await this._usersRepository.getMemberShip()
   } catch (error) {
     console.error(error)
   }
 }
 
-async getUserPlaylist(userId:string):Promise<IUserPlaylists[]> {
+async checkActiveMemberShip(userId:string) {
   try {
-    return await this._usersRepository.getUserPlaylist(userId) 
+    return await this._usersRepository.checkActiveMemberShip(userId)
   } catch (error) {
     console.error(error)
   }
 }
 
-async addToPlaylist(playlistId:string,songId:string) {
-  try {
-    return await this._usersRepository.addToPlaylsit(playlistId,songId)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async getPlaylistSongs(playlistId:string):Promise<IUserPlaylists> {
- try {
-   return await this._usersRepository.getPlaylistSongs(playlistId)
- } catch (error) {
-  console.error(error)
- }
-}
-
-async getGenres():Promise<IGenres[]> {
-  try {
-    return await this._usersRepository.getGenres()
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async getSameGenreSongs(genreId:string):Promise<ISongsSameGenre[]> {
-  try {
-    return await this._usersRepository.getSameGenreSongs(genreId)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async getArtists():Promise<IUserData[]> {
-  try {
-    return await this._usersRepository.getArtists()
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async getSong(songId:string):Promise<ISongData> {
-  try {
-   return await this._usersRepository.getSong(songId)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async replyToReply(data:IReplyToReplyDto) {
-  try {
-    return await this._usersRepository.replyToReply(data)
-  } catch (error) {
-    console.error(error)
-  }
-}
-async getRepliesToReply(replyId:string):Promise<IReplyToReply[]> {
-  try {
-    return await this._usersRepository.getrepliesToReply(replyId)
-  } catch (error) {
-     console.error(error)
-  }
-}
 
 }
 
- 

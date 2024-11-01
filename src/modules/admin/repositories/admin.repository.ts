@@ -12,6 +12,8 @@ import { PasswordResetToken } from "../schema/resetToken.schema";
 import { IResetToken } from "../interfaces/IResetToken";
 import { Genres } from "src/modules/users/schema/genres.schema";
 import { IGenres } from "../interfaces/IGenres";
+import { MemberShip } from "src/modules/users/schema/membership.schema";
+import { AddMemberShipDto } from "../dtos/addMembership.dto";
 
 @Injectable()
 export class AdminRepository implements IAdminRepository {
@@ -21,6 +23,7 @@ export class AdminRepository implements IAdminRepository {
     @InjectModel('User') private readonly _userModel: Model<User>,
     @InjectModel('ResetToken') private readonly _resetTokenModel: Model<PasswordResetToken>,
     @InjectModel('Genre') private readonly _genreModel: Model<Genres>,
+    @InjectModel('MemberShip') private readonly _membershipModel: Model<MemberShip>
   ) {
 
   }
@@ -201,13 +204,13 @@ export class AdminRepository implements IAdminRepository {
     }
   }
 
-  async addGenre(genre: string,newId:number,color:string) {
+  async addGenre(genre: string, newId: number, color: string) {
     try {
       const data = await this._genreModel.findOne({ Genre: { $regex: `^${genre}$`, $options: '' } });
       if (data) {
         return false
       } else {
-        await this._genreModel.create({ Genre: genre,newId:newId,color:color })
+        await this._genreModel.create({ Genre: genre, newId: newId, color: color })
       }
       return true
     } catch (error) {
@@ -215,13 +218,42 @@ export class AdminRepository implements IAdminRepository {
     }
   }
 
-async getGenre():Promise<IGenres[]> {
-  try {
-    return await this._genreModel.find().lean()
-  } catch (error) {
-    console.error(error)
+  async getGenre(): Promise<IGenres[]> {
+    try {
+      return await this._genreModel.find().lean()
+    } catch (error) {
+      console.error(error)
+    }
   }
-} 
 
+  async createMemberShip(data: AddMemberShipDto) {
+    try {
+      await this._membershipModel.create({
+        name: data.name,
+        price: data.price,
+        priceId: data.priceId,
+        features: data.features
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getMemberShip() {
+    try {
+      return await this._membershipModel.find()
+    } catch (error) {
+     console.error(error)
+    }
+  }
+
+  async blockUnblockMemberShip(id:string,isBlocked:boolean) {
+    try { 
+      console.log(id,isBlocked)
+      return await this._membershipModel.findOneAndUpdate({_id:id},{isBlocked:isBlocked})
+    } catch (error) {
+      console.error(error)
+    }
+  }
 }
 

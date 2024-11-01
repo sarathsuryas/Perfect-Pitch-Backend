@@ -3,12 +3,11 @@ import { IUserRepository } from "../interfaces/IUserRepository";
 import { Model } from "mongoose";
 import { User } from "../schema/user.schema";
 import { Otp } from "../schema/otp.schema";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { RegisterUserDto } from "../dtos/registerUser.dto";
 import { CreateUserDto } from "../../admin/dtos/createUser.dto";
 import { IStoredOtp } from "../interfaces/IStoredOtp";
 import { ICreatedUser } from "../../admin/interfaces/ICreatedUser";
-import { LoginUserDto } from "../dtos/loginUser.dto";
 import { IUserData } from "../interfaces/IUserData";
 import { UserPasswordResetToken } from "../schema/userResetToken";
 import { IUserResetToken } from "../interfaces/IUserResetToken";
@@ -26,7 +25,6 @@ import mongoose from "mongoose";
 import { VideoComment } from "../schema/videoComment.schema";
 import { IVideoCommentDto } from "../dtos/IVideoComment.dto";
 import { ICommentResponse } from "../interfaces/ICommentResponse";
-import { ICommentDetails } from "../interfaces/ICommentDetails";
 import { ISuggestionCommentResponse } from "../interfaces/ISuggestionCommentResponse";
 import { IGoogleLoginDto } from "../dtos/IGoogleLogin.dto";
 import { CommentReply } from "../schema/commentReply.schema";
@@ -35,24 +33,22 @@ import { ICommentReply } from "../interfaces/ICommentReplies";
 import { IShortsDto } from "../dtos/IShorts.dto";
 import { IResponseShorts } from "../interfaces/IResponseShorts";
 import { IAudioDto } from "../dtos/IAudio.dto";
-import { IAlbumResponse } from "../interfaces/IAlbumResponse";
-import { IAudioData } from "../interfaces/IAudioData";
 import { ICreatePlaylistDto } from "../dtos/ICreatePlaylist.dto";
 import { Playlist } from "../schema/playlist.schema";
 import { IUserPlaylists } from "../interfaces/IUserPlaylists";
-import { IPlaylistSongs } from "../interfaces/IPlaylistSongs";
 import { Genres } from "../schema/genres.schema";
 import { IGenres } from "src/modules/admin/interfaces/IGenres";
 import { ISongsSameGenre } from "../interfaces/ISongsSameGenre";
-import { ISubmitSongDetailsDto } from "../dtos/ISubmitSongDetails.dto";
 import { ISubmitSongDetails } from "../interfaces/ISubmitSongDetails";
 import { v4 as uuidv4 } from 'uuid';
-import { title } from "process";
 import { ISongData } from "../interfaces/ISongData";
 import { ReplyToReply } from "../schema/replyToReply.schema";
 import { IReplyToReplyDto } from "../dtos/IReplyToReply.dto";
 import { IReplyToReply } from "../interfaces/IReplyToReply";
-import { DataExchange } from "aws-sdk";
+import { MemberShip } from "../schema/membership.schema";
+import { PaymentSuccessDto } from "../dtos/paymentSuccess.dto";
+import { Payment } from "../schema/payment.schema";
+import { Cron } from '@nestjs/schedule';
 
 
 @Injectable()
@@ -69,7 +65,9 @@ export class UserRepository implements IUserRepository {
     @InjectModel('CommentReply') private readonly _commentReplyModel: Model<CommentReply>,
     @InjectModel('Playlist') private readonly _playlistModel: Model<Playlist>,
     @InjectModel('Genre') private readonly _genreModel: Model<Genres>,
-    @InjectModel('ReplyToReply') private _replyToReplyModel: Model<ReplyToReply>
+    @InjectModel('ReplyToReply') private _replyToReplyModel: Model<ReplyToReply>,
+    @InjectModel('MemberShip') private _memberShipModel: Model<MemberShip>,
+    @InjectModel('Payment') private _paymentModel: Model<Payment>
   ) {
 
   }
@@ -603,8 +601,9 @@ export class UserRepository implements IUserRepository {
   }
 
   async createPlaylist(data: ICreatePlaylistDto) {
-    try {console.log(data)
-      const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId, thumbNailLink:data.thumbNailLink })
+    try {
+      console.log(data)
+      const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId, thumbNailLink: data.thumbNailLink })
       return value
     } catch (error) {
       console.error(error)
@@ -638,16 +637,16 @@ export class UserRepository implements IUserRepository {
     try {
       return await this._playlistModel.findOne({ _id: playlistId })
         .populate({
-          path:'songsId',
-          populate:{
-            path:'artistId',
-            model:'User',
-            select:'_id fullName'
+          path: 'songsId',
+          populate: {
+            path: 'artistId',
+            model: 'User',
+            select: '_id fullName'
           },
-        
+
         })
         .lean()
-        
+
     } catch (error) {
       console.error(error)
     }
@@ -695,14 +694,16 @@ export class UserRepository implements IUserRepository {
             as: 'albumDetails'
           }
         },
-         {$lookup:{
-          from:'users',
-          localField:'artistId',
-          foreignField:'_id',
-          as:'artistDetails'
-         }},
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'artistId',
+            foreignField: '_id',
+            as: 'artistDetails'
+          }
+        },
         { $unwind: '$albumDetails' },
-        {$unwind:'$artistDetails'},
+        { $unwind: '$artistDetails' },
         {
           $project: {
             _id: 1,
@@ -714,9 +715,9 @@ export class UserRepository implements IUserRepository {
               title: 1,
               songs: 1
             },
-            artistDetails:{
-              _id:1,
-              fullName:1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1,
             }
           }
         }
@@ -727,13 +728,13 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-async getPlaylistSong(playlistId:string) {
-  try {
-  
-  } catch (error) {
-    console.error(error)
+  async getPlaylistSong(playlistId: string) {
+    try {
+
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
 
 
@@ -750,16 +751,8 @@ async getPlaylistSong(playlistId:string) {
     }
   }
 
-  // _id:string;
-  // reply:string;
-  // userId:{
-  //   profileImage:string;
-  //   fullName:string;
-  // };
-  // likes:ObjectId[];
-  // tag:ObjectId
-
-  async getrepliesToReply(replyId: string):Promise<IReplyToReply[]> {
+  
+  async getrepliesToReply(replyId: string): Promise<IReplyToReply[]> {
     try {
       const data = await this._replyToReplyModel
         .aggregate([
@@ -779,7 +772,7 @@ async getPlaylistSong(playlistId:string) {
               replyToReply: 1,
               likes: 1,
               userData: {
-                _id:1,
+                _id: 1,
                 profileImage: 1,
                 fullName: 1
               }
@@ -792,7 +785,7 @@ async getPlaylistSong(playlistId:string) {
     }
   }
 
- 
+
   async likeReplyToReply(replyToReplyId: string, userId: string) {
     try {
       const data = await this._replyToReplyModel.aggregate([{
@@ -805,14 +798,57 @@ async getPlaylistSong(playlistId:string) {
       if (data.length === 0) {
         console.log("like")
         const liked = await this._replyToReplyModel.findByIdAndUpdate(replyToReplyId, { likes: new mongoose.Types.ObjectId(userId) })
-        console.log(replyToReplyId)
+
       }
 
     } catch (error) {
       console.error(error)
     }
   }
+  async paymentSuccess(data: PaymentSuccessDto) {
+    try {
+      await this._paymentModel.create({
+         paymentId: data.id,
+        amount: data.amount_subtotal / 100,
+        userId: data.customer_details.userId,
+        email: data.customer_details.email,
+        name: data.customer_details.name,
+        valid: true,
+        expires_at: data.expires_at,
+        paymentIntent: data.payment_intent,
+        paymentStatus: data.payment_status,
+        status: data.status,
+        memberShipId:data.memberShipId
+      })
+      await this._memberShipModel.findOneAndUpdate({_id:data.memberShipId,},{users:data.customer_details.userId})
+      await this._userModel.findOneAndUpdate({_id:data.customer_details.userId},{premiumUser:true})
+    } catch (error) {
+      console.error(error)
+    }
+ }
+
+async getMemberShip() {
+  try {
+    return await this._memberShipModel.find({isBlocked:false})
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 
 
-}       
+ 
+async checkActiveMemberShip(userId:string) {
+  try {
+    const data = await this._paymentModel.findOne({userId:userId})
+    if(data) {
+      return true
+    } else {
+      return false
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+}        

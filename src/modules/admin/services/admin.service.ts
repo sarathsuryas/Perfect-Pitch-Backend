@@ -13,6 +13,7 @@ import * as crypto from 'crypto'
 import { MailerService } from '@nestjs-modules/mailer';
 import { IResetToken } from '../interfaces/IResetToken';
 import { IGenres } from '../interfaces/IGenres';
+import { AddMemberShipDto } from '../dtos/addMembership.dto';
 
 @Injectable()
 export class AdminService implements IAdminService {
@@ -241,6 +242,28 @@ export class AdminService implements IAdminService {
   async getGenre():Promise<IGenres[]> {
     try {
     return await this._adminRepository.getGenre()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async createMemberShip(data:AddMemberShipDto) {
+   try {
+     await this._adminRepository.createMemberShip(data)
+   } catch (error) {
+    console.error(error)
+   }
+  }
+  async getMemberShip() {
+    try {
+      return await this._adminRepository.getMemberShip()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async blockUnblock(id:string,isBlocked:boolean) {
+    try {
+      return await this._adminRepository.blockUnblockMemberShip(id,isBlocked)
     } catch (error) {
       console.error(error)
     }

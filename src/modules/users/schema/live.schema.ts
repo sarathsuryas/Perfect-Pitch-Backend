@@ -13,7 +13,6 @@ artistId:string;
 description:string;
 @Prop()
 genreId:string
-
 }
 
 export const liveSchema = SchemaFactory.createForClass(Live)

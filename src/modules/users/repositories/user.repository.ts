@@ -49,6 +49,7 @@ import { MemberShip } from "../schema/membership.schema";
 import { PaymentSuccessDto } from "../dtos/paymentSuccess.dto";
 import { Payment } from "../schema/payment.schema";
 import { Cron } from '@nestjs/schedule';
+import { IUserMedia } from "../interfaces/IUserMedia";
 
 
 @Injectable()
@@ -287,7 +288,6 @@ export class UserRepository implements IUserRepository {
 
   async uploadVideo(videoName: string, videoDescription: string, genre: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
     try {
-      console.log(artist)
       const result = await this._videoModel.create({
         artist: artist,
         title: videoName,
@@ -307,6 +307,16 @@ export class UserRepository implements IUserRepository {
   async listVideos(): Promise<IVideoList[]> {
     try {
       const videos = await this._videoModel.find({ shorts: false }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 }).lean() as IVideoList[]
+      return videos
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  
+  async searchVideos(query:string): Promise<IVideoList[]> {
+    try {
+      const videos = await this._videoModel.find({ shorts: false,title: { $regex: `^${query}`, $options: 'i' } }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 }).lean() as IVideoList[]
       return videos
     } catch (error) {
       console.error(error)
@@ -346,6 +356,30 @@ export class UserRepository implements IUserRepository {
         .populate('artistId', "fullName")
         .lean() as IAlbumData[]
 
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getArtistAlbums(artistId:string): Promise<IAlbumData[]> {
+    try {
+      const result = await this._albumModel.find({artistId:artistId}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
+        .populate('artistId', "fullName")
+        .lean() as IAlbumData[]
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+
+  async searchAlbum(query:string):Promise<IAlbumData[]> {
+    try {
+      const result = await this._albumModel.find({ title: { $regex: `^${query}`, $options: 'i' }}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
+        .populate('artistId', "fullName")
+        .lean() as IAlbumData[]
       return result
     } catch (error) {
       console.error(error)
@@ -617,6 +651,13 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+  async searchPlaylist(query: string) {
+    try {
+      return await this._playlistModel.find({ title: { $regex: `^${query}`, $options: 'i' }}).lean() as IUserPlaylists[]
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   async addToPlaylsit(playlistId: string, songId: string): Promise<boolean> {
     try {
@@ -681,6 +722,14 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+  async searchArtists(query:string): Promise<IUserData[]> {
+    try {
+      return await this._userModel.find({ fullName: { $regex: `^${query}`, $options: 'i' }})
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
   async getSong(songId: string): Promise<ISongData> {
     try {
@@ -818,7 +867,7 @@ export class UserRepository implements IUserRepository {
         paymentIntent: data.payment_intent,
         paymentStatus: data.payment_status,
         status: data.status,
-        memberShipId:data.memberShipId
+        memberShipId:data.memberShipId 
       })
       await this._memberShipModel.findOneAndUpdate({_id:data.memberShipId,},{users:data.customer_details.userId})
       await this._userModel.findOneAndUpdate({_id:data.customer_details.userId},{premiumUser:true})
@@ -850,5 +899,25 @@ async checkActiveMemberShip(userId:string) {
     console.error(error)
   }
 }
+ 
+async getArtistMedias(artistId:string):Promise<IUserMedia> {
+   try {  
+    const albums = await this._albumModel.find({artistId:artistId}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
+    .populate('artistId', "fullName")
+    .lean() as IAlbumData[]
+    const playlists = await this._playlistModel.find({ userId: artistId,access:'public' }).lean() as IUserPlaylists[]
+     const videos = await this._videoModel.find({ artistId:artistId, shorts: false }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 }).lean() as IVideoList[]
+  const obj:IUserMedia = {
+    albums: albums,
+    videos: videos,
+    playlists: playlists
+  }
+
+return obj
+   } catch (error) {
+    console.error(error)
+   }
+}
+
 
 }        

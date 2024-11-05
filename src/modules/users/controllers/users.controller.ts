@@ -29,12 +29,12 @@ import { ISubmitSongDetailsDto } from '../dtos/ISubmitSongDetails.dto';
 import { IAudioDto } from '../dtos/IAudio.dto';
 import { ISubmitSongDetails } from '../interfaces/ISubmitSongDetails';
 import { v4 as uuidv4 } from 'uuid';
-import { MessageBody, SubscribeMessage } from '@nestjs/websockets';
 import { IReplyToReplyDto } from '../dtos/IReplyToReply.dto';
 import Stripe from 'stripe';
 import configuration from 'src/config/configuration';
 import { PaymentService } from '../services/payment/payment.service';
 import { PaymentSuccessDto } from '../dtos/paymentSuccess.dto';
+const webrtc = require("wrtc");
 
 
 @Controller('users')
@@ -224,18 +224,19 @@ export class UsersController {
         email: user.email,
         profileImage: user.profileImage,
         phone: user.phone,
-        premiumUser:user.premiumUser
+        premiumUser: user.premiumUser,
+        isBlocked: user.isBlocked
       }
       if (user) {
         res.status(HttpStatus.OK).json(obj)
       } else {
         res.status(HttpStatus.NOT_FOUND).json({ message: "user data not found" })
-      } 
-    } catch (error) { 
+      }
+    } catch (error) {
       console.error(error)
       throw new InternalServerErrorException()
     }
-  } 
+  }
 
   @UseGuards(UserAuthenticationGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -445,15 +446,26 @@ export class UsersController {
   // video list
   @UseGuards(UserAuthenticationGuard)
   @Get('video-list')
-  async videoList(@Res() res: Response) {
+  async videoList(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-
-      const videos = await this._usersService.listVideos()
-      if (videos) {
-        return res.status(HttpStatus.ACCEPTED).json(videos)
-      } else {
-        return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
+      if (!req.query.video) {
+        const videos = await this._usersService.listVideos()
+        if (videos) {
+          return res.status(HttpStatus.ACCEPTED).json(videos)
+        } else {
+          return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
+        }
       }
+      if (req.query.video) {
+        const videos = await this._usersService.searchVideos(req.query.video as string)
+        if (videos) {
+          return res.status(HttpStatus.ACCEPTED).json(videos)
+        } else {
+          return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
+        }
+
+      }
+
 
     } catch (error) {
       console.error(error)
@@ -512,19 +524,49 @@ export class UsersController {
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-albums')
-  async getAlbums(@Res() res: Response) {
+  async getAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const result = await this._usersService.getAlbums()
-      if (result) {
-
-        return res.status(HttpStatus.OK).json(result)
+      if (!req.query.album) {
+        const result = await this._usersService.getAlbums()
+        if (result) {
+          return res.status(HttpStatus.OK).json(result)
+        }
       }
+      if (req.query.album) {
+        const result = await this._usersService.searchAlbums(req.query.album as string)
+        if (result) {
+          return res.status(HttpStatus.OK).json(result)
+        }
+      }
+
       return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
     } catch (error) {
       console.error(error)
       throw new InternalServerErrorException()
     }
   }
+
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-artist-')
+  async getArtistAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      if (req.query.artistId) {
+        const result = await this._usersService.getArtistAlbums(req.query.artistId as string)
+        if (result) {
+          return res.status(HttpStatus.OK).json(result)
+        }
+      }
+
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
 
   @UseGuards(UserAuthenticationGuard)
   @Post('submit-single-details')
@@ -775,8 +817,14 @@ export class UsersController {
   @Get('get-user-playlist')
   async getUserPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const data = await this._usersService.getUserPlaylist(req.user._id)
-      res.status(HttpStatus.OK).json(data)
+      if (!req.query.playlist) {
+        const data = await this._usersService.getUserPlaylist(req.user._id)
+        res.status(HttpStatus.OK).json(data)
+      }
+      if (req.query.playlist) {
+        const data = await this._usersService.searchPlaylist(req.query.playlist as string)
+        res.status(HttpStatus.OK).json(data)
+      }
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -845,9 +893,16 @@ export class UsersController {
   @Get('get-artists')
   async getArtists(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const artists = await this._usersService.getArtists()
-      const userId = req.user._id
-      res.status(HttpStatus.OK).json({ artists, userId })
+      if (!req.query.artist) {
+        const artists = await this._usersService.getArtists()
+        const userId = req.user._id
+        res.status(HttpStatus.OK).json({ artists, userId })
+      }
+      if (req.query.artist) {
+        const artists = await this._usersService.searchArtists(req.query.artist as string)
+        const userId = req.user._id
+        res.status(HttpStatus.OK).json({ artists, userId })
+      }
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -855,17 +910,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(UserAuthenticationGuard)
-  @Get('get-medias')
-  async getMedias() {
-    try {
 
-    } catch (error) {
-      console.error(error)
-      storeError(error, new Date())
-      throw new InternalServerErrorException()
-    }
-  }
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-song')
@@ -937,13 +982,13 @@ export class UsersController {
       const session = await stripe.checkout.sessions.retrieve(req.body.sessionId)
       const dtoObject: PaymentSuccessDto = {
         id: session.id,
-        amount_subtotal: session.amount_subtotal,  
+        amount_subtotal: session.amount_subtotal,
         created: session.created,
         currency: session.currency,
         customer_details: {
           email: session.customer_details.email,
           name: session.customer_details.email,
-          userId: req.user._id 
+          userId: req.user._id
         },
         expires_at: session.expires_at,
         payment_intent: session.payment_intent as string,
@@ -955,42 +1000,114 @@ export class UsersController {
       await this._paymentService.paymentSuccess(dtoObject)
       res.status(HttpStatus.OK).json(session)
     } catch (error) {
-      console.error(error) 
+      console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
-    } 
+    }
   }
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-membership')
-  async getMemberShip(@Req() req:ICustomRequest, @Res() res:Response) {
+  async getMemberShip(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-       const data = await this._usersService.getMemberShip()
-       const userId = req.user._id
-       res.status(HttpStatus.OK).json({data,userId})
+      const data = await this._usersService.getMemberShip()
+      const userId = req.user._id
+      res.status(HttpStatus.OK).json({ data, userId })
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
-    
+
     }
   }
- 
+
   @UseGuards(UserAuthenticationGuard)
   @Post('check-active-membership')
-  async checkActiveMemberShip(@Body() data:{userId:string},@Res() res:Response) {
-   try {
-    const result = await this._usersService.checkActiveMemberShip(data.userId)
-    if(result) {
-      res.status(HttpStatus.OK).json(result)
-    } else {
-      res.status(HttpStatus.OK).json(result)
-    }
-   } catch (error) {
-    console.error(error)
+  async checkActiveMemberShip(@Body() data: { userId: string }, @Res() res: Response) {
+    try {
+      const result = await this._usersService.checkActiveMemberShip(data.userId)
+      if (result) {
+        res.status(HttpStatus.OK).json(result)
+      } else {
+        res.status(HttpStatus.OK).json(result)
+      }
+    } catch (error) {
+      console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
-   }
+    }
   }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-artist-media')
+  async getUserMedia(@Req() req: Request, @Res() res: Response) {
+    try {
+      const response = await this._usersService.getArtistMedias(req.query.artistId as string)
+      res.status(HttpStatus.OK).json(response)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  senderStream: any
+  @Post('consumer')
+  async consumer(@Body() body, @Res() res: Response) {
+    try {
+
+      const peer = new webrtc.RTCPeerConnection({
+        iceServers: [
+          {
+            urls: "stun:stun.stunprotocol.org"
+          }
+        ]
+      });
+      const desc = new webrtc.RTCSessionDescription(body.sdp);
+      await peer.setRemoteDescription(desc);
+      this.senderStream.getTracks().forEach(track => peer.addTrack(track, this.senderStream));
+      const answer = await peer.createAnswer();
+      await peer.setLocalDescription(answer);
+      const payload = {
+        sdp: peer.localDescription
+      }
+      res.json(payload);
+ 
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  @Post('broadcast')
+  async broadcast(@Body() body,@Res() res:Response) {
+    try {
+
+      const peer = new webrtc.RTCPeerConnection({
+        iceServers: [
+            {
+                urls: "stun:stun.stunprotocol.org"
+            }
+        ]
+    });
+    peer.ontrack = (e) => this.handleTrackEvent(e, peer);
+    const desc = new webrtc.RTCSessionDescription(body.sdp);
+    await peer.setRemoteDescription(desc);
+    const answer = await peer.createAnswer();
+    await peer.setLocalDescription(answer);
+    const payload = {
+        sdp: peer.localDescription
+    }
+
+    res.json(payload);
+
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+  handleTrackEvent(e, peer) {
+    this.senderStream = e.streams[0];
+};
+
 
 }

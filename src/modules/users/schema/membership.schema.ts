@@ -12,9 +12,9 @@ export class MemberShip extends Document {
   @Prop({required:true})
   features:string[]
   @Prop({required:true,default:false})
-  isBlocked:boolean
+  isBlocked:boolean           
   @Prop({required:true,default:[]})
   users:string[] 
-}
+}  
 export const memebershipSchema = SchemaFactory.createForClass(MemberShip)
 

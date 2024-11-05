@@ -39,6 +39,7 @@ import { ISubmitSongDetails } from '../../interfaces/ISubmitSongDetails';
 import { ISongData } from '../../interfaces/ISongData';
 import { IReplyToReplyDto } from '../../dtos/IReplyToReply.dto';
 import { IReplyToReply } from '../../interfaces/IReplyToReply';
+import { IUserMedia } from '../../interfaces/IUserMedia';
 
 
 @Injectable()
@@ -443,6 +444,13 @@ export class UsersService {
       console.error(error)
     }
   }
+  async searchVideos(query:string): Promise<IVideoList[]> {
+    try {
+      return await this._usersRepository.searchVideos(query)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   async submitAlbumDetails(details: IAlbumDetails, uuids: string[]) {
     try {
@@ -461,6 +469,22 @@ export class UsersService {
   async getAlbums(): Promise<IAlbumData[]> {
     try {
       return await this._usersRepository.getAlbums()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getArtistAlbums(artistId:string): Promise<IAlbumData[]> {
+    try {
+      return await this._usersRepository.getArtistAlbums(artistId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async searchAlbums(query:string): Promise<IAlbumData[]> {
+    try {
+      return await this._usersRepository.searchAlbum(query)
     } catch (error) {
       console.error(error)
     }
@@ -584,8 +608,8 @@ export class UsersService {
       await this._usersRepository.submitShortsDetails(data)
     } catch (error) {
       console.error(error)
-    }
-  }
+    } 
+  } 
 
   async createPlaylist(data: ICreatePlaylistDto) {
     try {
@@ -602,6 +626,14 @@ export class UsersService {
       console.error(error)
     }
   }
+  async searchPlaylist(query: string): Promise<IUserPlaylists[]> {
+    try {
+      return await this._usersRepository.searchPlaylist(query)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
   async addToPlaylist(playlistId: string, songId: string) {
     try {
@@ -638,6 +670,14 @@ export class UsersService {
   async getArtists(): Promise<IUserData[]> {
     try {
       return await this._usersRepository.getArtists()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async searchArtists(query:string): Promise<IUserData[]> {
+    try {
+      return await this._usersRepository.searchArtists(query)
     } catch (error) {
       console.error(error)
     }
@@ -680,7 +720,13 @@ async checkActiveMemberShip(userId:string) {
     console.error(error)
   }
 }
-
+async getArtistMedias(artistId:string):Promise<IUserMedia> {
+  try {
+    return await this._usersRepository.getArtistMedias(artistId)
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 }
 

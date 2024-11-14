@@ -34,6 +34,8 @@ import Stripe from 'stripe';
 import configuration from 'src/config/configuration';
 import { PaymentService } from '../services/payment/payment.service';
 import { PaymentSuccessDto } from '../dtos/paymentSuccess.dto';
+import { ICreateLiveStreamDto } from '../dtos/ICreateLiveStream.dto';
+import { ICreateLive } from '../interfaces/ICreateLive';
 const webrtc = require("wrtc");
 
 
@@ -155,8 +157,6 @@ export class UsersController {
         console.log('refreshToken expired')
         return res.status(HttpStatus.FORBIDDEN).send()
       }
-
-
       return res.send({ accessToken: newAccessToken });
     } catch (error) {
       console.error(error)
@@ -258,14 +258,14 @@ export class UsersController {
     @Body('isPublic') isPublic: string, @Req() req: ICustomRequest, @Res() res: Response
   ) {
     try {
-      const url = await this._uploadService.uploadProfileImage(file, 'userProfilePicture');
-      if (!url) {
-        return res.status(HttpStatus.BAD_REQUEST).send()
-      }
-      const result = await this._usersService.updateProfileImage(req.user._id, url.url)
+      // const url = await this._uploadService.uploadProfileImage(file, 'userProfilePicture');
+      // if (!url) {
+      //   return res.status(HttpStatus.BAD_REQUEST).send()
+      // }
+      // const result = await this._usersService.updateProfileImage(req.user._id, url.url)
 
-      console.log("User profile picture updated:", result);
-      return res.status(HttpStatus.OK).json({ success: true, message: "Image uploaded successfull" });
+      // console.log("User profile picture updated:", result);
+      // return res.status(HttpStatus.OK).json({ success: true, message: "Image uploaded successfull" });
 
     } catch (error) {
       console.error(error)
@@ -514,7 +514,6 @@ export class UsersController {
         uuids.push(obj.songs[i].uuid)
       }
       const album = await this._usersService.submitAlbumDetails(obj, uuids)
-
       return res.status(HttpStatus.OK).json(album)
     } catch (error) {
       console.error(error)
@@ -930,9 +929,32 @@ export class UsersController {
   @UseGuards(UserAuthenticationGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post('create-live')
-  async createLive(@UploadedFile() file: Express.Multer.File, @Req() req: ICustomRequest, @Res() res: Response) {
-
-
+  async createLive(
+    @UploadedFile() file: Express.Multer.File,
+     @Req() req: ICustomRequest,
+      @Res() res: Response ) {
+      try {
+        const dto:ICreateLiveStreamDto = {
+          title: req.body.title,
+          description: req.body.description,
+          thumbNail: file,
+          genreId: req.body.genreId
+        }
+         const url = await this._uploadService.uploadToS3(dto.thumbNail,req.body.title)
+         const obj:ICreateLive= {
+           title: dto.title,
+           thumbNailLink: url.url,
+           artistId: req.user._id,
+           description: dto.description,
+           genreId: dto.genreId
+         }
+        const streamId = await this._usersService.createLive(obj) 
+        res.status(HttpStatus.OK).json({success:true,streamId})
+      } catch (error) {
+        console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+      }
   }
 
   @UseGuards(UserAuthenticationGuard)
@@ -1017,9 +1039,9 @@ export class UsersController {
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
-
     }
   }
+
 
   @UseGuards(UserAuthenticationGuard)
   @Post('check-active-membership')
@@ -1053,7 +1075,6 @@ export class UsersController {
   @Post('consumer')
   async consumer(@Body() body, @Res() res: Response) {
     try {
-
       const peer = new webrtc.RTCPeerConnection({
         iceServers: [
           {
@@ -1080,7 +1101,6 @@ export class UsersController {
   @Post('broadcast')
   async broadcast(@Body() body,@Res() res:Response) {
     try {
-
       const peer = new webrtc.RTCPeerConnection({
         iceServers: [
             {
@@ -1108,6 +1128,19 @@ export class UsersController {
   handleTrackEvent(e, peer) {
     this.senderStream = e.streams[0];
 };
+
+@UseGuards(UserAuthenticationGuard)
+@Get('get-streams')
+async getLiveStreams(@Req() req:Request,@Res() res:Response) {
+ try {
+    const data = await this._usersService.getLiveStreams()
+    res.status(HttpStatus.OK).json(data)
+ } catch (error) {
+  console.error(error)
+  storeError(error, new Date())
+  throw new InternalServerErrorException()
+ }
+}
 
 
 }

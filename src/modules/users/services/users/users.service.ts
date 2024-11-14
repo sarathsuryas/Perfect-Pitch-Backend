@@ -40,6 +40,8 @@ import { ISongData } from '../../interfaces/ISongData';
 import { IReplyToReplyDto } from '../../dtos/IReplyToReply.dto';
 import { IReplyToReply } from '../../interfaces/IReplyToReply';
 import { IUserMedia } from '../../interfaces/IUserMedia';
+import { ICreateLive } from '../../interfaces/ICreateLive';
+import { ILiveStreams } from '../../interfaces/ILiveStreams';
 
 
 @Injectable()
@@ -727,6 +729,24 @@ async getArtistMedias(artistId:string):Promise<IUserMedia> {
     console.error(error)
   }
 }
+
+async createLive(data:ICreateLive):Promise<string> {
+   try {
+    return await this._usersRepository.createLive(data)
+   } catch (error) {
+    console.error(error)
+   }
+}
+
+async getLiveStreams():Promise<ILiveStreams[]> {
+  try {
+    return await this._usersRepository.getLiveStreams()
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
 
 }
 

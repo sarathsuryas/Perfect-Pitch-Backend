@@ -4,15 +4,17 @@ import mongoose, { Document, ObjectId } from "mongoose";
 @Schema()
 export class Live extends Document {
 @Prop({required:true})
-caption:string;
+uuid:string 
+@Prop({required:true})
+title:string;
 @Prop() 
 thumbNailLink:string
-@Prop()
-artistId:string;
+@Prop({type: mongoose.Schema.Types.ObjectId})
+artistId:ObjectId;
 @Prop()
 description:string;
-@Prop()
-genreId:string
+@Prop({type: mongoose.Schema.Types.ObjectId})
+genreId:ObjectId
 }
 
 export const liveSchema = SchemaFactory.createForClass(Live)

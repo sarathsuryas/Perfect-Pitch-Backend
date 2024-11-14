@@ -30,7 +30,7 @@ export class UploadService {
  
   }
  
-  async uploadProfileImage(file:Express.Multer.File,fileName:string) {
+  async uploadToS3(file:Express.Multer.File,fileName:string) {
     try {
       const key = fileName
       const command = new PutObjectCommand({

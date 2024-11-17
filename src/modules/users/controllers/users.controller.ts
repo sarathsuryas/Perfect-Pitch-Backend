@@ -1125,7 +1125,7 @@ export class UsersController {
       throw new InternalServerErrorException()
     }
   }
-  handleTrackEvent(e, peer) {
+  handleTrackEvent(e, peer) {   
     this.senderStream = e.streams[0];
 };
 

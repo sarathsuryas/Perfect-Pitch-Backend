@@ -449,9 +449,9 @@ export class UsersController {
   @Get('video-list')
   async videoList(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      if (!req.query.video) {
-       
-        const videos = await this._usersService.listVideos()
+      const { page, perPage } = req.query;
+      if (!req.query.video && req.query.video!==undefined && page && perPage) {
+        const videos = await this._usersService.listVideos({page:parseInt(page as string),perPage:parseInt(perPage as string)})
         if (videos) {
           return res.status(HttpStatus.ACCEPTED).json(videos)
         } else {
@@ -527,8 +527,10 @@ export class UsersController {
   @Get('get-albums')
   async getAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      if (!req.query.album) {
-        const result = await this._usersService.getAlbums()
+      const { page, perPage } = req.query;
+
+      if (!req.query.album && req.query.album !== undefined && page && perPage) {
+        const result = await this._usersService.getAlbums({page:parseInt(page as string),perPage:parseInt(perPage as string)})
         if (result) {
           return res.status(HttpStatus.OK).json(result)
         }
@@ -819,11 +821,12 @@ export class UsersController {
   @Get('get-user-playlist')
   async getUserPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      if (!req.query.playlist) {
-        const data = await this._usersService.getUserPlaylist(req.user._id)
+      const { page, perPage } = req.query;
+      if (!req.query.playlist && req.query.playlist!==undefined && page && perPage) {
+        const data = await this._usersService.getUserPlaylist({userId:req.user._id, page:parseInt(page as string),perPage:parseInt(perPage as string)})
         res.status(HttpStatus.OK).json(data)
       }
-      if (req.query.playlist) {
+      if (req.query.playlist && req.query.playlist!==undefined) {
         const data = await this._usersService.searchPlaylist(req.query.playlist as string)
         res.status(HttpStatus.OK).json(data)
       }
@@ -856,7 +859,6 @@ export class UsersController {
   async getPlaylistSongs(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string)
-      console.log(data.songsId[0])
       res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)

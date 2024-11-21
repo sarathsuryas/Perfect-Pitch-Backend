@@ -155,7 +155,7 @@ export class UsersService {
             isAdmin: user.isAdmin, 
             isBlocked: user.isBlocked
           }
-          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1m" })
+          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10m" })
           const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1h" })
           await this._usersRepository.refreshTokenSetup(refreshToken, user._id)
           const obj = {
@@ -283,7 +283,7 @@ export class UsersService {
 
   async createAccessToken(payload: IUserData): Promise<string> {
     try {
-      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1m" })
+      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10m" })
 
       return accessToken
     } catch (error) {
@@ -441,9 +441,9 @@ export class UsersService {
     }
   }
 
-  async listVideos(): Promise<IVideoList[]> {
+  async listVideos(data:{page:number,perPage:number}): Promise<IVideoList[]> {
     try {
-      return await this._usersRepository.listVideos()
+      return await this._usersRepository.listVideos(data)
     } catch (error) {
       console.error(error)
     }
@@ -470,9 +470,9 @@ export class UsersService {
     }
   }
 
-  async getAlbums(): Promise<IAlbumData[]> {
+  async getAlbums(data:{page:number,perPage:number}): Promise<IAlbumData[]> {
     try {
-      return await this._usersRepository.getAlbums()
+      return await this._usersRepository.getAlbums(data)
     } catch (error) {
       console.error(error)
     }
@@ -623,9 +623,9 @@ export class UsersService {
     }
   }
 
-  async getUserPlaylist(userId: string): Promise<IUserPlaylists[]> {
+  async getUserPlaylist(data:{userId:string,page:number,perPage:number}): Promise<IUserPlaylists[]> {
     try {
-      return await this._usersRepository.getUserPlaylist(userId)
+      return await this._usersRepository.getUserPlaylist(data)
     } catch (error) {
       console.error(error)
     }

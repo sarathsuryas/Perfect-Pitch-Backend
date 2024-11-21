@@ -313,9 +313,14 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async listVideos(): Promise<IVideoList[]> {
+  async listVideos(data: { page: number, perPage: number }): Promise<IVideoList[]> {
     try {
-      const videos = await this._videoModel.find({ shorts: false }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 }).lean() as IVideoList[]
+      console.log((data.page - 1) * data.perPage)
+      console.log(data.perPage)
+      const videos = await this._videoModel.find({ shorts: false }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 })
+        .skip((data.page - 1) * data.perPage)
+        .limit(data.perPage)
+        .lean() as IVideoList[]
       return videos
     } catch (error) {
       console.error(error)
@@ -359,9 +364,11 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async getAlbums(): Promise<IAlbumData[]> {
+  async getAlbums(data: { page: number, perPage: number }): Promise<IAlbumData[]> {
     try {
       const result = await this._albumModel.find({}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
+        .skip((data.page - 1) * data.perPage)
+        .limit(data.perPage)
         .populate('artistId', "fullName")
         .lean() as IAlbumData[]
 
@@ -492,19 +499,19 @@ export class UserRepository implements IUserRepository {
         { $match: { _id: new mongoose.Types.ObjectId(id) } },
         { $match: { viewers: userId } }
       ])
-      if(viewer.length === 0) {
-         await this._videoModel.findByIdAndUpdate(id,{$push:{viewers:userId}})
+      if (viewer.length === 0) {
+        await this._videoModel.findByIdAndUpdate(id, { $push: { viewers: userId } })
       }
       const data = await this._videoModel.findById(id)
         .populate('artistId', 'subscribers profileImage fullName')
-        .lean() as IVideoDetails 
+        .lean() as IVideoDetails
 
       const filter = await this._videoModel.find(
         {
           $and: [
             { _id: { $ne: data._id } },
             { genreId: data.genreId }
-          ]   
+          ]
         })
         .populate('artistId', 'subscribers profileImage fullName')
         .lean() as IVideoDetails[]
@@ -666,15 +673,18 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async getUserPlaylist(userId: string) {
+  async getUserPlaylist(data: { userId: string, page: number, perPage: number }) {
     try {
-      return await this._playlistModel.find({ userId: userId }).lean() as IUserPlaylists[]
+      return await this._playlistModel.find({ userId: data.userId })
+        .skip((data.page - 1) * data.perPage)
+        .limit(data.perPage)
+        .lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)
     }
   }
   async searchPlaylist(query: string) {
-    try {
+    try { 
       return await this._playlistModel.find({ title: { $regex: `^${query}`, $options: 'i' } }).lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)
@@ -915,7 +925,7 @@ export class UserRepository implements IUserRepository {
       if (data) {
         return true
       } else {
-        return false
+        return false 
       }
     } catch (error) {
       console.error(error)

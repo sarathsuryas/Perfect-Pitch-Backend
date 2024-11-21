@@ -1,4 +1,4 @@
-import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Patch, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Patch, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RegisterUserDto } from '../dtos/registerUser.dto';
 import { Request, Response } from 'express';
 import { VerifyOtpDto } from '../dtos/verifyOtp.dto';
@@ -101,7 +101,7 @@ export class UsersController {
       } else {
         res.status(HttpStatus.NOT_FOUND).json(data)
       }
-    } catch (error) {
+    } catch (error) { 
       console.log(error)
       throw new InternalServerErrorException({ message: "Internal Server Error" })
     }
@@ -225,7 +225,8 @@ export class UsersController {
         profileImage: user.profileImage,
         phone: user.phone,
         premiumUser: user.premiumUser,
-        isBlocked: user.isBlocked
+        isBlocked: user.isBlocked,
+        subscribers:user.subscribers
       }
       if (user) {
         res.status(HttpStatus.OK).json(obj)
@@ -429,10 +430,10 @@ export class UsersController {
   @Post('post-video-details')
   async submitVideoDetails(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const { videoName, videoDescription, genre, uniqueKeyVideo, uniqueKeyThumbNail } = req.body
+      const { videoName, videoDescription, genreId, uniqueKeyVideo, uniqueKeyThumbNail } = req.body
       const videoLink = this._presignedUrlService.getFileUrl(uniqueKeyVideo)
       const thumbnailLink = this._presignedUrlService.getFileUrl(uniqueKeyThumbNail)
-      const videoId = await this._usersService.SubmitVideoDetails(videoName, videoDescription, genre, req.user._id, videoLink, thumbnailLink, req.user.fullName)
+      const videoId = await this._usersService.SubmitVideoDetails(videoName, videoDescription, genreId, req.user._id, videoLink, thumbnailLink, req.user.fullName)
       if (videoId) {
         return res.status(HttpStatus.ACCEPTED).json({ success: true, videoId })
       } else {
@@ -449,6 +450,7 @@ export class UsersController {
   async videoList(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       if (!req.query.video) {
+       
         const videos = await this._usersService.listVideos()
         if (videos) {
           return res.status(HttpStatus.ACCEPTED).json(videos)
@@ -741,6 +743,7 @@ export class UsersController {
   @Post('reply-comment')
   async replyComment(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
+    
       await this._usersService.replyComment(req.body.reply)
       res.status(HttpStatus.OK).json({ success: true })
     } catch (error) {
@@ -1077,7 +1080,7 @@ export class UsersController {
     try {
       const peer = new webrtc.RTCPeerConnection({
         iceServers: [
-          {
+          {  
             urls: "stun:stun.stunprotocol.org"
           }
         ]
@@ -1141,6 +1144,46 @@ async getLiveStreams(@Req() req:Request,@Res() res:Response) {
   throw new InternalServerErrorException()
  }
 }
+
+@UseGuards(UserAuthenticationGuard)
+@Get('get-chats')
+async getChats(@Req() req:ICustomRequest,@Res() res:Response) {
+  try {
+   const chats = await this._usersService.getChats(req.query?.streamKey as string)
+   res.status(HttpStatus.OK).json(chats)
+  } catch (error) {
+    console.error(error)
+  storeError(error, new Date())
+  throw new InternalServerErrorException()
+  } 
+}
+
+@UseGuards(UserAuthenticationGuard)
+@Get('get-live-video-details')
+async getLiveVideoDetails(@Req() req:ICustomRequest,@Res() res:Response) {
+  try {
+   const data = await this._usersService.getLiveVideoDetails(req.query?.streamKey as string)
+   res.status(HttpStatus.OK).json(data)
+  } catch (error) {
+    console.error(error)
+  storeError(error, new Date())
+  throw new InternalServerErrorException()
+  } 
+}
+
+@UseGuards(UserAuthenticationGuard)
+@Delete('stop-stream')
+async stopStream(@Req() req:ICustomRequest,@Res() res:Response) {
+  try {
+   const data = await this._usersService.stopStreaming(req.body.streamKey)
+   res.status(HttpStatus.OK).json({success:true})
+  } catch (error) {
+    console.error(error)
+  storeError(error, new Date())
+  throw new InternalServerErrorException()
+  } 
+}
+
 
 
 }

@@ -53,6 +53,10 @@ import { Live } from "../schema/live.schema";
 import { ICreateLive } from "../interfaces/ICreateLive";
 import { title } from "process";
 import { ILiveStreams } from "../interfaces/ILiveStreams";
+import { IMessageDto } from "../dtos/IMessageDto";
+import { LiveChat } from "../schema/liveChat.schema";
+import { IChats } from "../interfaces/IChats";
+import { ILive } from "../interfaces/ILive";
 
 
 @Injectable()
@@ -72,11 +76,12 @@ export class UserRepository implements IUserRepository {
     @InjectModel('ReplyToReply') private _replyToReplyModel: Model<ReplyToReply>,
     @InjectModel('MemberShip') private _memberShipModel: Model<MemberShip>,
     @InjectModel('Payment') private _paymentModel: Model<Payment>,
-    @InjectModel('Live') private _liveModel: Model<Live>
+    @InjectModel('Live') private _liveModel: Model<Live>,
+    @InjectModel('LiveChat') private _chatModel: Model<LiveChat>
   ) {
-   this.getLiveStreams()
+    this.getLiveStreams()
   }
- 
+
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
     try {
       const result = await this._userModel.findOne({ email: userData.email })
@@ -138,7 +143,7 @@ export class UserRepository implements IUserRepository {
   async existUser(email: string): Promise<IUserData | null> {
     try {
 
-      const exist = await this._userModel.findOne({ email: email })
+      const exist = await this._userModel.findOne({ email: { $regex: `^${email}`, $options: 'i' } })
 
       if (exist) {
         const obj: IUserData = {
@@ -290,13 +295,13 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async uploadVideo(videoName: string, videoDescription: string, genre: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
+  async uploadVideo(videoName: string, videoDescription: string, genreId: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
     try {
       const result = await this._videoModel.create({
         artist: artist,
         title: videoName,
         description: videoDescription,
-        genre: genre,
+        genreId: genreId,
         artistId: artistId,
         link: videoLink,
         thumbnailLink: thumbNailLink
@@ -483,11 +488,24 @@ export class UserRepository implements IUserRepository {
 
   async getVideoDetails(id: string, userId: string): Promise<IResponseVideo> {
     try {
-      const videoSuggstionsComment: ISuggestionCommentResponse[] = []
+      const viewer = await this._videoModel.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(id) } },
+        { $match: { viewers: userId } }
+      ])
+      if(viewer.length === 0) {
+         await this._videoModel.findByIdAndUpdate(id,{$push:{viewers:userId}})
+      }
       const data = await this._videoModel.findById(id)
         .populate('artistId', 'subscribers profileImage fullName')
-        .lean() as IVideoDetails
-      const filter = await this._videoModel.find({ genre: data.genre })
+        .lean() as IVideoDetails 
+
+      const filter = await this._videoModel.find(
+        {
+          $and: [
+            { _id: { $ne: data._id } },
+            { genreId: data.genreId }
+          ]   
+        })
         .populate('artistId', 'subscribers profileImage fullName')
         .lean() as IVideoDetails[]
       const userProfileImage = await this._userModel.findById(userId, { _id: 1, profileImage: 1 })
@@ -923,42 +941,46 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async createLive(data:ICreateLive):Promise<string> {
-   try {
-    const result = await this._liveModel.create({
-      uuid:uuidv4(),
-      title:data.title,
-      description:data.description,
-      artistId:data.artistId,
-      genreId:data.genreId,
-      thumbNailLink:data.thumbNailLink
-    })
-    return result.uuid
-   } catch (error) {
-    console.error(error)
-   }
+  async createLive(data: ICreateLive): Promise<string> {
+    try {
+      const result = await this._liveModel.create({
+        uuid: uuidv4(),
+        title: data.title,
+        description: data.description,
+        artistId: data.artistId,
+        genreId: data.genreId,
+        thumbNailLink: data.thumbNailLink
+      })
+      return result.uuid
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  async getLiveStreams():Promise<ILiveStreams[]> { 
+  async getLiveStreams(): Promise<ILiveStreams[]> {
     try {
       const streams = await this._liveModel.aggregate([
-        {$lookup:{
-          from:'users',
-          localField:"artistId",
-          foreignField:'_id',
-          as:'artistDetails'
-        }},
-        {$unwind:'$artistDetails'},
-        {$project:{
-          _id:0,
-          uuid:1,
-          thumbNailLink:1,
-          title:1,
-          artistDetails:{
-            _id:1,
-            fullName:1
+        {
+          $lookup: {
+            from: 'users',
+            localField: "artistId",
+            foreignField: '_id',
+            as: 'artistDetails'
           }
-        }}
+        },
+        { $unwind: '$artistDetails' },
+        {
+          $project: {
+            _id: 0,
+            uuid: 1,
+            thumbNailLink: 1,
+            title: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        }
       ]) as ILiveStreams[]
 
       return streams
@@ -967,6 +989,91 @@ export class UserRepository implements IUserRepository {
     }
   }
 
+
+  async StoreChat(data: IMessageDto) {
+    try {
+      await this._chatModel.create({
+        streamKey: data.streamKey,
+        userId: data.userId,
+        message: data.message
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getChat(streamKey: string): Promise<IChats[]> {
+    try {
+      const chats = await this._chatModel.aggregate([
+        { $match: { streamKey: streamKey } },
+        {
+          $lookup: {
+            from: "users",
+            foreignField: '_id',
+            localField: 'userId',
+            as: 'userData'
+          }
+        },
+        { $unwind: '$userData' },
+        {
+          $project: {
+            streamKey: 1,
+            message: 1,
+            userData: {
+              _id: 1,
+              fullName: 1
+            },
+            createdAt: 1
+          }
+        },
+        { $sort: { createdAt: 1 } }
+      ]) as IChats[]
+
+      return chats
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getLiveVideoDetails(streamKey: string): Promise<ILive> {
+    try {
+      console.log(streamKey)
+      const live = await this._liveModel.aggregate([
+        { $match: { uuid: streamKey } },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'artistId',
+            foreignField: '_id',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            uuid: 1,
+            title: 1,
+            artistData: {
+              fullName: 1,
+              _id: 1,
+              profileImage: 1
+            }
+          }
+        }
+      ])
+      return live[0]
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  async stopStream(streamKey: string) {
+    try {
+      console.log(streamKey)
+      await this._liveModel.deleteOne({ uuid: streamKey })
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
 
 }        

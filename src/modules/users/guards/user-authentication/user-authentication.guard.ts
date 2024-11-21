@@ -24,7 +24,7 @@ export class UserAuthenticationGuard implements CanActivate {
       return true
     } catch (error) {
       console.error(error)
-      throw new UnauthorizedException()
+      throw new UnauthorizedException({message:"accessToken expired"})
     }
   }  
   }

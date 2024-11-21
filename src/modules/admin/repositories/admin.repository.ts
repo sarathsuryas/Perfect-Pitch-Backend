@@ -149,7 +149,7 @@ export class AdminRepository implements IAdminRepository {
 
   async existUser(email: string): Promise<string> {
     try {
-      const user = await this._adminModel.findOne({ email: email }).lean() as IAdminData
+      const user = await this._adminModel.findOne({ email: { email: { $regex: `^${email}`, $options: 'i' }  } }).lean() as IAdminData
       if (user) {
         return user._id + ''
       }

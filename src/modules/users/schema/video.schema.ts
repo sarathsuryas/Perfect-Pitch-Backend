@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, ObjectId } from "mongoose";
 
 @Schema()
 export class Video extends Document {
@@ -21,10 +21,10 @@ visibility:boolean;
 access:string;
 @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User' }) 
 artistId:string;
-@Prop()
-section:string;
-@Prop()
-genre:string
+@Prop({default:[]})
+viewers:string[];
+@Prop({type: mongoose.Schema.Types.ObjectId})
+genreId:ObjectId
 @Prop({default:false})
 shorts:boolean;
 }

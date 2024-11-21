@@ -26,10 +26,11 @@ import { PaymentService } from './services/payment/payment.service';
 import { memebershipSchema } from './schema/membership.schema';
 import { paymentSchema } from './schema/payment.schema';
 import { liveSchema } from './schema/live.schema';
+import { LiveChatSchema } from './schema/liveChat.schema';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
-    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'VideoComment',schema:videoCommentSchema},{name:'CommentReply',schema:commentReplySchema},{name:'Playlist',schema:playlistSchema},{name:'Genre',schema:genresSchema},{name:'ReplyToReply',schema:replyToReplySchema},{name:'MemberShip',schema:memebershipSchema},{name:'Payment',schema:paymentSchema},{name:'Live',schema:liveSchema}]),
+    {name:'Otp',schema:otpScema},{name:'UserResetToken',schema:UserResetTokenSchema},{name:'Video',schema:videoSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'VideoComment',schema:videoCommentSchema},{name:'CommentReply',schema:commentReplySchema},{name:'Playlist',schema:playlistSchema},{name:'Genre',schema:genresSchema},{name:'ReplyToReply',schema:replyToReplySchema},{name:'MemberShip',schema:memebershipSchema},{name:'Payment',schema:paymentSchema},{name:'Live',schema:liveSchema},{name:'LiveChat',schema:LiveChatSchema}]),
     JwtModule, 
   ],
   controllers:[UsersController],

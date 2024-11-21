@@ -42,6 +42,8 @@ import { IReplyToReply } from '../../interfaces/IReplyToReply';
 import { IUserMedia } from '../../interfaces/IUserMedia';
 import { ICreateLive } from '../../interfaces/ICreateLive';
 import { ILiveStreams } from '../../interfaces/ILiveStreams';
+import { IChats } from '../../interfaces/IChats';
+import { ILive } from '../../interfaces/ILive';
 
 
 @Injectable()
@@ -139,7 +141,7 @@ export class UsersService {
 
       const user = await this._usersRepository.existUser(userData.email)
 
-      if (user.isBlocked) {
+      if (user && user.isBlocked) {
         return 'you cant login'
       }
 
@@ -150,11 +152,11 @@ export class UsersService {
             _id: user._id + '',
             email: user.email,
             fullName: user.fullName,
-            isAdmin: user.isAdmin,
+            isAdmin: user.isAdmin, 
             isBlocked: user.isBlocked
           }
-          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
-          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
+          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1m" })
+          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1h" })
           await this._usersRepository.refreshTokenSetup(refreshToken, user._id)
           const obj = {
             token: accessToken,
@@ -236,12 +238,12 @@ export class UsersService {
         for (let i = 0; i < 5; i++) {
           OTP += digits[Math.floor(Math.random() * len)];
         }
-
+      
         return OTP;
       }
       const otp = generateOTP()
       console.log(otp, "genereated from Service")
-      const html = readFileSync(join(__dirname + "../../../../../public/otp.html"), "utf-8")
+      const html = readFileSync(join(__dirname, '../../../../../public/otp.html'), "utf-8")
       const updatedContent = html.replace(
         '<strong style="font-size: 130%" id="otp"></strong>',
         `<strong style="font-size: 130%" id="otp">${otp}</strong>`
@@ -281,7 +283,7 @@ export class UsersService {
 
   async createAccessToken(payload: IUserData): Promise<string> {
     try {
-      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
+      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1m" })
 
       return accessToken
     } catch (error) {
@@ -430,9 +432,9 @@ export class UsersService {
     }
   }
 
-  async SubmitVideoDetails(videoName: string, videoDescription: string, genre: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
+  async SubmitVideoDetails(videoName: string, videoDescription: string, genreId: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
     try {
-      const data = await this._usersRepository.uploadVideo(videoName, videoDescription, genre, artistId, videoLink, thumbNailLink, artist)
+      const data = await this._usersRepository.uploadVideo(videoName, videoDescription, genreId, artistId, videoLink, thumbNailLink, artist)
       return data._id
     } catch (error) {
       console.error(error)
@@ -747,6 +749,29 @@ async getLiveStreams():Promise<ILiveStreams[]> {
 }
 
 
+async getChats(streamKey:string):Promise<IChats[]> {
+ try {
+  return await this._usersRepository.getChat(streamKey)
+ } catch (error) {
+  console.error(error)
+ }
+}
+
+async getLiveVideoDetails(streamKey:string):Promise<ILive> {
+  try {
+    return await this._usersRepository.getLiveVideoDetails(streamKey) 
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async stopStreaming(streamKey:string) {
+   try {
+    return  await this._usersRepository.stopStream(streamKey)
+   } catch (error) {
+    console.error(error)
+   }
+}
 
 }
 

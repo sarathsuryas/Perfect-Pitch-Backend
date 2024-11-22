@@ -450,7 +450,9 @@ export class UsersController {
   async videoList(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
-      if (!req.query.video && req.query.video!==undefined && page && perPage) {
+      console.log(typeof req.query.video)
+      if (!req.query.video || req.query.video === "undefined" && page && perPage) {
+        console.log('in')
         const videos = await this._usersService.listVideos({page:parseInt(page as string),perPage:parseInt(perPage as string)})
         if (videos) {
           return res.status(HttpStatus.ACCEPTED).json(videos)
@@ -548,6 +550,23 @@ export class UsersController {
       throw new InternalServerErrorException()
     }
   }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('recomended')
+  async recommendedAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+        const result = await this._usersService.recommended()
+        if (result) {
+          return res.status(HttpStatus.OK).json(result)
+      }
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
+    } catch (error) { 
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
 
 
   @UseGuards(UserAuthenticationGuard)
@@ -621,7 +640,7 @@ export class UsersController {
   async albumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const id = req.query.id as string
-      const data = await this._usersService.getAlbumDetails(id)
+      const data = await this._usersService.getAlbumDetails(id,req.user._id)
       if (data) {
         return res.status(HttpStatus.OK).json(data)
       } else {
@@ -818,7 +837,7 @@ export class UsersController {
   }
 
   @UseGuards(UserAuthenticationGuard)
-  @Get('get-user-playlist')
+  @Get('get-user-playlists')
   async getUserPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
@@ -836,6 +855,29 @@ export class UsersController {
       throw new InternalServerErrorException()
     }
   }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-playlists')
+  async getPlaylists(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const { page, perPage } = req.query;
+      if (!req.query.playlist && req.query.playlist!==undefined && page && perPage) {
+        const data = await this._usersService.getPlaylists({userId:req.user._id, page:parseInt(page as string),perPage:parseInt(perPage as string)})
+        res.status(HttpStatus.OK).json(data)
+      }
+      if (req.query.playlist && req.query.playlist!==undefined) {
+        const data = await this._usersService.searchPlaylist(req.query.playlist as string)
+        res.status(HttpStatus.OK).json(data)
+      }
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
 
   @UseGuards(UserAuthenticationGuard)
   @Put('add-to-playlist')
@@ -858,7 +900,7 @@ export class UsersController {
   @Get('get-playlist-songs')
   async getPlaylistSongs(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string)
+      const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string,req.user._id)
       res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)

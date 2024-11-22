@@ -22,6 +22,8 @@ userId:string;
 section:string;
 @Prop({type:[mongoose.Schema.Types.ObjectId], ref: 'Audio' })
 songsId:ObjectId[]
+@Prop({default:[]})
+viewers:string[];
 }
 
 export const playlistSchema = SchemaFactory.createForClass(Playlist)

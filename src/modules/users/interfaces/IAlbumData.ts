@@ -1,4 +1,3 @@
-import { IAudioData } from "./IAudioData";
 
 export interface IAlbumData {
   _id:string;
@@ -6,9 +5,14 @@ export interface IAlbumData {
   uuid:string
   visibility:boolean;
   thumbNailLink:string;
+  viewers:string[]
   artistDetails:{
     _id:string;
     fullName:string;
   }
-  songs:IAudioData[]
+  viewersCount:number
 }
+
+
+
+

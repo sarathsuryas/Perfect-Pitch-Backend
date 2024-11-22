@@ -14,4 +14,5 @@ export interface IUserData {
   profileImageUrlExpiresAt?:Date
   subscribers?:[]
   premiumUser?:boolean
+  subscribersCount?: number
 }

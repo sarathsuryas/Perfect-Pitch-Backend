@@ -44,6 +44,7 @@ import { ICreateLive } from '../../interfaces/ICreateLive';
 import { ILiveStreams } from '../../interfaces/ILiveStreams';
 import { IChats } from '../../interfaces/IChats';
 import { ILive } from '../../interfaces/ILive';
+import { IHomePageData } from '../../interfaces/IHomePageData';
 
 
 @Injectable()
@@ -152,11 +153,11 @@ export class UsersService {
             _id: user._id + '',
             email: user.email,
             fullName: user.fullName,
-            isAdmin: user.isAdmin, 
+            isAdmin: user.isAdmin,
             isBlocked: user.isBlocked
           }
-          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10m" })
-          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1h" })
+          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "5h" })
+          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "7d" })
           await this._usersRepository.refreshTokenSetup(refreshToken, user._id)
           const obj = {
             token: accessToken,
@@ -238,7 +239,7 @@ export class UsersService {
         for (let i = 0; i < 5; i++) {
           OTP += digits[Math.floor(Math.random() * len)];
         }
-      
+
         return OTP;
       }
       const otp = generateOTP()
@@ -283,7 +284,7 @@ export class UsersService {
 
   async createAccessToken(payload: IUserData): Promise<string> {
     try {
-      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10m" })
+      const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "5h" })
 
       return accessToken
     } catch (error) {
@@ -322,7 +323,7 @@ export class UsersService {
       console.error(error)
     }
   }
-  
+
 
   async savePasswordResetToken(id: string, email: string): Promise<boolean> {
     try {
@@ -441,14 +442,14 @@ export class UsersService {
     }
   }
 
-  async listVideos(data:{page:number,perPage:number}): Promise<IVideoList[]> {
+  async listVideos(data: { page: number, perPage: number }): Promise<IVideoList[]> {
     try {
       return await this._usersRepository.listVideos(data)
     } catch (error) {
       console.error(error)
     }
   }
-  async searchVideos(query:string): Promise<IVideoList[]> {
+  async searchVideos(query: string): Promise<IVideoList[]> {
     try {
       return await this._usersRepository.searchVideos(query)
     } catch (error) {
@@ -470,15 +471,32 @@ export class UsersService {
     }
   }
 
-  async getAlbums(data:{page:number,perPage:number}): Promise<IAlbumData[]> {
+  async getAlbums(data: { page: number, perPage: number }): Promise<IAlbumData[]> {
     try {
       return await this._usersRepository.getAlbums(data)
     } catch (error) {
       console.error(error)
     }
   }
+  async recommended(): Promise<IHomePageData> {
+    try {
+      const albums = await this._usersRepository.recommendedAlbums()
+      const artists = await this._usersRepository.recomendedArtists()
+      const videos = await this._usersRepository.recommendedVideos()
+      const playlists = await this._usersRepository.recommendedPlaylists()
+      return {
+        albums,
+        artists,
+        playlists,
+        videos
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-  async getArtistAlbums(artistId:string): Promise<IAlbumData[]> {
+
+  async getArtistAlbums(artistId: string): Promise<IAlbumData[]> {
     try {
       return await this._usersRepository.getArtistAlbums(artistId)
     } catch (error) {
@@ -486,7 +504,7 @@ export class UsersService {
     }
   }
 
-  async searchAlbums(query:string): Promise<IAlbumData[]> {
+  async searchAlbums(query: string): Promise<IAlbumData[]> {
     try {
       return await this._usersRepository.searchAlbum(query)
     } catch (error) {
@@ -503,9 +521,9 @@ export class UsersService {
     }
   }
 
-  async getAlbumDetails(id: string): Promise<IAlbumData> {
+  async getAlbumDetails(id: string, userId: string): Promise<IAlbumData> {
     try {
-      return await this._usersRepository.getAlbumDetails(id)
+      return await this._usersRepository.getAlbumDetails(id, userId)
     } catch (error) {
       console.log(error)
     }
@@ -612,8 +630,8 @@ export class UsersService {
       await this._usersRepository.submitShortsDetails(data)
     } catch (error) {
       console.error(error)
-    } 
-  } 
+    }
+  }
 
   async createPlaylist(data: ICreatePlaylistDto) {
     try {
@@ -623,13 +641,23 @@ export class UsersService {
     }
   }
 
-  async getUserPlaylist(data:{userId:string,page:number,perPage:number}): Promise<IUserPlaylists[]> {
+  async getUserPlaylist(data: { userId: string, page: number, perPage: number }): Promise<IUserPlaylists[]> {
     try {
       return await this._usersRepository.getUserPlaylist(data)
     } catch (error) {
       console.error(error)
     }
   }
+
+  async getPlaylists(data: { userId: string, page: number, perPage: number }): Promise<IUserPlaylists[]> {
+    try {
+      return await this._usersRepository.getPlaylists(data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
   async searchPlaylist(query: string): Promise<IUserPlaylists[]> {
     try {
       return await this._usersRepository.searchPlaylist(query)
@@ -647,9 +675,9 @@ export class UsersService {
     }
   }
 
-  async getPlaylistSongs(playlistId: string): Promise<IUserPlaylists> {
+  async getPlaylistSongs(playlistId: string, userId: string): Promise<IUserPlaylists> {
     try {
-      return await this._usersRepository.getPlaylistSongs(playlistId)
+      return await this._usersRepository.getPlaylistSongs(playlistId, userId)
     } catch (error) {
       console.error(error)
     }
@@ -679,7 +707,7 @@ export class UsersService {
     }
   }
 
-  async searchArtists(query:string): Promise<IUserData[]> {
+  async searchArtists(query: string): Promise<IUserData[]> {
     try {
       return await this._usersRepository.searchArtists(query)
     } catch (error) {
@@ -709,69 +737,69 @@ export class UsersService {
       console.error(error)
     }
   }
-async getMemberShip() {
-  try {
-    return await this._usersRepository.getMemberShip()
-  } catch (error) {
-    console.error(error)
+  async getMemberShip() {
+    try {
+      return await this._usersRepository.getMemberShip()
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-async checkActiveMemberShip(userId:string) {
-  try {
-    return await this._usersRepository.checkActiveMemberShip(userId)
-  } catch (error) {
-    console.error(error)
+  async checkActiveMemberShip(userId: string) {
+    try {
+      return await this._usersRepository.checkActiveMemberShip(userId)
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
-async getArtistMedias(artistId:string):Promise<IUserMedia> {
-  try {
-    return await this._usersRepository.getArtistMedias(artistId)
-  } catch (error) {
-    console.error(error)
+  async getArtistMedias(artistId: string): Promise<IUserMedia> {
+    try {
+      return await this._usersRepository.getArtistMedias(artistId)
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-async createLive(data:ICreateLive):Promise<string> {
-   try {
-    return await this._usersRepository.createLive(data)
-   } catch (error) {
-    console.error(error)
-   }
-}
-
-async getLiveStreams():Promise<ILiveStreams[]> {
-  try {
-    return await this._usersRepository.getLiveStreams()
-  } catch (error) {
-    console.error(error)
+  async createLive(data: ICreateLive): Promise<string> {
+    try {
+      return await this._usersRepository.createLive(data)
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-
-async getChats(streamKey:string):Promise<IChats[]> {
- try {
-  return await this._usersRepository.getChat(streamKey)
- } catch (error) {
-  console.error(error)
- }
-}
-
-async getLiveVideoDetails(streamKey:string):Promise<ILive> {
-  try {
-    return await this._usersRepository.getLiveVideoDetails(streamKey) 
-  } catch (error) {
-    console.error(error)
+  async getLiveStreams(): Promise<ILiveStreams[]> {
+    try {
+      return await this._usersRepository.getLiveStreams()
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
-async stopStreaming(streamKey:string) {
-   try {
-    return  await this._usersRepository.stopStream(streamKey)
-   } catch (error) {
-    console.error(error)
-   }
-}
+
+  async getChats(streamKey: string): Promise<IChats[]> {
+    try {
+      return await this._usersRepository.getChat(streamKey)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getLiveVideoDetails(streamKey: string): Promise<ILive> {
+    try {
+      return await this._usersRepository.getLiveVideoDetails(streamKey)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async stopStreaming(streamKey: string) {
+    try {
+      return await this._usersRepository.stopStream(streamKey)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
 }
 

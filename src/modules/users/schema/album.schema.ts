@@ -23,6 +23,9 @@ section:string;
 genreId:ObjectId
 @Prop({type:[mongoose.Schema.Types.String]})
 songs:string[] 
+@Prop({default:[]})
+viewers:string[];
+
 }
 
 export const albumSchema = SchemaFactory.createForClass(Album)

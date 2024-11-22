@@ -57,6 +57,7 @@ import { IMessageDto } from "../dtos/IMessageDto";
 import { LiveChat } from "../schema/liveChat.schema";
 import { IChats } from "../interfaces/IChats";
 import { ILive } from "../interfaces/ILive";
+import { count } from "console";
 
 
 @Injectable()
@@ -79,7 +80,7 @@ export class UserRepository implements IUserRepository {
     @InjectModel('Live') private _liveModel: Model<Live>,
     @InjectModel('LiveChat') private _chatModel: Model<LiveChat>
   ) {
-    this.getLiveStreams()
+    
   }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
@@ -315,17 +316,82 @@ export class UserRepository implements IUserRepository {
 
   async listVideos(data: { page: number, perPage: number }): Promise<IVideoList[]> {
     try {
-      console.log((data.page - 1) * data.perPage)
-      console.log(data.perPage)
-      const videos = await this._videoModel.find({ shorts: false }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 })
-        .skip((data.page - 1) * data.perPage)
-        .limit(data.perPage)
-        .lean() as IVideoList[]
+      const videos = await this._videoModel.aggregate([
+        { $match: { shorts: false } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+        { $skip: (data.page - 1) * data.perPage },
+        { $limit: data.perPage }
+      ])
+
       return videos
     } catch (error) {
       console.error(error)
     }
   }
+
+  async recommendedVideos(): Promise<IVideoList[]> {
+    try {
+      const videos = await this._videoModel.aggregate([
+        { $match: { shorts: false } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            viewers:1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+        {
+          $addFields: {
+            viewersCount: { $size: '$viewers' }
+          }
+        },
+        { $sort: { viewersCount: -1 } },
+        { $limit: 3 }
+      ])
+
+      return videos
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
 
   async searchVideos(query: string): Promise<IVideoList[]> {
@@ -378,6 +444,50 @@ export class UserRepository implements IUserRepository {
     }
   }
 
+  async recommendedAlbums(): Promise<IAlbumData[]> {
+    try {
+      const result = await this._albumModel.aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        }, {
+          $addFields: {
+            viewersCount: { $size: '$viewers' }
+          }
+        },
+        {
+          $sort: {
+            viewersCount: -1
+          }
+        }, {
+          $limit: 4
+        }
+      ])
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+
   async getArtistAlbums(artistId: string): Promise<IAlbumData[]> {
     try {
       const result = await this._albumModel.find({ artistId: artistId }, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
@@ -410,8 +520,16 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async getAlbumDetails(id: string): Promise<IAlbumData> {
+  async getAlbumDetails(id: string, userId: string): Promise<IAlbumData> {
     try {
+
+      const viewer = await this._albumModel.aggregate([
+        { $match: { uuid: id } },
+        { $match: { viewers: userId } }
+      ])
+      if (viewer.length === 0) {
+        await this._albumModel.findOneAndUpdate({ uuid: id }, { $push: { viewers: userId } })
+      }
       const result = await this._albumModel.aggregate([
         { $match: { uuid: id } },
         {
@@ -665,7 +783,6 @@ export class UserRepository implements IUserRepository {
 
   async createPlaylist(data: ICreatePlaylistDto) {
     try {
-      console.log(data)
       const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId, thumbNailLink: data.thumbNailLink })
       return value
     } catch (error) {
@@ -683,8 +800,33 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+  async getPlaylists(data: { userId: string, page: number, perPage: number }) {
+    try {
+      return await this._playlistModel.find({ $and: [{ userId: { $ne: data.userId } }, { access: 'public' }] })
+        .skip((data.page - 1) * data.perPage)
+        .limit(data.perPage)
+        .lean() as IUserPlaylists[]
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async recommendedPlaylists():Promise<IUserPlaylists[]> {
+    try {
+    return await this._playlistModel.aggregate([
+      {$match:{access:'public'}},
+      {$addFields:{viewersCount:{$size:'$viewers'}}},
+      {$sort:{viewersCount:-1}},
+      {$limit:4}
+    ]) as IUserPlaylists[]
+    } catch (error) {
+      console.error(error)
+    }
+  }  
+
+
   async searchPlaylist(query: string) {
-    try { 
+    try {
       return await this._playlistModel.find({ title: { $regex: `^${query}`, $options: 'i' } }).lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)
@@ -706,8 +848,15 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async getPlaylistSongs(playlistId: string): Promise<IUserPlaylists> {
+  async getPlaylistSongs(playlistId: string, userId: string): Promise<IUserPlaylists> {
     try {
+      const viewer = await this._playlistModel.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(playlistId) } },
+        { $match: { viewers: userId } }
+      ])
+      if (viewer.length === 0) {
+        await this._playlistModel.findByIdAndUpdate(playlistId, { $push: { viewers: userId } })
+      }
       return await this._playlistModel.findOne({ _id: playlistId })
         .populate({
           path: 'songsId',
@@ -754,6 +903,38 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+
+  async recomendedArtists(): Promise<IUserData[]> {
+    try {
+      const artists = await this._userModel.aggregate([
+        {
+          $project: {
+            _id: 1,
+            fullName: 1,
+            subscribers: 1,
+            profileImage: 1,
+            premiumUser: 1
+          },
+        },
+        {
+          $addFields: {
+            subscribersCount: { $size: '$subscribers' }
+          }
+        },
+        {
+          $sort: { subscribersCount: -1 }
+        },
+        { $limit: 4 }
+      ])
+      return artists
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+
+
   async searchArtists(query: string): Promise<IUserData[]> {
     try {
       return await this._userModel.find({ fullName: { $regex: `^${query}`, $options: 'i' } })
@@ -804,14 +985,6 @@ export class UserRepository implements IUserRepository {
         }
       ])
       return data[0]
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  async getPlaylistSong(playlistId: string) {
-    try {
-
     } catch (error) {
       console.error(error)
     }
@@ -925,7 +1098,7 @@ export class UserRepository implements IUserRepository {
       if (data) {
         return true
       } else {
-        return false 
+        return false
       }
     } catch (error) {
       console.error(error)

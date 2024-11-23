@@ -80,7 +80,7 @@ export class UserRepository implements IUserRepository {
     @InjectModel('Live') private _liveModel: Model<Live>,
     @InjectModel('LiveChat') private _chatModel: Model<LiveChat>
   ) {
-    
+
   }
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
@@ -370,7 +370,7 @@ export class UserRepository implements IUserRepository {
             thumbNailLink: 1,
             visibility: 1,
             link: 1,
-            viewers:1,
+            viewers: 1,
             artistData: {
               _id: 1,
               fullName: 1
@@ -432,11 +432,31 @@ export class UserRepository implements IUserRepository {
 
   async getAlbums(data: { page: number, perPage: number }): Promise<IAlbumData[]> {
     try {
-      const result = await this._albumModel.find({}, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
-        .skip((data.page - 1) * data.perPage)
-        .limit(data.perPage)
-        .populate('artistId', "fullName")
-        .lean() as IAlbumData[]
+      const result = await this._albumModel.aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+        { $skip: (data.page - 1) * data.perPage },
+        { $limit: data.perPage }
+      ])
 
       return result
     } catch (error) {
@@ -800,6 +820,16 @@ export class UserRepository implements IUserRepository {
       console.error(error)
     }
   }
+
+  async getAllPlaylistUser(userId:string) {
+    try {
+      return await this._playlistModel.find({ userId:userId })
+        .lean() as IUserPlaylists[]
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   async getPlaylists(data: { userId: string, page: number, perPage: number }) {
     try {
       return await this._playlistModel.find({ $and: [{ userId: { $ne: data.userId } }, { access: 'public' }] })
@@ -811,18 +841,18 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async recommendedPlaylists():Promise<IUserPlaylists[]> {
+  async recommendedPlaylists(): Promise<IUserPlaylists[]> {
     try {
-    return await this._playlistModel.aggregate([
-      {$match:{access:'public'}},
-      {$addFields:{viewersCount:{$size:'$viewers'}}},
-      {$sort:{viewersCount:-1}},
-      {$limit:4}
-    ]) as IUserPlaylists[]
+      return await this._playlistModel.aggregate([
+        { $match: { access: 'public' } },
+        { $addFields: { viewersCount: { $size: '$viewers' } } },
+        { $sort: { viewersCount: -1 } },
+        { $limit: 4 }
+      ]) as IUserPlaylists[]
     } catch (error) {
       console.error(error)
     }
-  }  
+  }
 
 
   async searchPlaylist(query: string) {
@@ -857,7 +887,7 @@ export class UserRepository implements IUserRepository {
       if (viewer.length === 0) {
         await this._playlistModel.findByIdAndUpdate(playlistId, { $push: { viewers: userId } })
       }
-      return await this._playlistModel.findOne({ _id: playlistId })
+      const data = await this._playlistModel.findOne({ _id: playlistId })
         .populate({
           path: 'songsId',
           populate: {
@@ -867,8 +897,8 @@ export class UserRepository implements IUserRepository {
           },
 
         })
-        .lean()
-
+        .lean() as IUserPlaylists
+      return data
     } catch (error) {
       console.error(error)
     }
@@ -885,12 +915,11 @@ export class UserRepository implements IUserRepository {
 
   async getSameGenreSongs(genreId: string): Promise<ISongsSameGenre[]> {
     try {
-
-      return await this._audioModel.find({ genreId: genreId })
+      const data = await this._audioModel.find({ genreId: genreId })
         .populate('albumId', 'title thumbNailLink')
         .populate('artistId', 'fullName')
         .lean() as ISongsSameGenre[]
-
+      return data
     } catch (error) {
       console.error(error)
     }
@@ -1119,6 +1148,86 @@ export class UserRepository implements IUserRepository {
       }
 
       return obj
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getUserAlbums(artistId: string): Promise<IAlbumData[]> {
+    try {
+
+      const result = await this._albumModel.aggregate([
+        { $match: { artistId: new mongoose.Types.ObjectId(artistId) } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+
+      ])
+
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getUserPublicPlaylist(userId: string) {
+    try {
+      return await this._playlistModel.find({ userId: userId, access: 'public' })
+        .lean() as IUserPlaylists[]
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+  async getUserVideos(userId: string): Promise<IVideoList[]> {
+    try {
+      const videos = await this._videoModel.aggregate([
+        { $match: { artistId: new mongoose.Types.ObjectId(userId) } },
+        { $match: { shorts: false } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+      ])
+
+      return videos
     } catch (error) {
       console.error(error)
     }

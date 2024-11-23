@@ -117,7 +117,7 @@ export class UsersService {
         const { _id, fullName, email, isAdmin, isBlocked } = result
         const payload = { _id, fullName, email, isAdmin, isBlocked }
         const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
-        const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "2d" })
+        const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "7d" })
         await this._usersRepository.refreshTokenSetup(refreshToken, _id)
         const obj: IUserData = {
           _id: _id,
@@ -648,6 +648,13 @@ export class UsersService {
       console.error(error)
     }
   }
+  async getAllPlaylistUser(userId:string): Promise<IUserPlaylists[]> {
+    try {
+      return await this._usersRepository.getAllPlaylistUser(userId)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   async getPlaylists(data: { userId: string, page: number, perPage: number }): Promise<IUserPlaylists[]> {
     try {
@@ -754,7 +761,14 @@ export class UsersService {
   }
   async getArtistMedias(artistId: string): Promise<IUserMedia> {
     try {
-      return await this._usersRepository.getArtistMedias(artistId)
+      const albums = await this._usersRepository.getUserAlbums(artistId)
+      const videos = await this._usersRepository.getUserVideos(artistId)
+      const playlists = await this._usersRepository.getUserPublicPlaylist(artistId)
+      return {
+        albums,
+        videos,
+        playlists
+      }
     } catch (error) {
       console.error(error)
     }

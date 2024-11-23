@@ -70,7 +70,7 @@ export class UsersController {
         res.cookie('userRefreshToken', result.refreshToken, {
           httpOnly: true,
           secure: true,
-          sameSite: 'strict'
+          sameSite: 'strict',
         })
         return res.status(HttpStatus.CREATED).send(result)
       } else {
@@ -101,7 +101,7 @@ export class UsersController {
       } else {
         res.status(HttpStatus.NOT_FOUND).json(data)
       }
-    } catch (error) { 
+    } catch (error) {
       console.log(error)
       throw new InternalServerErrorException({ message: "Internal Server Error" })
     }
@@ -161,8 +161,8 @@ export class UsersController {
     } catch (error) {
       console.error(error)
     }
-  }
-
+  } 
+ 
   @Post('req-reset-password')
   async resetPassword(@Req() req: Request, @Res() res: Response) {
     if (!req.body.email) {
@@ -226,7 +226,7 @@ export class UsersController {
         phone: user.phone,
         premiumUser: user.premiumUser,
         isBlocked: user.isBlocked,
-        subscribers:user.subscribers
+        subscribers: user.subscribers
       }
       if (user) {
         res.status(HttpStatus.OK).json(obj)
@@ -453,7 +453,7 @@ export class UsersController {
       console.log(typeof req.query.video)
       if (!req.query.video || req.query.video === "undefined" && page && perPage) {
         console.log('in')
-        const videos = await this._usersService.listVideos({page:parseInt(page as string),perPage:parseInt(perPage as string)})
+        const videos = await this._usersService.listVideos({ page: parseInt(page as string), perPage: parseInt(perPage as string) })
         if (videos) {
           return res.status(HttpStatus.ACCEPTED).json(videos)
         } else {
@@ -532,7 +532,7 @@ export class UsersController {
       const { page, perPage } = req.query;
 
       if (!req.query.album && req.query.album !== undefined && page && perPage) {
-        const result = await this._usersService.getAlbums({page:parseInt(page as string),perPage:parseInt(perPage as string)})
+        const result = await this._usersService.getAlbums({ page: parseInt(page as string), perPage: parseInt(perPage as string) })
         if (result) {
           return res.status(HttpStatus.OK).json(result)
         }
@@ -554,12 +554,12 @@ export class UsersController {
   @Get('recomended')
   async recommendedAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-        const result = await this._usersService.recommended()
-        if (result) {
-          return res.status(HttpStatus.OK).json(result)
+      const result = await this._usersService.recommended()
+      if (result) {
+        return res.status(HttpStatus.OK).json(result)
       }
       return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
-    } catch (error) { 
+    } catch (error) {
       console.error(error)
       throw new InternalServerErrorException()
     }
@@ -640,7 +640,7 @@ export class UsersController {
   async albumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const id = req.query.id as string
-      const data = await this._usersService.getAlbumDetails(id,req.user._id)
+      const data = await this._usersService.getAlbumDetails(id, req.user._id)
       if (data) {
         return res.status(HttpStatus.OK).json(data)
       } else {
@@ -764,7 +764,7 @@ export class UsersController {
   @Post('reply-comment')
   async replyComment(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-    
+
       await this._usersService.replyComment(req.body.reply)
       res.status(HttpStatus.OK).json({ success: true })
     } catch (error) {
@@ -841,15 +841,29 @@ export class UsersController {
   async getUserPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
-      if (!req.query.playlist && req.query.playlist!==undefined && page && perPage) {
-        const data = await this._usersService.getUserPlaylist({userId:req.user._id, page:parseInt(page as string),perPage:parseInt(perPage as string)})
+      if (!req.query.playlist && req.query.playlist !== undefined && page && perPage) {
+        const data = await this._usersService.getUserPlaylist({ userId: req.user._id, page: parseInt(page as string), perPage: parseInt(perPage as string) })
         res.status(HttpStatus.OK).json(data)
       }
-      if (req.query.playlist && req.query.playlist!==undefined) {
+      if (req.query.playlist && req.query.playlist !== undefined) {
         const data = await this._usersService.searchPlaylist(req.query.playlist as string)
         res.status(HttpStatus.OK).json(data)
       }
     } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-all-playlists-user')
+  async getAllPlaylistUser(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._usersService.getAllPlaylistUser(req.user._id as string)
+      res.status(HttpStatus.OK).json(data)
+    }catch (error) { 
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
@@ -861,11 +875,11 @@ export class UsersController {
   async getPlaylists(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
-      if (!req.query.playlist && req.query.playlist!==undefined && page && perPage) {
-        const data = await this._usersService.getPlaylists({userId:req.user._id, page:parseInt(page as string),perPage:parseInt(perPage as string)})
+      if (!req.query.playlist && req.query.playlist !== undefined && page && perPage) {
+        const data = await this._usersService.getPlaylists({ userId: req.user._id, page: parseInt(page as string), perPage: parseInt(perPage as string) })
         res.status(HttpStatus.OK).json(data)
       }
-      if (req.query.playlist && req.query.playlist!==undefined) {
+      if (req.query.playlist && req.query.playlist !== undefined) {
         const data = await this._usersService.searchPlaylist(req.query.playlist as string)
         res.status(HttpStatus.OK).json(data)
       }
@@ -900,7 +914,7 @@ export class UsersController {
   @Get('get-playlist-songs')
   async getPlaylistSongs(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string,req.user._id)
+      const data = await this._usersService.getPlaylistSongs(req.query.playlistId as string, req.user._id)
       res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)
@@ -978,30 +992,30 @@ export class UsersController {
   @Post('create-live')
   async createLive(
     @UploadedFile() file: Express.Multer.File,
-     @Req() req: ICustomRequest,
-      @Res() res: Response ) {
-      try {
-        const dto:ICreateLiveStreamDto = {
-          title: req.body.title,
-          description: req.body.description,
-          thumbNail: file,
-          genreId: req.body.genreId
-        }
-         const url = await this._uploadService.uploadToS3(dto.thumbNail,req.body.title)
-         const obj:ICreateLive= {
-           title: dto.title,
-           thumbNailLink: url.url,
-           artistId: req.user._id,
-           description: dto.description,
-           genreId: dto.genreId
-         }
-        const streamId = await this._usersService.createLive(obj) 
-        res.status(HttpStatus.OK).json({success:true,streamId})
-      } catch (error) {
-        console.error(error)
+    @Req() req: ICustomRequest,
+    @Res() res: Response) {
+    try {
+      const dto: ICreateLiveStreamDto = {
+        title: req.body.title,
+        description: req.body.description,
+        thumbNail: file,
+        genreId: req.body.genreId
+      }
+      const url = await this._uploadService.uploadToS3(dto.thumbNail, req.body.title)
+      const obj: ICreateLive = {
+        title: dto.title,
+        thumbNailLink: url.url,
+        artistId: req.user._id,
+        description: dto.description,
+        genreId: dto.genreId
+      }
+      const streamId = await this._usersService.createLive(obj)
+      res.status(HttpStatus.OK).json({ success: true, streamId })
+    } catch (error) {
+      console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()
-      }
+    }
   }
 
   @UseGuards(UserAuthenticationGuard)
@@ -1124,7 +1138,7 @@ export class UsersController {
     try {
       const peer = new webrtc.RTCPeerConnection({
         iceServers: [
-          {  
+          {
             urls: "stun:stun.stunprotocol.org"
           }
         ]
@@ -1138,7 +1152,7 @@ export class UsersController {
         sdp: peer.localDescription
       }
       res.json(payload);
- 
+
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -1146,25 +1160,25 @@ export class UsersController {
     }
   }
   @Post('broadcast')
-  async broadcast(@Body() body,@Res() res:Response) {
+  async broadcast(@Body() body, @Res() res: Response) {
     try {
       const peer = new webrtc.RTCPeerConnection({
         iceServers: [
-            {
-                urls: "stun:stun.stunprotocol.org"
-            }
+          {
+            urls: "stun:stun.stunprotocol.org"
+          }
         ]
-    });
-    peer.ontrack = (e) => this.handleTrackEvent(e, peer);
-    const desc = new webrtc.RTCSessionDescription(body.sdp);
-    await peer.setRemoteDescription(desc);
-    const answer = await peer.createAnswer();
-    await peer.setLocalDescription(answer);
-    const payload = {
+      });
+      peer.ontrack = (e) => this.handleTrackEvent(e, peer);
+      const desc = new webrtc.RTCSessionDescription(body.sdp);
+      await peer.setRemoteDescription(desc);
+      const answer = await peer.createAnswer();
+      await peer.setLocalDescription(answer);
+      const payload = {
         sdp: peer.localDescription
-    }
+      }
 
-    res.json(payload);
+      res.json(payload);
 
     } catch (error) {
       console.error(error)
@@ -1172,61 +1186,61 @@ export class UsersController {
       throw new InternalServerErrorException()
     }
   }
-  handleTrackEvent(e, peer) {   
+  handleTrackEvent(e, peer) {
     this.senderStream = e.streams[0];
-};
+  };
 
-@UseGuards(UserAuthenticationGuard)
-@Get('get-streams')
-async getLiveStreams(@Req() req:Request,@Res() res:Response) {
- try {
-    const data = await this._usersService.getLiveStreams()
-    res.status(HttpStatus.OK).json(data)
- } catch (error) {
-  console.error(error)
-  storeError(error, new Date())
-  throw new InternalServerErrorException()
- }
-}
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-streams')
+  async getLiveStreams(@Req() req: Request, @Res() res: Response) {
+    try {
+      const data = await this._usersService.getLiveStreams()
+      res.status(HttpStatus.OK).json(data)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
 
-@UseGuards(UserAuthenticationGuard)
-@Get('get-chats')
-async getChats(@Req() req:ICustomRequest,@Res() res:Response) {
-  try {
-   const chats = await this._usersService.getChats(req.query?.streamKey as string)
-   res.status(HttpStatus.OK).json(chats)
-  } catch (error) {
-    console.error(error)
-  storeError(error, new Date())
-  throw new InternalServerErrorException()
-  } 
-}
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-chats')
+  async getChats(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const chats = await this._usersService.getChats(req.query?.streamKey as string)
+      res.status(HttpStatus.OK).json(chats)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
 
-@UseGuards(UserAuthenticationGuard)
-@Get('get-live-video-details')
-async getLiveVideoDetails(@Req() req:ICustomRequest,@Res() res:Response) {
-  try {
-   const data = await this._usersService.getLiveVideoDetails(req.query?.streamKey as string)
-   res.status(HttpStatus.OK).json(data)
-  } catch (error) {
-    console.error(error)
-  storeError(error, new Date())
-  throw new InternalServerErrorException()
-  } 
-}
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-live-video-details')
+  async getLiveVideoDetails(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._usersService.getLiveVideoDetails(req.query?.streamKey as string)
+      res.status(HttpStatus.OK).json(data)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
 
-@UseGuards(UserAuthenticationGuard)
-@Delete('stop-stream')
-async stopStream(@Req() req:ICustomRequest,@Res() res:Response) {
-  try {
-   const data = await this._usersService.stopStreaming(req.body.streamKey)
-   res.status(HttpStatus.OK).json({success:true})
-  } catch (error) {
-    console.error(error)
-  storeError(error, new Date())
-  throw new InternalServerErrorException()
-  } 
-}
+  @UseGuards(UserAuthenticationGuard)
+  @Delete('stop-stream')
+  async stopStream(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const data = await this._usersService.stopStreaming(req.body.streamKey)
+      res.status(HttpStatus.OK).json({ success: true })
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
 
 
 

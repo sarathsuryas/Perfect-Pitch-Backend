@@ -457,8 +457,8 @@ export class UserRepository implements IUserRepository {
         { $skip: (data.page - 1) * data.perPage },
         { $limit: data.perPage }
       ])
-
-      return result
+      console.log((data.page -1) * data.perPage)
+      return result 
     } catch (error) {
       console.error(error)
     }

@@ -161,8 +161,8 @@ export class UsersController {
     } catch (error) {
       console.error(error)
     }
-  } 
- 
+  }
+
   @Post('req-reset-password')
   async resetPassword(@Req() req: Request, @Res() res: Response) {
     if (!req.body.email) {
@@ -450,16 +450,14 @@ export class UsersController {
   async videoList(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
-      console.log(typeof req.query.video)
       if (!req.query.video || req.query.video === "undefined" && page && perPage) {
-        console.log('in')
         const videos = await this._usersService.listVideos({ page: parseInt(page as string), perPage: parseInt(perPage as string) })
         if (videos) {
           return res.status(HttpStatus.ACCEPTED).json(videos)
         } else {
           return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
         }
-      }
+      } 
       if (req.query.video) {
         const videos = await this._usersService.searchVideos(req.query.video as string)
         if (videos) {
@@ -530,14 +528,14 @@ export class UsersController {
   async getAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
-
-      if (!req.query.album && req.query.album !== undefined && page && perPage) {
+      if (!req.query.album || req.query.album === "undefined" && page && page!=='undefined' && perPage) {
+        console.log('from the albums')
         const result = await this._usersService.getAlbums({ page: parseInt(page as string), perPage: parseInt(perPage as string) })
         if (result) {
           return res.status(HttpStatus.OK).json(result)
         }
       }
-      if (req.query.album) {
+      if (req.query.album) { 
         const result = await this._usersService.searchAlbums(req.query.album as string)
         if (result) {
           return res.status(HttpStatus.OK).json(result)
@@ -570,7 +568,7 @@ export class UsersController {
 
 
   @UseGuards(UserAuthenticationGuard)
-  @Get('get-artist-')
+  @Get('get-artist-albums')
   async getArtistAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       if (req.query.artistId) {
@@ -602,8 +600,8 @@ export class UsersController {
         genreId: data.genreId,
         thumbNailLink: thumbNailLink,
         songLink: songLink,
-        userId: req.user._id
-      }
+        userId: req.user._id 
+      } 
       const result = await this._usersService.submitSingleDetails(obj)
       return res.status(HttpStatus.OK).json(result)
     } catch (error) {
@@ -863,7 +861,7 @@ export class UsersController {
     try {
       const data = await this._usersService.getAllPlaylistUser(req.user._id as string)
       res.status(HttpStatus.OK).json(data)
-    }catch (error) { 
+    } catch (error) {
       console.error(error)
       storeError(error, new Date())
       throw new InternalServerErrorException()

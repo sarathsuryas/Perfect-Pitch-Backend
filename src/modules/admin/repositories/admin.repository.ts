@@ -29,7 +29,7 @@ export class AdminRepository implements IAdminRepository {
   }
   async exist(email: string): Promise<IAdminData | null> {
     try {
-      const exist = await this._adminModel.findOne({ email: email }, { _id: 1, fullName: 1, password: 1, isAdmin: 1, isBlocked: 1, email: 1 })
+      const exist = await this._adminModel.findOne({  email: { $regex: `^${email}`, $options: 'i' }}, { _id: 1, fullName: 1, password: 1, isAdmin: 1, isBlocked: 1, email: 1 })
       if (exist) {
         const obj: IAdminData = {
           _id: exist._id + '',

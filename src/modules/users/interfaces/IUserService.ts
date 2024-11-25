@@ -1,7 +1,7 @@
-import { EditUserDto } from "../../admin/dtos/editUser.dto";
+import { EditUserDto } from "../../../admin/dtos/editUser.dto";
 import { LoginUserDto } from "../dtos/loginUser.dto";
 import { RegisterUserDto } from "../dtos/registerUser.dto";
-import { IReturnUserData } from "../../admin/interfaces/IReturnUserData";
+import { IReturnUserData } from "../../../admin/interfaces/IReturnUserData";
 import { IUserData } from "./IUserData";
 import { EditProfileDto } from "../dtos/editProfile.dto";
 import { IReturnEdit } from "./IReturnEdit";
@@ -18,7 +18,7 @@ import { ICommentReplyDto } from "../dtos/ICommentReply.dto";
 import { IShortsDto } from "../dtos/IShorts.dto";
 import { ICreatePlaylistDto } from "../dtos/ICreatePlaylist.dto";
 import { IUserPlaylists } from "./IUserPlaylists";
-import { IGenres } from "src/modules/admin/interfaces/IGenres";
+import { IGenres } from "src/admin/interfaces/IGenres";
 import { ISongsSameGenre } from "./ISongsSameGenre";
 import { ISongData } from "./ISongData";
 import { IReplyToReplyDto } from "../dtos/IReplyToReply.dto";

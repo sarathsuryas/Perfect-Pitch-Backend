@@ -1,8 +1,8 @@
 import { Body, Controller, FileTypeValidator, Get, HttpStatus, InternalServerErrorException, ParseFilePipe, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { EditProfileDto } from 'src/modules/users/dtos/editProfile.dto';
 import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
 import { UserService } from 'src/user/services/user/user.service';
@@ -174,7 +174,18 @@ export class UserController {
     }
   }
 
-
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-artist-media')
+  async getUserMedia(@Req() req: Request, @Res() res: Response) {
+    try {
+      const response = await this._userService.getArtistMedias(req.query.artistId as string)
+      res.status(HttpStatus.OK).json(response)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
 
 
 }

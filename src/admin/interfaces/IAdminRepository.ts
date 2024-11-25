@@ -1,7 +1,7 @@
 import { IUserData } from "src/modules/users/interfaces/IUserData";
 import { IAdminData } from "./IAdminData";
 import { RegisterUserDto } from "src/modules/users/dtos/registerUser.dto";
-import { EditUserDto } from "src/modules/admin/dtos/editUser.dto";
+import { EditUserDto } from "src/admin/dtos/editUser.dto";
 import { IResetToken } from "./IResetToken";
 
 export interface IAdminRepository {

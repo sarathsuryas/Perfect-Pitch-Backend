@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { PresignedUrlController } from 'src/user/controllers/presigned-url/presigned-url.controller';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 
 @Module({
-  imports:[],
+  imports:[JwtModule],
   controllers:[PresignedUrlController],
   providers:[PresignedUrlService]
 })
 export class PresignedUrlModule {}
+ 

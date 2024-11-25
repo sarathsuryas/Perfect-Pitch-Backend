@@ -4,14 +4,14 @@ import { JwtService } from '@nestjs/jwt';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import configuration from 'src/config/configuration';
-import { CreateUserDto } from 'src/modules/admin/dtos/createUser.dto';
+import { CreateUserDto } from 'src/admin/dtos/createUser.dto';
 import { RegisterUserDto } from 'src/modules/users/dtos/registerUser.dto';
 import { IUserData } from 'src/modules/users/interfaces/IUserData';
 import { UserAuthRepository } from 'src/user/repositories/user-auth.repository';
 import * as bcrypt from 'bcryptjs'
 import * as crypto from 'crypto'
 import { LoginUserDto } from 'src/modules/users/dtos/loginUser.dto';
-import { IReturnUserData } from 'src/modules/admin/interfaces/IReturnUserData';
+import { IReturnUserData } from 'src/admin/interfaces/IReturnUserData';
 import { IGoogleLoginDto } from 'src/modules/users/dtos/IGoogleLogin.dto';
 import { IUserResetToken } from 'src/modules/users/interfaces/IUserResetToken';
 @Injectable()

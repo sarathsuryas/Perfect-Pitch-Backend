@@ -7,9 +7,13 @@ import { IUserData } from 'src/modules/users/interfaces/IUserData';
 import { UploadService } from 'src/modules/users/services/upload/upload.service';
 import { UserRepository } from 'src/user/repositories/user.repository';
 import { PresignedUrlService } from '../presigned-url/presigned-url.service';
+import { IUserMedia } from 'src/modules/users/interfaces/IUserMedia';
+import { AlbumRepository } from 'src/user/repositories/album.repository';
+import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
+import { VideoRepository } from 'src/user/repositories/video.repository';
 @Injectable()
 export class UserService {
-  constructor(private _userRepository:UserRepository,private _uploadService:UploadService,private _presignedUrlService:PresignedUrlService) {}
+  constructor(private _userRepository:UserRepository,private _uploadService:UploadService,private _presignedUrlService:PresignedUrlService,private _albumRepository:AlbumRepository,private _playlistRepository:PlaylistRepository,private _videoRepository:VideoRepository) {}
   async getUserData(id: string): Promise<IUserData> {
     try {
       const user = await this._userRepository.getUser(id)
@@ -103,5 +107,21 @@ export class UserService {
     }
   }
 
+  async getArtistMedias(artistId: string): Promise<IUserMedia> {
+    try {
+      const albums = await this._albumRepository.getUserAlbums(artistId)
+      const videos = await this._videoRepository.getUserVideos(artistId)
+      const playlists = await this._playlistRepository.getUserPublicPlaylist(artistId)
+      return {
+        albums,
+        videos,
+        playlists
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }  
+
+  
 
 }

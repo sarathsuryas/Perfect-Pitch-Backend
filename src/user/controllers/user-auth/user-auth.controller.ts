@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, InternalServerErrorException, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IGoogleLoginDto } from 'src/modules/users/dtos/IGoogleLogin.dto';
 import { LoginUserDto } from 'src/modules/users/dtos/loginUser.dto';
 import { RegisterUserDto } from 'src/modules/users/dtos/registerUser.dto';

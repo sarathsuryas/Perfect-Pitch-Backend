@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IGenres } from 'src/modules/admin/interfaces/IGenres';
+import { IGenres } from 'src/admin/interfaces/IGenres';
 import { ISongsSameGenre } from 'src/modules/users/interfaces/ISongsSameGenre';
 import { GenreRepository } from 'src/user/repositories/genre.repository';
 

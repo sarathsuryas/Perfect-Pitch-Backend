@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IAlbumDetailsDto } from 'src/modules/users/dtos/IAlbumDetails.dto';
 import { IAudioDto } from 'src/modules/users/dtos/IAudio.dto';
 import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';

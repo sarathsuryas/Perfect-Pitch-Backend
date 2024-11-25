@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, InternalServerErrorException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IReplyToReplyDto } from 'src/modules/users/dtos/IReplyToReply.dto';
 import { IVideoCommentDto } from 'src/modules/users/dtos/IVideoComment.dto';
 import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';

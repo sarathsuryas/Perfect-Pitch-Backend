@@ -9,7 +9,7 @@ import { UploadService } from '../services/upload/upload.service';
 import { UsersService } from '../services/users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PresignedUrlService } from '../services/presigned-url/presigned-url.service';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IAlbumGenPresignedUrlDto } from '../dtos/IAlbumGenPresignedUrl.dto';
 import { IAlbumDetailsDto } from '../dtos/IAlbumDetails.dto';
 import { IAlbumDetails } from '../interfaces/albumDetails';

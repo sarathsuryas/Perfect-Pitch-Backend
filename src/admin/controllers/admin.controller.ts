@@ -2,10 +2,10 @@ import { Body, Controller, Get, HttpStatus, InternalServerErrorException, NotFou
 import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { AdminService } from '../services/admin.service';
 import { Request, Response } from 'express';
-import { AuthenticationGuard } from '../guards/authentication/authentication.guard';
-import { ICustomRequest } from '../../../modules/admin/interfaces/ICustomRequest';
-import { EditUserDto } from '../../../modules/admin/dtos/editUser.dto';
-import { RegisterUserDto } from '../../../modules/users/dtos/registerUser.dto';
+import { AuthenticationGuard } from '../admin-auth-guard/authentication.guard';
+import { ICustomRequest } from '../interfaces/ICustomRequest';
+import { EditUserDto } from '../dtos/editUser.dto';
+import { RegisterUserDto } from '../../modules/users/dtos/registerUser.dto';
 import { AddMemberShipDto } from '../dtos/addMembership.dto';
 
 @Controller('admin')

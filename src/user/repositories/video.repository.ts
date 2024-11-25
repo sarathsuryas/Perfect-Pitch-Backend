@@ -139,5 +139,82 @@ export class VideoRepository {
     }
   }
 
+  async getUserVideos(userId: string): Promise<IVideoList[]> {
+    try {
+      const videos = await this._videoModel.aggregate([
+        { $match: { artistId: new mongoose.Types.ObjectId(userId) } },
+        { $match: { shorts: false } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+      ])
+
+      return videos
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async recommendedVideos(): Promise<IVideoList[]> {
+    try {
+      const videos = await this._videoModel.aggregate([
+        { $match: { shorts: false } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            viewers: 1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+        {
+          $addFields: {
+            viewersCount: { $size: '$viewers' }
+          }
+        },
+        { $sort: { viewersCount: -1 } },
+        { $limit: 3 }
+      ])
+
+      return videos
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
 }

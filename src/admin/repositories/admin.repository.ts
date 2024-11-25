@@ -7,7 +7,7 @@ import { IAdminRepository } from "../interfaces/IAdminRepository";
 import { User } from "src/modules/users/schema/user.schema";
 import { IUserData } from "src/modules/users/interfaces/IUserData";
 import { RegisterUserDto } from "src/modules/users/dtos/registerUser.dto";
-import { EditUserDto } from "src/modules/admin/dtos/editUser.dto";
+import { EditUserDto } from "src/admin/dtos/editUser.dto";
 import { PasswordResetToken } from "../schema/resetToken.schema";
 import { IResetToken } from "../interfaces/IResetToken";
 import { Genres } from "src/modules/users/schema/genres.schema";

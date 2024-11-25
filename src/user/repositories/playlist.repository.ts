@@ -111,6 +111,15 @@ export class PlaylistRepository {
       console.error(error)
     }
   }
+  async getUserPublicPlaylist(userId: string) {
+    try {
+      return await this._playlistModel.find({ userId: userId, access: 'public' })
+        .lean() as IUserPlaylists[]
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
 
 }

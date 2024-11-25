@@ -1,7 +1,7 @@
 import { IUserData } from "src/modules/users/interfaces/IUserData";
 import { IReturnAdminData } from "./IReturnAdminData";
 import { RegisterUserDto } from "src/modules/users/dtos/registerUser.dto";
-import { EditUserDto } from "src/modules/admin/dtos/editUser.dto";
+import { EditUserDto } from "src/admin/dtos/editUser.dto";
 import { IAdminData } from "./IAdminData";
 
 export interface IAdminService {

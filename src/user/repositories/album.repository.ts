@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { IAlbumDetails } from "src/modules/users/interfaces/albumDetails";
 import { IAlbumData } from "src/modules/users/interfaces/IAlbumData";
 import { Album } from "src/modules/users/schema/album.schema";
@@ -151,6 +151,83 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
       console.error(error)
     }
   }  
+  async getUserAlbums(artistId: string): Promise<IAlbumData[]> {
+    try {
+
+      const result = await this._albumModel.aggregate([
+        { $match: { artistId: new mongoose.Types.ObjectId(artistId) } },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+
+      ])
+
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async recommendedAlbums(): Promise<IAlbumData[]> {
+    try {
+      const result = await this._albumModel.aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        }, {
+          $addFields: {
+            viewersCount: { $size: '$viewers' }
+          }
+        },
+        {
+          $sort: {
+            viewersCount: -1
+          }
+        }, {
+          $limit: 4
+        }
+      ])
+      return result
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
 
 }

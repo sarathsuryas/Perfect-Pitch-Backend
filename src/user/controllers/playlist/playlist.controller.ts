@@ -1,7 +1,7 @@
 import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { ICreatePlaylistDto } from 'src/modules/users/dtos/ICreatePlaylist.dto';
 import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
 import { PlaylistService } from 'src/user/services/playlist/playlist.service';

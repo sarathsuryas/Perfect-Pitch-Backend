@@ -1,6 +1,6 @@
 import { Controller, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { ICustomRequest } from 'src/modules/admin/interfaces/ICustomRequest';
+import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { ISubmitSongDetailsDto } from 'src/modules/users/dtos/ISubmitSongDetails.dto';
 import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
 import { ISubmitSongDetails } from 'src/modules/users/interfaces/ISubmitSongDetails';

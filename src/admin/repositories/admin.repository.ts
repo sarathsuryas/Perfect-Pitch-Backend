@@ -4,15 +4,15 @@ import { Model } from "mongoose";
 import { Admin } from "../schema/admin.schema";
 import { IAdminData } from "../interfaces/IAdminData";
 import { IAdminRepository } from "../interfaces/IAdminRepository";
-import { User } from "src/modules/users/schema/user.schema";
-import { IUserData } from "src/modules/users/interfaces/IUserData";
-import { RegisterUserDto } from "src/modules/users/dtos/registerUser.dto";
+import { User } from "src/user/schema/user.schema";
+import { IUserData } from "src/user/interfaces/IUserData";
+import { RegisterUserDto } from "src/user/dtos/registerUser.dto";
 import { EditUserDto } from "src/admin/dtos/editUser.dto";
 import { PasswordResetToken } from "../schema/resetToken.schema";
 import { IResetToken } from "../interfaces/IResetToken";
-import { Genres } from "src/modules/users/schema/genres.schema";
+import { Genres } from "src/user/schema/genres.schema";
 import { IGenres } from "../interfaces/IGenres";
-import { MemberShip } from "src/modules/users/schema/membership.schema";
+import { MemberShip } from "src/user/schema/membership.schema";
 import { AddMemberShipDto } from "../dtos/addMembership.dto";
 
 @Injectable()

@@ -3,9 +3,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { ICreateLiveStreamDto } from 'src/modules/users/dtos/ICreateLiveStream.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
-import { ICreateLive } from 'src/modules/users/interfaces/ICreateLive';
+import { ICreateLiveStreamDto } from 'src/user/dtos/ICreateLiveStream.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
+import { ICreateLive } from 'src/user/interfaces/ICreateLive';
 import { LiveStreamingService } from 'src/user/services/live-streaming/live-streaming.service';
 import { UploadService } from 'src/user/services/upload/upload.service';
 const webrtc = require("wrtc");
@@ -23,7 +23,7 @@ export class LiveStreamingController {
     try {
       const dto: ICreateLiveStreamDto = {
         title: req.body.title,
-        description: req.body.description,
+        description: req.body.description, 
         thumbNail: file,
         genreId: req.body.genreId
       }

@@ -1,9 +1,9 @@
 import { Controller, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { ISubmitSongDetailsDto } from 'src/modules/users/dtos/ISubmitSongDetails.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
-import { ISubmitSongDetails } from 'src/modules/users/interfaces/ISubmitSongDetails';
+import { ISubmitSongDetailsDto } from 'src/user/dtos/ISubmitSongDetails.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
+import { ISubmitSongDetails } from 'src/user/interfaces/ISubmitSongDetails';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { SingleService } from 'src/user/services/single/single.service';
 

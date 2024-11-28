@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { IMessageDto } from "src/modules/users/dtos/IMessageDto";
-import { IChats } from "src/modules/users/interfaces/IChats";
-import { LiveChat } from "src/modules/users/schema/liveChat.schema";
+import { IMessageDto } from "src/user/dtos/IMessageDto";
+import { IChats } from "src/user/interfaces/IChats";
+import { LiveChat } from "src/user/schema/liveChat.schema";
 
 @Injectable()
 export class ChatRepository {

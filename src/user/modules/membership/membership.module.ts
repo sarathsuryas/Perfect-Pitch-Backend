@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { memebershipSchema } from 'src/modules/users/schema/membership.schema';
-import { paymentSchema } from 'src/modules/users/schema/payment.schema';
-import { userSchema } from 'src/modules/users/schema/user.schema';
+import { memebershipSchema } from 'src/user/schema/membership.schema';
+import { paymentSchema } from 'src/user/schema/payment.schema';
+import { userSchema } from 'src/user/schema/user.schema';
 import { MembershipController } from 'src/user/controllers/membership/membership.controller';
 import { MemberShipRepository } from 'src/user/repositories/membership.repository';
 import { MembershipService } from 'src/user/services/membership/membership.service';

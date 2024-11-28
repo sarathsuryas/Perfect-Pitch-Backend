@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
-import { IAlbumDetails } from 'src/modules/users/interfaces/albumDetails';
-import { IAlbumData } from 'src/modules/users/interfaces/IAlbumData';
+import { IAlbumDetails } from 'src/user/interfaces/albumDetails';
+import { IAlbumData } from 'src/user/interfaces/IAlbumData';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 
 @Injectable()

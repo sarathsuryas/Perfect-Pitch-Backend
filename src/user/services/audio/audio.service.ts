@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ISongData } from 'src/modules/users/interfaces/ISongData';
+import { ISongData } from 'src/user/interfaces/ISongData';
 import { AudioRepository } from 'src/user/repositories/audio.repository';
 
 @Injectable()

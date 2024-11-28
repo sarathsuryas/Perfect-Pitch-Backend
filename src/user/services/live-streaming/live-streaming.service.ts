@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ICreateLive } from 'src/modules/users/interfaces/ICreateLive';
-import { ILive } from 'src/modules/users/interfaces/ILive';
-import { ILiveStreams } from 'src/modules/users/interfaces/ILiveStreams';
+import { ICreateLive } from 'src/user/interfaces/ICreateLive';
+import { ILive } from 'src/user/interfaces/ILive';
+import { ILiveStreams } from 'src/user/interfaces/ILiveStreams';
 import { LiveStreamingRepository } from 'src/user/repositories/liveStreaming.repository';
 
 @Injectable()

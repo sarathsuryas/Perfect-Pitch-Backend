@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IHomePageData } from 'src/modules/users/interfaces/IHomePageData';
+import { IHomePageData } from 'src/user/interfaces/IHomePageData';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
 import { UserRepository } from 'src/user/repositories/user.repository';

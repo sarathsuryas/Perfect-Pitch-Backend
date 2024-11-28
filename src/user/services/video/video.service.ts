@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { IResponseVideo } from 'src/modules/users/interfaces/IResponseVideo';
-import { IVideoList } from 'src/modules/users/interfaces/IVideoList';
+import { IResponseVideo } from 'src/user/interfaces/IResponseVideo';
+import { IVideoList } from 'src/user/interfaces/IVideoList';
 import { VideoRepository } from 'src/user/repositories/video.repository';
 
 @Injectable()

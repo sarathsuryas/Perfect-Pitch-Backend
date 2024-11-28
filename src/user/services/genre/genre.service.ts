@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IGenres } from 'src/admin/interfaces/IGenres';
-import { ISongsSameGenre } from 'src/modules/users/interfaces/ISongsSameGenre';
+import { ISongsSameGenre } from 'src/user/interfaces/ISongsSameGenre';
 import { GenreRepository } from 'src/user/repositories/genre.repository';
 
 @Injectable()

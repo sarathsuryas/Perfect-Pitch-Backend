@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import configuration from 'src/config/configuration';
-import { PaymentSuccessDto } from 'src/modules/users/dtos/paymentSuccess.dto';
+import { PaymentSuccessDto } from 'src/user/dtos/paymentSuccess.dto';
 import { MemberShipRepository } from 'src/user/repositories/membership.repository';
 import Stripe from 'stripe';
 

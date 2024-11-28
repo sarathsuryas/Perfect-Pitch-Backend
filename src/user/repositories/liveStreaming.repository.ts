@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { ICreateLive } from "src/modules/users/interfaces/ICreateLive";
-import { ILive } from "src/modules/users/interfaces/ILive";
-import { ILiveStreams } from "src/modules/users/interfaces/ILiveStreams";
-import { Live } from "src/modules/users/schema/live.schema";
+import { ICreateLive } from "src/user/interfaces/ICreateLive";
+import { ILive } from "src/user/interfaces/ILive";
+import { ILiveStreams } from "src/user/interfaces/ILiveStreams";
+import { Live } from "src/user/schema/live.schema";
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()

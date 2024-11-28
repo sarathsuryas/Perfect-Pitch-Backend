@@ -1,6 +1,6 @@
-import { IUserData } from "src/modules/users/interfaces/IUserData";
+import { IUserData } from "src/user/interfaces/IUserData";
 import { IReturnAdminData } from "./IReturnAdminData";
-import { RegisterUserDto } from "src/modules/users/dtos/registerUser.dto";
+import { RegisterUserDto } from "src/user/dtos/registerUser.dto";
 import { EditUserDto } from "src/admin/dtos/editUser.dto";
 import { IAdminData } from "./IAdminData";
 

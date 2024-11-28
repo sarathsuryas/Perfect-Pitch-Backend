@@ -1,4 +1,4 @@
-import { RegisterUserDto } from "../../modules/users/dtos/registerUser.dto"
+import { RegisterUserDto } from "../../user/dtos/registerUser.dto"
 
 export interface CreateUserDto {
     data:RegisterUserDto

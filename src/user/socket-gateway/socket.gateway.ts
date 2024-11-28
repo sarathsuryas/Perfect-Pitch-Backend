@@ -2,7 +2,7 @@ import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect,
 import { Server, Socket } from 'socket.io';
 import * as webrtc from 'wrtc';
 import { UserRepository } from "../repositories/user.repository";
-import { IMessageDto } from "src/modules/users/dtos/IMessageDto";
+import { IMessageDto } from "src/user/dtos/IMessageDto";
 import { ChatRepository } from "../repositories/chat.repository";
 
 @WebSocketGateway({ cors: true })

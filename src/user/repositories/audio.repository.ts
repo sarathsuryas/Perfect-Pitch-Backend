@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { ISongData } from "src/modules/users/interfaces/ISongData";
-import { Audio } from "src/modules/users/schema/audio.schema";
+import { ISongData } from "src/user/interfaces/ISongData";
+import { Audio } from "src/user/schema/audio.schema";
 @Injectable()
 export class AudioRepository {
   constructor(@InjectModel('Audio') private readonly _audioModel: Model<Audio>,

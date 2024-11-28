@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IChats } from 'src/modules/users/interfaces/IChats';
+import { IChats } from 'src/user/interfaces/IChats';
 import { ChatRepository } from 'src/user/repositories/chat.repository';
 
 @Injectable()

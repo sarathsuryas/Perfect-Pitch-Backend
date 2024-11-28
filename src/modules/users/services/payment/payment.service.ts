@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import configuration from 'src/config/configuration';
 import Stripe from 'stripe';
-import { PaymentSuccessDto } from '../../dtos/paymentSuccess.dto';
+import { PaymentSuccessDto } from '../../../../user/dtos/paymentSuccess.dto';
 import { UserRepository } from '../../repositories/user.repository';
 
 @Injectable()

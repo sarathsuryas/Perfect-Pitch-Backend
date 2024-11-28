@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
-import { IResponseVideo } from "src/modules/users/interfaces/IResponseVideo";
-import { IUserData } from "src/modules/users/interfaces/IUserData";
-import { IVideoDetails } from "src/modules/users/interfaces/IVideoDetails";
-import { IVideoList } from "src/modules/users/interfaces/IVideoList";
-import { User } from "src/modules/users/schema/user.schema";
-import { Video } from "src/modules/users/schema/video.schema";
+import { IResponseVideo } from "src/user/interfaces/IResponseVideo";
+import { IUserData } from "src/user/interfaces/IUserData";
+import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
+import { IVideoList } from "src/user/interfaces/IVideoList";
+import { User } from "src/user/schema/user.schema";
+import { Video } from "src/user/schema/video.schema";
 
 @Injectable()
 export class VideoRepository {

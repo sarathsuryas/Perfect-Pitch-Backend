@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { albumSchema } from 'src/modules/users/schema/album.schema';
-import { audioSchema } from 'src/modules/users/schema/audio.schema';
-import { playlistSchema } from 'src/modules/users/schema/playlist.schema';
-import { userSchema } from 'src/modules/users/schema/user.schema';
-import { videoSchema } from 'src/modules/users/schema/video.schema';
+import { albumSchema } from 'src/user/schema/album.schema';
+import { audioSchema } from 'src/user/schema/audio.schema';
+import { playlistSchema } from 'src/user/schema/playlist.schema';
+import { userSchema } from 'src/user/schema/user.schema';
+import { videoSchema } from 'src/user/schema/video.schema';
 import { UploadService } from 'src/modules/users/services/upload/upload.service';
 import { UserController } from 'src/user/controllers/user/user.controller';
 import { AlbumRepository } from 'src/user/repositories/album.repository';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { IShortsDto } from 'src/modules/users/dtos/IShorts.dto';
-import { IResponseShorts } from 'src/modules/users/interfaces/IResponseShorts';
+import { IShortsDto } from 'src/user/dtos/IShorts.dto';
+import { IResponseShorts } from 'src/user/interfaces/IResponseShorts';
 import { ShortsRepository } from 'src/user/repositories/shorts.repository';
 
 @Injectable()

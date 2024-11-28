@@ -1,8 +1,8 @@
 import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { IShortsDto } from 'src/modules/users/dtos/IShorts.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { IShortsDto } from 'src/user/dtos/IShorts.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { ShortsService } from 'src/user/services/shorts/shorts.service';
 

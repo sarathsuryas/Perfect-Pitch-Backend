@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { albumSchema } from 'src/modules/users/schema/album.schema';
-import { audioSchema } from 'src/modules/users/schema/audio.schema';
+import { albumSchema } from 'src/user/schema/album.schema';
+import { audioSchema } from 'src/user/schema/audio.schema';
 import { AlbumController } from 'src/user/controllers/album/album.controller';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 import { AlbumService } from 'src/user/services/album/album.service';

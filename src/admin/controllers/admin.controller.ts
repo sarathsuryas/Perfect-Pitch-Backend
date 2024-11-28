@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import { AuthenticationGuard } from '../admin-auth-guard/authentication.guard';
 import { ICustomRequest } from '../interfaces/ICustomRequest';
 import { EditUserDto } from '../dtos/editUser.dto';
-import { RegisterUserDto } from '../../modules/users/dtos/registerUser.dto';
+import { RegisterUserDto } from '../../user/dtos/registerUser.dto';
 import { AddMemberShipDto } from '../dtos/addMembership.dto';
 
 @Controller('admin')

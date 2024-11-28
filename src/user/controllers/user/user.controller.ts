@@ -3,8 +3,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { EditProfileDto } from 'src/modules/users/dtos/editProfile.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { EditProfileDto } from 'src/user/dtos/editProfile.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { UserService } from 'src/user/services/user/user.service';
 
 @Controller('user')

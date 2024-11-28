@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { audioSchema } from 'src/modules/users/schema/audio.schema';
+import { audioSchema } from 'src/user/schema/audio.schema';
 import { SingleController } from 'src/user/controllers/single/single.controller';
 import { SingleRepository } from 'src/user/repositories/single.repository';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';

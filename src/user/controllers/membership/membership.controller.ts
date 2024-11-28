@@ -3,8 +3,8 @@ import { Response } from 'express';
 import configuration from 'src/config/configuration';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { PaymentSuccessDto } from 'src/modules/users/dtos/paymentSuccess.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { PaymentSuccessDto } from 'src/user/dtos/paymentSuccess.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { MembershipService } from 'src/user/services/membership/membership.service';
 import Stripe from 'stripe';
 

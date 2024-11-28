@@ -1,7 +1,7 @@
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import * as webrtc from 'wrtc';
-import { IMessageDto } from "../dtos/IMessageDto";
+import { IMessageDto } from "../../../user/dtos/IMessageDto";
 import { UserRepository } from "../repositories/user.repository";
 
 @WebSocketGateway({ cors: true })

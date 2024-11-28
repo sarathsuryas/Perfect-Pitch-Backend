@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ICommentReplyDto } from 'src/modules/users/dtos/ICommentReply.dto';
-import { IReplyToReplyDto } from 'src/modules/users/dtos/IReplyToReply.dto';
-import { IVideoCommentDto } from 'src/modules/users/dtos/IVideoComment.dto';
-import { ICommentResponse } from 'src/modules/users/interfaces/ICommentResponse';
-import { IReplyToReply } from 'src/modules/users/interfaces/IReplyToReply';
+import { ICommentReplyDto } from 'src/user/dtos/ICommentReply.dto';
+import { IReplyToReplyDto } from 'src/user/dtos/IReplyToReply.dto';
+import { IVideoCommentDto } from 'src/user/dtos/IVideoComment.dto';
+import { ICommentResponse } from 'src/user/interfaces/ICommentResponse';
+import { IReplyToReply } from 'src/user/interfaces/IReplyToReply';
 import { CommentsRepository } from 'src/user/repositories/comments.repository';
 
 @Injectable()

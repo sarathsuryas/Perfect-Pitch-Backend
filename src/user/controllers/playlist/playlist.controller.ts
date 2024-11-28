@@ -2,8 +2,8 @@ import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Put, R
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { ICreatePlaylistDto } from 'src/modules/users/dtos/ICreatePlaylist.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { ICreatePlaylistDto } from 'src/user/dtos/ICreatePlaylist.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PlaylistService } from 'src/user/services/playlist/playlist.service';
 
 @Controller('playlist')

@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
-import { EditProfileDto } from "src/modules/users/dtos/editProfile.dto";
-import { IAlbumData } from "src/modules/users/interfaces/IAlbumData";
-import { IReturnEdit } from "src/modules/users/interfaces/IReturnEdit";
-import { IUserData } from "src/modules/users/interfaces/IUserData";
-import { IVideoDetails } from "src/modules/users/interfaces/IVideoDetails";
-import { User } from "src/modules/users/schema/user.schema";
+import { EditProfileDto } from "src/user/dtos/editProfile.dto";
+import { IAlbumData } from "src/user/interfaces/IAlbumData";
+import { IReturnEdit } from "src/user/interfaces/IReturnEdit";
+import { IUserData } from "src/user/interfaces/IUserData";
+import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
+import { User } from "src/user/schema/user.schema";
 
 
 @Injectable() 

@@ -7,8 +7,8 @@ import configuration from '../../config/configuration';
 import { IReturnAdminData } from '../interfaces/IReturnAdminData';
 import { IAdminService } from '../interfaces/IAdminService';
 import { EditUserDto } from '../dtos/editUser.dto';
-import { RegisterUserDto } from '../../modules/users/dtos/registerUser.dto';
-import { IUserData } from '../../modules/users/interfaces/IUserData';
+import { RegisterUserDto } from '../../user/dtos/registerUser.dto';
+import { IUserData } from '../../user/interfaces/IUserData';
 import * as crypto from 'crypto'
 import { MailerService } from '@nestjs-modules/mailer';
 import { IResetToken } from '../interfaces/IResetToken';

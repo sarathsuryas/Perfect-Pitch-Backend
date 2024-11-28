@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { IShortsDto } from "src/modules/users/dtos/IShorts.dto";
-import { IResponseShorts } from "src/modules/users/interfaces/IResponseShorts";
-import { IUserData } from "src/modules/users/interfaces/IUserData";
-import { IVideoDetails } from "src/modules/users/interfaces/IVideoDetails";
-import { User } from "src/modules/users/schema/user.schema";
-import { Video } from "src/modules/users/schema/video.schema";
+import { IShortsDto } from "src/user/dtos/IShorts.dto";
+import { IResponseShorts } from "src/user/interfaces/IResponseShorts";
+import { IUserData } from "src/user/interfaces/IUserData";
+import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
+import { User } from "src/user/schema/user.schema";
+import { Video } from "src/user/schema/video.schema";
 
 @Injectable()
 export class ShortsRepository {

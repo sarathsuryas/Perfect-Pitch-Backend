@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
-import { IAlbumDetails } from "src/modules/users/interfaces/albumDetails";
-import { IAlbumData } from "src/modules/users/interfaces/IAlbumData";
-import { Album } from "src/modules/users/schema/album.schema";
+import { IAlbumDetails } from "src/user/interfaces/albumDetails";
+import { IAlbumData } from "src/user/interfaces/IAlbumData";
+import { Album } from "src/user/schema/album.schema";
 import { v4 as uuidv4 } from 'uuid';
-import { Audio } from "src/modules/users/schema/audio.schema";
+import { Audio } from "src/user/schema/audio.schema";
 @Injectable()
 export class AlbumRepository {
 constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { liveSchema } from 'src/modules/users/schema/live.schema';
+import { liveSchema } from 'src/user/schema/live.schema';
 import { LiveStreamingController } from 'src/user/controllers/live-streaming/live-streaming.controller';
 import { LiveStreamingRepository } from 'src/user/repositories/liveStreaming.repository';
 import { LiveStreamingService } from 'src/user/services/live-streaming/live-streaming.service';

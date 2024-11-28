@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { PaymentSuccessDto } from "src/modules/users/dtos/paymentSuccess.dto";
-import { MemberShip } from "src/modules/users/schema/membership.schema";
-import { Payment } from "src/modules/users/schema/payment.schema";
-import { User } from "src/modules/users/schema/user.schema";
+import { PaymentSuccessDto } from "src/user/dtos/paymentSuccess.dto";
+import { MemberShip } from "src/user/schema/membership.schema";
+import { Payment } from "src/user/schema/payment.schema";
+import { User } from "src/user/schema/user.schema";
 
 @Injectable()
 export class MemberShipRepository {

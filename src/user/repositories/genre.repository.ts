@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IGenres } from "src/admin/interfaces/IGenres";
-import { ISongsSameGenre } from "src/modules/users/interfaces/ISongsSameGenre";
-import { Genres } from "src/modules/users/schema/genres.schema";
-import { Audio } from "src/modules/users/schema/audio.schema";
+import { ISongsSameGenre } from "src/user/interfaces/ISongsSameGenre";
+import { Genres } from "src/user/schema/genres.schema";
+import { Audio } from "src/user/schema/audio.schema";
 @Injectable()
 export class GenreRepository {
   constructor(@InjectModel('Genre') private readonly _genreModel: Model<Genres>,

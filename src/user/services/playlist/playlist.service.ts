@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ICreatePlaylistDto } from 'src/modules/users/dtos/ICreatePlaylist.dto';
-import { IUserPlaylists } from 'src/modules/users/interfaces/IUserPlaylists';
+import { ICreatePlaylistDto } from 'src/user/dtos/ICreatePlaylist.dto';
+import { IUserPlaylists } from 'src/user/interfaces/IUserPlaylists';
 import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
 
 @Injectable()

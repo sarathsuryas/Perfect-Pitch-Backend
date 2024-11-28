@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { otpScema } from 'src/modules/users/schema/otp.schema';
-import { userSchema } from 'src/modules/users/schema/user.schema';
-import { UserResetTokenSchema } from 'src/modules/users/schema/userResetToken';
+import { otpScema } from 'src/user/schema/otp.schema';
+import { userSchema } from 'src/user/schema/user.schema';
+import { UserResetTokenSchema } from 'src/user/schema/userResetToken';
 import { UserAuthController } from 'src/user/controllers/user-auth/user-auth.controller';
 import { UserAuthRepository } from 'src/user/repositories/user-auth.repository';
 import { UserAuthService } from 'src/user/services/user-auth/user-auth.service';

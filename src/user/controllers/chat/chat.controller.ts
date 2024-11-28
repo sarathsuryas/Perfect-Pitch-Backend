@@ -2,7 +2,7 @@ import { Controller, Get, HttpStatus, InternalServerErrorException, Req, Res, Us
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { ChatService } from 'src/user/services/chat/chat.service';
 
 @Controller('chat')

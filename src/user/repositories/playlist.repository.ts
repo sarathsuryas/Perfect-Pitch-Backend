@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
-import { ICreatePlaylistDto } from "src/modules/users/dtos/ICreatePlaylist.dto";
-import { IUserPlaylists } from "src/modules/users/interfaces/IUserPlaylists";
-import { Playlist } from "src/modules/users/schema/playlist.schema";
+import { ICreatePlaylistDto } from "src/user/dtos/ICreatePlaylist.dto";
+import { IUserPlaylists } from "src/user/interfaces/IUserPlaylists";
+import { Playlist } from "src/user/schema/playlist.schema";
 
 @Injectable()
 export class PlaylistRepository {

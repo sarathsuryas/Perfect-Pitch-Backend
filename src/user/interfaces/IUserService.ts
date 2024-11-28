@@ -1,7 +1,7 @@
-import { EditUserDto } from "../../../admin/dtos/editUser.dto";
+import { EditUserDto } from "../../admin/dtos/editUser.dto";
 import { LoginUserDto } from "../dtos/loginUser.dto";
 import { RegisterUserDto } from "../dtos/registerUser.dto";
-import { IReturnUserData } from "../../../admin/interfaces/IReturnUserData";
+import { IReturnUserData } from "../../admin/interfaces/IReturnUserData";
 import { IUserData } from "./IUserData";
 import { EditProfileDto } from "../dtos/editProfile.dto";
 import { IReturnEdit } from "./IReturnEdit";

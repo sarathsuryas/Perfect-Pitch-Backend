@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { commentReplySchema } from 'src/modules/users/schema/commentReply.schema';
-import { replyToReplySchema } from 'src/modules/users/schema/replyToReply.schema';
-import { videoCommentSchema } from 'src/modules/users/schema/videoComment.schema';
+import { commentReplySchema } from 'src/user/schema/commentReply.schema';
+import { replyToReplySchema } from 'src/user/schema/replyToReply.schema';
+import { videoCommentSchema } from 'src/user/schema/videoComment.schema';
 import { CommentsController } from 'src/user/controllers/comments/comments.controller';
 import { CommentsRepository } from 'src/user/repositories/comments.repository';
 import { CommentsService } from 'src/user/services/comments/comments.service';

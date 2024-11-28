@@ -1,10 +1,10 @@
 import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { IAlbumDetailsDto } from 'src/modules/users/dtos/IAlbumDetails.dto';
-import { IAudioDto } from 'src/modules/users/dtos/IAudio.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
-import { IAlbumDetails } from 'src/modules/users/interfaces/albumDetails';
+import { IAlbumDetailsDto } from 'src/user/dtos/IAlbumDetails.dto';
+import { IAudioDto } from 'src/user/dtos/IAudio.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
+import { IAlbumDetails } from 'src/user/interfaces/albumDetails';
 import { AlbumService } from 'src/user/services/album/album.service';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { v4 as uuidv4 } from 'uuid';

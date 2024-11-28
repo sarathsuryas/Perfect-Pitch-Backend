@@ -2,9 +2,9 @@ import { Body, Controller, Get, HttpStatus, InternalServerErrorException, Patch,
 import { Request, Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
-import { IReplyToReplyDto } from 'src/modules/users/dtos/IReplyToReply.dto';
-import { IVideoCommentDto } from 'src/modules/users/dtos/IVideoComment.dto';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { IReplyToReplyDto } from 'src/user/dtos/IReplyToReply.dto';
+import { IVideoCommentDto } from 'src/user/dtos/IVideoComment.dto';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { CommentsService } from 'src/user/services/comments/comments.service';
 
 @Controller('comments')

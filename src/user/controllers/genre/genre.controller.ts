@@ -1,7 +1,7 @@
 import { Controller, Get, HttpStatus, InternalServerErrorException, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
-import { UserAuthenticationGuard } from 'src/modules/users/guards/user-authentication/user-authentication.guard';
+import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { GenreService } from 'src/user/services/genre/genre.service';
 
 @Controller('genre')

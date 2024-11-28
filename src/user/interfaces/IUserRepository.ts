@@ -1,8 +1,8 @@
-import { CreateUserDto } from "../../../admin/dtos/createUser.dto";
-import { EditUserDto } from "../../../admin/dtos/editUser.dto";
+import { CreateUserDto } from "../../admin/dtos/createUser.dto";
+import { EditUserDto } from "../../admin/dtos/editUser.dto";
 import { LoginUserDto } from "../dtos/loginUser.dto";
 import { RegisterUserDto } from "../dtos/registerUser.dto";
-import { ICreatedUser } from "../../../admin/interfaces/ICreatedUser";
+import { ICreatedUser } from "../../admin/interfaces/ICreatedUser";
 import { IStoredOtp } from "./IStoredOtp";
 import { IUserData } from "./IUserData";
 import { IUserResetToken } from "./IUserResetToken";

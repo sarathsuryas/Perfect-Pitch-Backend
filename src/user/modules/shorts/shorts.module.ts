@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { userSchema } from 'src/modules/users/schema/user.schema';
-import { videoSchema } from 'src/modules/users/schema/video.schema';
+import { userSchema } from 'src/user/schema/user.schema';
+import { videoSchema } from 'src/user/schema/video.schema';
 import { ShortsController } from 'src/user/controllers/shorts/shorts.controller';
 import { ShortsRepository } from 'src/user/repositories/shorts.repository';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';

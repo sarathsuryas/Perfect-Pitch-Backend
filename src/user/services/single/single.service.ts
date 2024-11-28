@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ISubmitSongDetails } from 'src/modules/users/interfaces/ISubmitSongDetails';
+import { ISubmitSongDetails } from 'src/user/interfaces/ISubmitSongDetails';
 import { SingleRepository } from 'src/user/repositories/single.repository';
 
 @Injectable()

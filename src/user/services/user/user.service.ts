@@ -4,7 +4,6 @@ import * as crypto from 'crypto'
 import { EditProfileDto } from 'src/user/dtos/editProfile.dto';
 import { IReturnEdit } from 'src/user/interfaces/IReturnEdit';
 import { IUserData } from 'src/user/interfaces/IUserData';
-import { UploadService } from 'src/modules/users/services/upload/upload.service';
 import { UserRepository } from 'src/user/repositories/user.repository';
 import { PresignedUrlService } from '../presigned-url/presigned-url.service';
 import { IUserMedia } from 'src/user/interfaces/IUserMedia';
@@ -13,15 +12,15 @@ import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
 import { VideoRepository } from 'src/user/repositories/video.repository';
 @Injectable()
 export class UserService {
-  constructor(private _userRepository:UserRepository,private _uploadService:UploadService,private _presignedUrlService:PresignedUrlService,private _albumRepository:AlbumRepository,private _playlistRepository:PlaylistRepository,private _videoRepository:VideoRepository) {}
+  constructor(private _userRepository:UserRepository,private _presignedUrlService:PresignedUrlService,private _albumRepository:AlbumRepository,private _playlistRepository:PlaylistRepository,private _videoRepository:VideoRepository) {}
   async getUserData(id: string): Promise<IUserData> {
     try {
       const user = await this._userRepository.getUser(id)
       const now = new Date();
       if (user.profileImageUrlExpiresAt < now) {
-        const key = `perfect-pitch`
-        const url = await this._uploadService.getPresignedSignedUrl(key)
-        const image = await this._userRepository.updateProfileImage(user._id, url.url)
+        // const key = `perfect-pitch`   req.user._id, fileName, contentType
+        // const url = await this._presignedUrlService.getPresignedSignedUrl(key)
+        // const image = await this._userRepository.updateProfileImage(user._id, url.url)
       }
       return user
     } catch (error) {

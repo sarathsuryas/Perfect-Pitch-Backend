@@ -6,7 +6,6 @@ import { audioSchema } from 'src/user/schema/audio.schema';
 import { playlistSchema } from 'src/user/schema/playlist.schema';
 import { userSchema } from 'src/user/schema/user.schema';
 import { videoSchema } from 'src/user/schema/video.schema';
-import { UploadService } from 'src/modules/users/services/upload/upload.service';
 import { UserController } from 'src/user/controllers/user/user.controller';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
@@ -19,6 +18,6 @@ import { UserService } from 'src/user/services/user/user.service';
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'Video',schema:videoSchema},
     {name:'Playlist',schema:playlistSchema}]),JwtModule], 
   controllers:[UserController], 
-  providers:[UserService, UploadService,UserRepository,PresignedUrlService,AlbumRepository,VideoRepository,PlaylistRepository]
+  providers:[UserService,UserRepository,PresignedUrlService,AlbumRepository,VideoRepository,PlaylistRepository]
 })
 export class UserModule {}

@@ -10,15 +10,15 @@ export class AudioController {
   @UseGuards(UserAuthenticationGuard)
   @Get('get-song')
   async getSong(@Query() data, @Res() res: Response) {
-    // try {
-    //   const { songId } = data
-    //   const result = await this._audioService.getSong(songId)
-    //   res.status(HttpStatus.OK).json(result)
-    // } catch (error) {
-    //   console.error(error)
-    //   storeError(error, new Date())
-    //   throw new InternalServerErrorException()
-    // }
+    try {
+      const { songId } = data
+      const result = await this._audioService.getSong(songId)
+      res.status(HttpStatus.OK).json(result)
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
 
   }
 }

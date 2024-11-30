@@ -8,11 +8,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-jobs:
-  build:
-    runs-on: self-hosted
-    env:
+  env:
       PORT: ${{ secrets.PORT }}
       MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -30,6 +26,11 @@ jobs:
       CURRENCY: ${{ secrets.CURRENCY }} 
       SUCCESS_URL: ${{ secrets.SUCCESS_URL }} 
       CANCEL_URL: ${{ secrets.CANCEL_URL }}
+
+  jobs:
+   build:
+    runs-on: self-hosted
+    
     strategy:
       matrix:
         node-version: [22.x]

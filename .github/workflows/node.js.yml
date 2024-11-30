@@ -5,16 +5,17 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-   build:
+  build:
     runs-on: self-hosted
     env:
       PORT: ${{ secrets.PORT }}
       MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
     strategy:
       matrix:
         node-version: [22.x]
@@ -22,12 +23,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -36,15 +37,16 @@ jobs:
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}
-      - name: Display Environment Variables 
+      - name: Display Environment Variables
         run: |
-         echo "PORT=${{ env.PORT }}"
-         echo "MONGODB_CONNECTION_STRING=${{ env.MONGODB_CONNECTION_STRING }}"    
-      
+          echo "PORT=${{ env.PORT }}"
+          echo "MONGODB_CONNECTION_STRING=${{ env.MONGODB_CONNECTION_STRING }}"    
+          echo "SECRET_KEY=${{ env.SECRET_KEY }}"
+
       - name: Install Dependencies
         run: npm ci
 
       - name: Build Application
         run: npm run build --if-present
-      - name: start Application  
-        run : pm2 restart main
+      - name: start Application
+        run: pm2 restart main

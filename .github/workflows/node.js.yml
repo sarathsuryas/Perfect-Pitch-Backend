@@ -29,7 +29,7 @@ jobs:
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       CURRENCY: ${{ secrets.CURRENCY }}
       SUCCESS_URL: ${{ secrets.SUCCESS_URL }}
-      CANCEL_URL: ${{ secrets.CANCEL_URL }}
+      CANCEL_URL: ${{ secrets.CANCEL_URL }}
     strategy:
       matrix:
         node-version: [22.x]
@@ -60,7 +60,7 @@ jobs:
           echo "EMAIL_PASSWORD=${{ env.EMAIL_PASSWORD }}"
           echo "JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}"
           echo "CLOUDINARY_CLOUD_NAME=${{ env.CLOUDINARY_CLOUD_NAME }}"
-          echo "CLOUDINARY_API_KEY=${{ env.CLOUDINARY_API_KEY }}
+          echo "CLOUDINARY_API_KEY=${{ env.CLOUDINARY_API_KEY }}"
           echo "CLOUDINARY_API_SECRET=${{ env.CLOUDINARY_API_SECRET }}"
           echo "AWS_REGION=${{ env.AWS_REGION }}"
           echo "AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }}"
@@ -70,12 +70,15 @@ jobs:
           echo "CURRENCY=${{ env.CURRENCY }}"
           echo "SUCCESS_URL=${{ env.SUCCESS_URL }}"
           echo "CANCEL_URL=${{ env.CANCEL_URL }}"
+          
       - name: Verify Environment Variables
         run: node verify-env.js
+        
       - name: Install Dependencies
         run: npm ci
 
       - name: Build Application
         run: npm run build --if-present
-      - name: start Application
+        
+      - name: Start Application
         run: pm2 restart main

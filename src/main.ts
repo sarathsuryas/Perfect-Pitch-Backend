@@ -6,8 +6,10 @@ import * as cookieParser from 'cookie-parser';
 import { WinstonModule } from 'nest-winston';
 import { transports, format } from 'winston';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
+import configuration from './config/configuration';
  
 async function bootstrap() {
+  console.log(configuration().aws_region,'////////////////////////////////////')
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [

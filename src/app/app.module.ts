@@ -21,7 +21,6 @@ import { RecommendedModule } from 'src/user/modules/recommended/recommended.modu
 import { ShortsModule } from 'src/user/modules/shorts/shorts.module';
 import { SingleModule } from 'src/user/modules/single/single.module';
 import { VideoModule } from 'src/user/modules/video/video.module';
-import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -42,7 +41,9 @@ import { JwtModule } from '@nestjs/jwt';
     VideoModule,
     AdminModule,
     ConfigModule.forRoot({
-    load:[configuration]
+    load:[configuration],
+    isGlobal: true, // Ensures it’s available everywhere
+    envFilePath: '.env', 
   }),MongooseModule.forRootAsync({
     imports:[ConfigModule],
     useFactory:async(configService:ConfigService)=> {

@@ -74,4 +74,4 @@ jobs:
         run: npm run build --if-present
         
       - name: Start Application
-        run: pm2 restart main
+        run: npm run start:prod

@@ -7,7 +7,8 @@ import { WinstonModule } from 'nest-winston';
 import { transports, format } from 'winston';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
 import configuration from './config/configuration';
- 
+const dotenv = require('dotenv');
+dotenv.config();
 async function bootstrap() {
   console.log(configuration().jwtSecret,'////////////////////////////////////')
   const app = await NestFactory.create(AppModule, {

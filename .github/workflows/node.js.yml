@@ -58,4 +58,4 @@ jobs:
       - name: Build Application
         run: npm run build --if-present
       - name: start Application  
-        run : pm2 start main.js
+        run : pm2 restart main

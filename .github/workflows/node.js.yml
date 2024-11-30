@@ -11,9 +11,10 @@ on:
 
 jobs:
   build:
-
     runs-on: self-hosted
-
+    env:
+     PORT:${{secrets.PORT}}
+     MONGODB_CONNECTION_STRING:${{secrets.MONGODB_CONNECTION_STRING}}
     strategy:
       matrix:
         node-version: [22.x]

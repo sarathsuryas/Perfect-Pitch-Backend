@@ -9,7 +9,7 @@ import { HttpExceptionFilter } from './exceptions/http-exception.filter';
 import configuration from './config/configuration';
  
 async function bootstrap() {
-  console.log(configuration().aws_access_key_id,'////////////////////////////////////')
+  console.log(configuration().database.connectionString,'////////////////////////////////////')
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [

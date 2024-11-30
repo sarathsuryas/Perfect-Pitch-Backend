@@ -1,1 +1,1 @@
-console.log('PORT:', process.env.PORT ? 'Set' : 'Not Set');
+console.log('PORT:', process.env.PORT ,"availble");

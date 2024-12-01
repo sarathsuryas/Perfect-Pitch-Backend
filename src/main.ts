@@ -42,7 +42,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
   app.enableCors({
-    origin: 'https://6935-2401-4900-1cdc-69ff-a829-18d7-5e71-a3d1.ngrok-free.app/login',
+    origin: 'https://6935-2401-4900-1cdc-69ff-a829-18d7-5e71-a3d1.ngrok-free.app',
     credentials:true
   });
   app.use(cookieParser())

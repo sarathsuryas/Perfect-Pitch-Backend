@@ -57,7 +57,7 @@ export class UserController {
     @Body('isPublic') isPublic: string, @Req() req: ICustomRequest, @Res() res: Response
   ) {
     try {
-      // const url = await this._uploadService.uploadProfileImage(file, 'userProfilePicture');
+      //  const url = await this._uploadService.uploadProfileImage(file, 'userProfilePicture');
       // if (!url) {
       //   return res.status(HttpStatus.BAD_REQUEST).send()
       // }

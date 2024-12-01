@@ -42,7 +42,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: 'http://192.168.1.13:8080',
     credentials:true
   });
   app.use(cookieParser())

@@ -44,25 +44,25 @@ jobs:
           cache: "npm"
 
       
-      - name: Display Environment Variables
+      - name: Set up environment variables
         run: |
-          echo "PORT=${{ env.PORT }}"
-          echo "MONGODB_CONNECTION_STRING=${{ env.MONGODB_CONNECTION_STRING }}"    
-          echo "SECRET_KEY=${{ env.SECRET_KEY }}"
-          echo "EMAIL=${{ env.EMAIL }}"
-          echo "EMAIL_PASSWORD=${{ env.EMAIL_PASSWORD }}"
-          echo "JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}"
-          echo "CLOUDINARY_CLOUD_NAME=${{ env.CLOUDINARY_CLOUD_NAME }}"
-          echo "CLOUDINARY_API_KEY=${{ env.CLOUDINARY_API_KEY }}"
-          echo "CLOUDINARY_API_SECRET=${{ env.CLOUDINARY_API_SECRET }}"
-          echo "AWS_REGION=${{ env.AWS_REGION }}"
-          echo "AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }}"
-          echo "AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }}"
-          echo "AWS_BUCKET_NAME=${{ env.AWS_BUCKET_NAME }}"
-          echo "STRIPE_SECRET_KEY=${{ env.STRIPE_SECRET_KEY }}"
-          echo "CURRENCY=${{ env.CURRENCY }}"
-          echo "SUCCESS_URL=${{ env.SUCCESS_URL }}"
-          echo "CANCEL_URL=${{ env.CANCEL_URL }}"
+          echo "PORT=${{ env.PORT }}" >> .env
+          echo "MONGODB_CONNECTION_STRING=${{ env.MONGODB_CONNECTION_STRING }}" >> .env    
+          echo "SECRET_KEY=${{ env.SECRET_KEY }}" >> .env
+          echo "EMAIL=${{ env.EMAIL }}" >> .env
+          echo "EMAIL_PASSWORD=${{ env.EMAIL_PASSWORD }}" >> .env
+          echo "JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}" >> .env
+          echo "CLOUDINARY_CLOUD_NAME=${{ env.CLOUDINARY_CLOUD_NAME }}" >> .env
+          echo "CLOUDINARY_API_KEY=${{ env.CLOUDINARY_API_KEY }}" >> .env
+          echo "CLOUDINARY_API_SECRET=${{ env.CLOUDINARY_API_SECRET }}" >> .env
+          echo "AWS_REGION=${{ env.AWS_REGION }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_BUCKET_NAME=${{ env.AWS_BUCKET_NAME }}" >> .env
+          echo "STRIPE_SECRET_KEY=${{ env.STRIPE_SECRET_KEY }}" >> .env
+          echo "CURRENCY=${{ env.CURRENCY }}" >> .env
+          echo "SUCCESS_URL=${{ env.SUCCESS_URL }}" >> .env
+          echo "CANCEL_URL=${{ env.CANCEL_URL }}" >> .env
           
       - name: Verify Environment Variables
         run: node verify-env.js

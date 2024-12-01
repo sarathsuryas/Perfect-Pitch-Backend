@@ -74,6 +74,5 @@ jobs:
         run: npm run build --if-present
         
       - name: Start Application
-        run: |
-         pm2 restart init || pm2 start init
+        run: pm2 restart init
           

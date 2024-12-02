@@ -43,8 +43,9 @@ async function bootstrap() {
   const port = configService.get<number>('port');
   app.enableCors({
     origin: 'https://perfect-pitch.site',
-    credentials:true
+    credentials:true   
   });
+  // kfdskldfksfjsjksfjksd
   app.use(cookieParser())
   app.useGlobalFilters(new HttpExceptionFilter());
 

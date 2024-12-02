@@ -45,7 +45,7 @@ async function bootstrap() {
     origin: 'https://perfect-pitch.site',
     credentials:true   
   });
-  // djjksfkjsfjsdfkjsdfhjksdfjkkkk
+  
   app.use(cookieParser())
   app.useGlobalFilters(new HttpExceptionFilter());
 

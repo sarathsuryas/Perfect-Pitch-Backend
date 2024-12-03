@@ -33,6 +33,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-socket.io": "^10.4.6",
     "@nestjs/schedule": "^4.1.1",
+    "@nestjs/serve-static": "^4.0.2",
     "@nestjs/websockets": "^10.4.6",
     "@types/fluent-ffmpeg": "^2.1.26",
     "aws-sdk": "^2.1687.0",

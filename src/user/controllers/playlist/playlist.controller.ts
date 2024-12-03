@@ -55,7 +55,8 @@ export class PlaylistController {
   @Get('get-all-playlists-user')
   async getAllPlaylistUser(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const data = await this._playlistService.getAllPlaylistUser(req.user._id as string)
+      const { page, perPage } = req.query;
+      const data = await this._playlistService.getAllPlaylistUser({ userId: req.user._id, page: parseInt(page as string), perPage: parseInt(perPage as string) })
       res.status(HttpStatus.OK).json(data)
     } catch (error) {
       console.error(error)
@@ -69,14 +70,14 @@ export class PlaylistController {
   async getPlaylists(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
       const { page, perPage } = req.query;
-      if (!req.query.playlist && req.query.playlist !== undefined && page && perPage) {
+      if (!req.query.playlist) {
         const data = await this._playlistService.getPlaylists({ userId: req.user._id, page: parseInt(page as string), perPage: parseInt(perPage as string) })
         res.status(HttpStatus.OK).json(data)
       }
-      if (req.query.playlist && req.query.playlist !== undefined) {
-        const data = await this._playlistService.searchPlaylist(req.query.playlist as string)
-        res.status(HttpStatus.OK).json(data)
-      }
+      // if (req.query.playlist && req.query.playlist !== undefined) {
+      //   const data = await this._playlistService.searchPlaylist(req.query.playlist as string)
+      //   res.status(HttpStatus.OK).json(data)
+      // }
     } catch (error) {
       console.error(error)
       storeError(error, new Date())

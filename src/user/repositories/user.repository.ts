@@ -77,9 +77,12 @@ export class UserRepository {
     }
   }
 
-  async getArtists(): Promise<IUserData[]> {
+  async getArtists(data:{page:number,perPage:number}): Promise<IUserData[]> {
     try {
       return await this._userModel.find()
+                    .skip((data.page - 1) * data.perPage)
+                     .limit(data.perPage)
+                     .lean()
     } catch (error) {
       console.error(error)
     }

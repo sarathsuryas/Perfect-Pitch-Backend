@@ -39,7 +39,7 @@ export class UserAuthService {
         }
         const otp = generateOTP()
         console.log(otp, "genereated from Service")
-        const html = readFileSync(join(__dirname, '../../../../../public/otp.html'), "utf-8")
+        const html = readFileSync('public/otp.html', "utf-8")
         const updatedContent = html.replace(
           '<strong style="font-size: 130%" id="otp"></strong>',
           `<strong style="font-size: 130%" id="otp">${otp}</strong>`
@@ -206,7 +206,7 @@ export class UserAuthService {
       }
       const otp = generateOTP()
       console.log(otp, "genereated from Service")
-      const html = readFileSync(join(__dirname, '../../../../../public/otp.html'), "utf-8")
+      const html = readFileSync('public/otp.html', "utf-8")
       const updatedContent = html.replace(
         '<strong style="font-size: 130%" id="otp"></strong>',
         `<strong style="font-size: 130%" id="otp">${otp}</strong>`

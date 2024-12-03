@@ -106,7 +106,7 @@ constructor(private _userAuthService:UserAuthService) {}
     try {
       const data = JSON.parse(userData.userData)
       await this._userAuthService.resendOtp(data.data.email)
-      res.status(HttpStatus.ACCEPTED).json(userData.userData)
+      res.status(HttpStatus.OK).json(userData.userData)
     } catch (error) {
       console.error(error)
       throw new InternalServerErrorException({ message: "Internal Server Error" })

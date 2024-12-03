@@ -90,9 +90,9 @@ export class UserService {
       console.error(error)
     }
   }
-  async getArtists(): Promise<IUserData[]> {
+  async getArtists(data:{page:number,perPage:number}): Promise<IUserData[]> {
     try {
-      return await this._userRepository.getArtists()
+      return await this._userRepository.getArtists(data)
     } catch (error) {
       console.error(error)
     }

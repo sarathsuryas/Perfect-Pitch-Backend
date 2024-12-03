@@ -6,11 +6,8 @@ import * as cookieParser from 'cookie-parser';
 import { WinstonModule } from 'nest-winston';
 import { transports, format } from 'winston';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
-import configuration from './config/configuration';
-const dotenv = require('dotenv');
-dotenv.config();
+
 async function bootstrap() {
-  console.log(configuration().jwtSecret,'////////////////////////////////////')
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [
@@ -42,17 +39,17 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
   app.enableCors({
-    origin: 'https://perfect-pitch.site',
+    origin: 'http://localhost:4200',    
     credentials:true   
-  });
+  });                            
   // fjdsfjkdjfdfggdjkfvfjkdhbbjkbjkhjjfjj
   app.use(cookieParser())
   app.useGlobalFilters(new HttpExceptionFilter());
-
+ 
   await app.listen(port);
   Logger.log(`~ Application is running on: ${await app.getUrl()}`);
 }
-bootstrap();
+bootstrap();     
  
 
 

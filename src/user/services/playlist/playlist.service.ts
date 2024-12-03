@@ -21,9 +21,9 @@ export class PlaylistService {
       console.error(error)
     }
   }
-  async getAllPlaylistUser(userId:string): Promise<IUserPlaylists[]> {
+  async getAllPlaylistUser(data: { userId: string, page: number, perPage: number }): Promise<IUserPlaylists[]> {
     try {
-      return await this._playlistRepository.getAllPlaylistUser(userId)
+      return await this._playlistRepository.getAllPlaylistUser(data)
     } catch (error) {
       console.error(error)
     }

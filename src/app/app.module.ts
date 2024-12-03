@@ -21,6 +21,8 @@ import { RecommendedModule } from 'src/user/modules/recommended/recommended.modu
 import { ShortsModule } from 'src/user/modules/shorts/shorts.module';
 import { SingleModule } from 'src/user/modules/single/single.module';
 import { VideoModule } from 'src/user/modules/video/video.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -62,7 +64,11 @@ import { VideoModule } from 'src/user/modules/video/video.module';
         }
       }
     }),
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'), 
+      exclude: ['/api*'],
+    }),
   ],
   controllers: [],
   providers: [],

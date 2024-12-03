@@ -29,9 +29,11 @@ export class PlaylistRepository {
     }
   }
 
-  async getAllPlaylistUser(userId:string) {
+  async getAllPlaylistUser(data: { userId: string, page: number, perPage: number }) {
     try {
-      return await this._playlistModel.find({ userId:userId })
+      return await this._playlistModel.find({ userId:data.userId })
+        .skip((data.page - 1) * data.perPage)
+        .limit(data.perPage)
         .lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)
@@ -40,7 +42,13 @@ export class PlaylistRepository {
 
   async getPlaylists(data: { userId: string, page: number, perPage: number }) {
     try {
-      return await this._playlistModel.find({ $and: [{ userId: { $ne: data.userId } }, { access: 'public' }] })
+      console.log(data)
+      return await this._playlistModel.find({
+        $and: [
+          { userId: { $ne: new mongoose.Types.ObjectId(data.userId) } },
+          { access: 'public' }       
+        ]
+      })
         .skip((data.page - 1) * data.perPage)
         .limit(data.perPage)
         .lean() as IUserPlaylists[]

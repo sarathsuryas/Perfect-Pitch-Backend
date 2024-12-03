@@ -136,8 +136,8 @@ export class UserController {
     try {
       await this._userService.subscribeArtist(req.user._id, req.body.artistId)
       return res.status(HttpStatus.ACCEPTED).json({ success: true })
-    } catch (error) {
-      console.error(error)
+    } catch (error) {        
+      console.error(error) 
       throw new InternalServerErrorException()
     }
   }
@@ -157,7 +157,7 @@ export class UserController {
   @Get('get-artists')
   async getArtists(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-      const { page, perPage } = req.query;
+      const { page, perPage } = req.query; 
       if (!req.query.artist) {
         const artists = await this._userService.getArtists({ page: parseInt(page as string), perPage: parseInt(perPage as string) })
         const userId = req.user._id

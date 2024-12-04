@@ -38,11 +38,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.streamKey = data.key
       const peer = new webrtc.RTCPeerConnection({
-        iceServers: [
-          {
-            urls: "stun:stun.stunprotocol.org"
-          }
-        ]
+        iceServers: turnConfig.ice_servers
       })
       peer.ontrack = (e) => this.handleTrackEvent(e)
       const desc = new webrtc.RTCSessionDescription(data.sdp)

@@ -70,7 +70,34 @@ export class VideoRepository {
 
   async searchVideos(query: string): Promise<IVideoList[]> {
     try {
-      const videos = await this._videoModel.find({ shorts: false, title: { $regex: `^${query}`, $options: 'i' } }, { artist: 1, title: 1, description: 1, thumbnailLink: 1, visibility: 1, link: 1 }).lean() as IVideoList[]
+   
+      const videos = await this._videoModel.aggregate([
+        { $match: { shorts: false } },
+        {$match:{title:{ $regex: `^${query}`, $options: 'i' }}},
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+       
+      ])
       return videos
     } catch (error) {
       console.error(error)

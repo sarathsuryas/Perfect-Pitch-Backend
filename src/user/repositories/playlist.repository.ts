@@ -42,7 +42,6 @@ export class PlaylistRepository {
 
   async getPlaylists(data: { userId: string, page: number, perPage: number }) {
     try {
-      console.log(data)
       return await this._playlistModel.find({
         $and: [
           { userId: { $ne: new mongoose.Types.ObjectId(data.userId) } },
@@ -73,7 +72,13 @@ export class PlaylistRepository {
 
   async searchPlaylist(query: string) {
     try {
-      return await this._playlistModel.find({ title: { $regex: `^${query}`, $options: 'i' } }).lean() as IUserPlaylists[]
+      return await this._playlistModel.find({
+        $and:[
+         { title: { $regex: `^${query}`, $options: 'i' }},
+         {access:'public'}
+        ]
+       
+         }).lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)
     }

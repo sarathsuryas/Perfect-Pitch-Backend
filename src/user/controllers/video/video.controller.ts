@@ -59,6 +59,27 @@ export class VideoController {
       throw new InternalServerErrorException()
     }
   }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('search-video')
+  async searchVideo(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      if (req.query.video) {
+        const videos = await this._videoService.searchVideos(req.query.video as string)
+        if (videos) {
+          return res.status(HttpStatus.ACCEPTED).json(videos)
+        } else {
+          return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
+        }
+      }
+    } catch (error) {
+      console.error(error)
+
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-video-page-details')
@@ -87,3 +108,4 @@ export class VideoController {
   }
 
 }
+ 

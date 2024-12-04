@@ -22,7 +22,7 @@ constructor(
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
     try {
-      const result = await this._userModel.findOne({ email: userData.email })
+      const result = await this._userModel.findOne({ email: { $regex: `^${userData.email}`, $options: 'i'  }})
       if (!result) {
         return true
       } else {
@@ -137,7 +137,7 @@ constructor(
   }
 
   async getUserId(email: string): Promise<string> {
-    const user = await this._userModel.findOne({ email: email }).lean()
+    const user = await this._userModel.findOne({ email: { $regex: `^${email}`, $options: 'i' } }).lean()
     return user?._id + ""
   }
 

@@ -174,6 +174,24 @@ export class UserController {
       throw new InternalServerErrorException()
     }
   }
+  @UseGuards(UserAuthenticationGuard)
+  @Get('search-artists')
+  async searchArtists(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      
+      if (req.query.artist) {
+        const artists = await this._userService.searchArtists(req.query.artist as string)
+        const userId = req.user._id
+        res.status(HttpStatus.OK).json({ artists, userId })
+      }
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-artist-media')

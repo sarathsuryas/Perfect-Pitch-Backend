@@ -64,10 +64,35 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
 
   async searchAlbum(query: string): Promise<IAlbumData[]> {
     try {
-      const result = await this._albumModel.find({ title: { $regex: `^${query}`, $options: 'i' } }, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
-        .populate('artistId', "fullName")
-        .lean() as IAlbumData[]
-      return result
+     
+      const result = await this._albumModel.aggregate([{
+        $match:{title:{ $regex: `^${query}`, $options: 'i' }}
+      },
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+      ])
+      return result 
+
+
     } catch (error) {
       console.error(error)
     }

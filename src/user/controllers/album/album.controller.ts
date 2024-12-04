@@ -55,12 +55,7 @@ export class AlbumController {
           return res.status(HttpStatus.OK).json(result)
         }
       }
-      if (req.query.album) { 
-        const result = await this._albumService.searchAlbums(req.query.album as string)
-        if (result) {
-          return res.status(HttpStatus.OK).json(result)
-        }
-      }
+     
 
       return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
     } catch (error) {
@@ -68,6 +63,26 @@ export class AlbumController {
       throw new InternalServerErrorException()
     }
   }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('search-albums')
+  async searchAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+     
+        const result = await this._albumService.searchAlbums(req.query.album as string)
+        if (result) {
+          return res.status(HttpStatus.OK).json(result)
+        }
+     
+
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "something went wrong" })
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-artist-albums')

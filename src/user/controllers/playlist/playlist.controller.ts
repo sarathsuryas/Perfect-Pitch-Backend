@@ -50,6 +50,22 @@ export class PlaylistController {
     }
   }
 
+  @UseGuards(UserAuthenticationGuard)
+  @Get('search-playlists')
+  async searchPlaylists(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      
+      if (req.query.playlist) {
+        const data = await this._playlistService.searchPlaylist(req.query.playlist as string)
+        res.status(HttpStatus.OK).json(data)
+      }
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }  
+
 
   @UseGuards(UserAuthenticationGuard)
   @Get('get-all-playlists-user')

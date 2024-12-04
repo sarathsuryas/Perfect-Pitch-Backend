@@ -4,6 +4,7 @@ import * as webrtc from 'wrtc';
 import { UserRepository } from "../repositories/user.repository";
 import { IMessageDto } from "src/user/dtos/IMessageDto";
 import { ChatRepository } from "../repositories/chat.repository";
+import { turnConfig } from "src/turnconfig";
 
 @WebSocketGateway({ cors: true })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -85,13 +86,18 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
       socket.join(data.key)
-      const peer = new webrtc.RTCPeerConnection({
-        iceServers: [
-          {
-            urls: "stun:stun.stunprotocol.org"
-          }
-        ]
-      });
+      const peer = new webrtc.RTCPeerConnection(
+        // iceServers: [
+        //   {
+        //     urls: "stun:stun.stunprotocol.org"
+        //   }
+        // ]
+        {
+          iceServers:turnConfig.ice_servers
+        }
+ 
+
+      );
       const desc = new webrtc.RTCSessionDescription(data.sdp);
       await peer.setRemoteDescription(desc);
       console.log(stream, 'stream data')

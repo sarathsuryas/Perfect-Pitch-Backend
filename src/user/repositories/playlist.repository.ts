@@ -44,7 +44,7 @@ export class PlaylistRepository {
     try {
       return await this._playlistModel.find({
         $and: [
-          { userId: { $ne: new mongoose.Types.ObjectId(data.userId) } },
+          { userId: new mongoose.Types.ObjectId(data.userId)  },
           { access: 'public' }       
         ]
       })
@@ -126,7 +126,7 @@ export class PlaylistRepository {
   }
   async getUserPublicPlaylist(userId: string) {
     try {
-      return await this._playlistModel.find({ userId: userId, access: 'public' })
+      return await this._playlistModel.find({ userId: userId, access: 'public' }).limit(4)
         .lean() as IUserPlaylists[]
     } catch (error) {
       console.error(error)

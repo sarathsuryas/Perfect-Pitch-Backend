@@ -68,7 +68,7 @@ export class AlbumController {
   @Get('search-albums')
   async searchAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
-     
+
         const result = await this._albumService.searchAlbums(req.query.album as string)
         if (result) {
           return res.status(HttpStatus.OK).json(result)
@@ -85,11 +85,13 @@ export class AlbumController {
 
 
   @UseGuards(UserAuthenticationGuard)
-  @Get('get-artist-albums')
-  async getArtistAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
+  @Get('get-individual-albums')
+  async getIndividualAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
+      const { page, perPage } = req.query;
+
       if (req.query.artistId) {
-        const result = await this._albumService.getArtistAlbums(req.query.artistId as string)
+        const result = await this._albumService.getIndividualAlbums({ page: parseInt(page as string), perPage: parseInt(perPage as string),artistId:req.query.artistId as string })
         if (result) {
           return res.status(HttpStatus.OK).json(result)
         }
@@ -117,5 +119,8 @@ export class AlbumController {
       console.error(error)
     }
   }
+
+
+
 
 }

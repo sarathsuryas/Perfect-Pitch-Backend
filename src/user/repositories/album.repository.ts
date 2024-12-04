@@ -47,7 +47,6 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
         { $skip: (data.page - 1) * data.perPage },
         { $limit: data.perPage }
       ])
-      console.log((data.page -1) * data.perPage)
       return result 
     } catch (error) {
       console.error(error)
@@ -97,11 +96,37 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
       console.error(error)
     }
   }
-  async getArtistAlbums(artistId: string): Promise<IAlbumData[]> {
+  async getIndividualAlbums(data: { page: number, perPage: number,artistId:string }): Promise<IAlbumData[]> {
     try {
-      const result = await this._albumModel.find({ artistId: artistId }, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
-        .populate('artistId', "fullName")
-        .lean() as IAlbumData[]
+      // const result = await this._albumModel.find({ artistId: artistId }, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
+      //   .populate('artistId', "fullName")
+      //   .lean() as IAlbumData[]
+      const result = await this._albumModel.aggregate([
+        {$match:{artistId:new mongoose.Types.ObjectId(data.artistId)}},
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistDetails'
+          }
+        },
+        { $unwind: "$artistDetails" },
+        {
+          $project: {
+            title: 1,
+            thumbNailLink: 1,
+            viewers: 1,
+            uuid: 1,
+            artistDetails: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+        { $skip: (data.page - 1) * data.perPage },
+        { $limit: data.perPage }
+      ])
       return result
     } catch (error) {
       console.error(error)
@@ -202,6 +227,9 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
             }
           }
         },
+        {
+          $limit: 4
+        }
 
       ])
 

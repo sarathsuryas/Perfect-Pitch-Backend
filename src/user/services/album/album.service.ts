@@ -38,9 +38,9 @@ export class AlbumService {
     }
   }
 
-  async getArtistAlbums(artistId: string): Promise<IAlbumData[]> {
+  async getIndividualAlbums(data: { page: number, perPage: number,artistId:string }): Promise<IAlbumData[]> {
     try {
-      return await this._albumRepository.getArtistAlbums(artistId)
+      return await this._albumRepository.getIndividualAlbums(data)
     } catch (error) {
       console.error(error)
     }

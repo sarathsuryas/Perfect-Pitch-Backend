@@ -1,0 +1,22 @@
+export const turnConfig = {
+  username: "978b4e0aa4bd05e0e6f47f1f68a7b5edf9fe1e6bbdc777a1042b8924bf3c5a2e", 
+  ice_servers: [{"url": "stun:global.stun.twilio.com:3478",
+     urls: "stun:global.stun.twilio.com:3478"},
+      {url: "turn:global.turn.twilio.com:3478?transport=udp",
+     username: "978b4e0aa4bd05e0e6f47f1f68a7b5edf9fe1e6bbdc777a1042b8924bf3c5a2e", 
+     urls: "turn:global.turn.twilio.com:3478?transport=udp", 
+     credential: "cYV04JfTfKFBDwAwRMIoYYRCNQWsccvXd6V/7vJ2zLI="},
+      {url: "turn:global.turn.twilio.com:3478?transport=tcp", 
+      username: "978b4e0aa4bd05e0e6f47f1f68a7b5edf9fe1e6bbdc777a1042b8924bf3c5a2e", 
+      urls: "turn:global.turn.twilio.com:3478?transport=tcp", 
+      credential: "cYV04JfTfKFBDwAwRMIoYYRCNQWsccvXd6V/7vJ2zLI="},
+       {url: "turn:global.turn.twilio.com:443?transport=tcp", 
+        username: "978b4e0aa4bd05e0e6f47f1f68a7b5edf9fe1e6bbdc777a1042b8924bf3c5a2e", 
+        urls: "turn:global.turn.twilio.com:443?transport=tcp",
+         credential: "cYV04JfTfKFBDwAwRMIoYYRCNQWsccvXd6V/7vJ2zLI="}],
+          date_updated: "Wed, 04 Dec 2024 14:23:30 +0000",
+           account_sid: "ACd9af82275d0b7235829e142171afece2", 
+           ttl: "86400", 
+           date_created: "Wed, 04 Dec 2024 14:23:30 +0000",
+            password: "cYV04JfTfKFBDwAwRMIoYYRCNQWsccvXd6V/7vJ2zLI="
+          }

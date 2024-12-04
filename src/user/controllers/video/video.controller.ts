@@ -107,5 +107,28 @@ export class VideoController {
     }
   }
 
+  @UseGuards(UserAuthenticationGuard)
+  @Get('individual-videos')
+  async IndividualVideos(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const { page, perPage, artistId } = req.query;
+    
+        const videos = await this._videoService.IndividualVideos({artistId:artistId as string, page: parseInt(page as string), perPage: parseInt(perPage as string)})
+        if (videos) {
+          return res.status(HttpStatus.ACCEPTED).json(videos)
+        } else {
+          return res.status(HttpStatus.NOT_FOUND).json({ message: "videos not found" })
+        }
+    } catch (error) {
+      console.error(error)
+
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
+
 }
  

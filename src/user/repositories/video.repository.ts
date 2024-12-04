@@ -193,6 +193,9 @@ export class VideoRepository {
             }
           }
         },
+        {
+          $limit: 3
+        }
       ])
 
       return videos
@@ -242,6 +245,45 @@ export class VideoRepository {
       console.error(error)
     }
   }
+
+  async IndividualVideos(data: { page: number, perPage: number,artistId:string }): Promise<IVideoList[]> {
+    try {
+      const videos = await this._videoModel.aggregate([
+        { $match: { shorts: false } },
+        {$match:{artistId:new mongoose.Types.ObjectId(data.artistId)}},
+        {
+          $lookup: {
+            from: 'users',
+            foreignField: '_id',
+            localField: 'artistId',
+            as: 'artistData'
+          }
+        },
+        { $unwind: '$artistData' },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbNailLink: 1,
+            visibility: 1,
+            link: 1,
+            artistData: {
+              _id: 1,
+              fullName: 1
+            }
+          }
+        },
+        { $skip: (data.page - 1) * data.perPage },
+        { $limit: data.perPage }
+      ])
+
+      return videos
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
 
 
 }

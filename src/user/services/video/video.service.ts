@@ -43,6 +43,14 @@ export class VideoService {
       console.error(error)
     }
   }
+async IndividualVideos(data: { page: number, perPage: number,artistId:string }) {
+ try {
+    return await this._videoRepository.IndividualVideos(data)
+  } catch (error) {
+  console.error(error)
+ }
+}
+  
 
 
 }

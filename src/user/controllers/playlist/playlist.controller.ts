@@ -90,10 +90,7 @@ export class PlaylistController {
         const data = await this._playlistService.getPlaylists({ userId: req.user._id, page: parseInt(page as string), perPage: parseInt(perPage as string) })
         res.status(HttpStatus.OK).json(data)
       }
-      // if (req.query.playlist && req.query.playlist !== undefined) {
-      //   const data = await this._playlistService.searchPlaylist(req.query.playlist as string)
-      //   res.status(HttpStatus.OK).json(data)
-      // }
+     
     } catch (error) {
       console.error(error)
       storeError(error, new Date())
@@ -133,5 +130,25 @@ export class PlaylistController {
       throw new InternalServerErrorException()
     }
   }
+
+  @UseGuards(UserAuthenticationGuard)
+  @Get('get-individual-playlists')
+  async getIndividualPlaylist(@Req() req: ICustomRequest, @Res() res: Response) {
+    try {
+      const { page, perPage,artistId } = req.query;
+      if (!req.query.playlist) {
+        const data = await this._playlistService.getPlaylists({ userId:artistId as string, page: parseInt(page as string), perPage: parseInt(perPage as string) })
+        res.status(HttpStatus.OK).json(data)
+      }
+     
+    } catch (error) {
+      console.error(error)
+      storeError(error, new Date())
+      throw new InternalServerErrorException()
+    }
+  }
+
+
+
 
 }

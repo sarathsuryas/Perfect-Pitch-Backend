@@ -38,7 +38,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.streamKey = data.key
       const peer = new webrtc.RTCPeerConnection({
-        iceServers: turnConfig.ice_servers
+        iceServers: turnConfig.iceServers
       })
       peer.ontrack = (e) => this.handleTrackEvent(e)
       const desc = new webrtc.RTCSessionDescription(data.sdp)
@@ -89,7 +89,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
         //   }
         // ]
         {
-          iceServers:turnConfig.ice_servers
+          iceServers:turnConfig.iceServers
         }
  
 

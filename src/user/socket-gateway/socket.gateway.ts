@@ -4,7 +4,7 @@ import * as webrtc from 'wrtc';
 import { UserRepository } from "../repositories/user.repository";
 import { IMessageDto } from "src/user/dtos/IMessageDto";
 import { ChatRepository } from "../repositories/chat.repository";
-import { turnConfig } from "src/turnconfig";
+import { iceConfiguration } from "src/turnconfig";
 
 @WebSocketGateway({ cors: true })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -37,9 +37,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(this.server.of('/').adapter.rooms.has(data.key))
 
       this.streamKey = data.key
-      const peer = new webrtc.RTCPeerConnection({
-        iceServers: turnConfig.iceServers
-      })
+      const peer = new webrtc.RTCPeerConnection(iceConfiguration)
       peer.ontrack = (e) => this.handleTrackEvent(e)
       const desc = new webrtc.RTCSessionDescription(data.sdp)
       await peer.setRemoteDescription(desc)
@@ -82,18 +80,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
       socket.join(data.key)
-      const peer = new webrtc.RTCPeerConnection(
-        // iceServers: [
-        //   {
-        //     urls: "stun:stun.stunprotocol.org"
-        //   }
-        // ]
-        {
-          iceServers:turnConfig.iceServers
-        }
- 
-
-      );
+      const peer = new webrtc.RTCPeerConnection(iceConfiguration);
       const desc = new webrtc.RTCSessionDescription(data.sdp);
       await peer.setRemoteDescription(desc);
       console.log(stream, 'stream data')

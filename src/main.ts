@@ -39,17 +39,17 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
   app.enableCors({
-    origin: 'https://perfect-pitch.site',    
+    origin: 'https://perfect-pitch-api.site',    
     credentials:true   
   });                            
-  // fjdsfjkdjfdfggdjkfvfjkdhbbjkbjkhjjfjj 
+  // fjdsfjkdjfdfggdjkfvfjkdhbbjkbjkhjjfjj
   app.use(cookieParser())
   app.useGlobalFilters(new HttpExceptionFilter());
  
   await app.listen(port);
   Logger.log(`~ Application is running on: ${await app.getUrl()}`);
 }
-bootstrap();     
+bootstrap();      
  
 
 

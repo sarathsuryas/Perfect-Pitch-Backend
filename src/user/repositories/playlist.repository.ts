@@ -4,57 +4,60 @@ import mongoose, { Model } from "mongoose";
 import { ICreatePlaylistDto } from "src/user/dtos/ICreatePlaylist.dto";
 import { IUserPlaylists } from "src/user/interfaces/IUserPlaylists";
 import { Playlist } from "src/user/schema/playlist.schema";
+import { BaseRepository } from "./base.repository";
 
 @Injectable()
-export class PlaylistRepository {
+export class PlaylistRepository extends BaseRepository<Playlist> {
  constructor(@InjectModel('Playlist') private readonly _playlistModel: Model<Playlist>,
-){}
-  async createPlaylist(data: ICreatePlaylistDto) {
-    try {
-      const value = await this._playlistModel.create({ title: data.title, songsId: data.songId, access: data.visibility, userId: data.userId, thumbNailLink: data.thumbNailLink })
-      return value
-    } catch (error) {
-      console.error(error)
-    }
-  }
+){
+  super(_playlistModel)
+}
+  // async createPlaylist(data: ICreatePlaylistDto):Promise<IUserPlaylists | unknown> {
+  //   try {
+  //     const value = await this._playlistModel.create({ title: data.title, songsId: data.songsId, access: data.access, userId: data.userId, thumbNailLink: data.thumbNailLink })
+  //     return value 
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
-  async getUserPlaylist(data: { userId: string, page: number, perPage: number }) {
-    try {
-      return await this._playlistModel.find({ userId: data.userId })
-        .skip((data.page - 1) * data.perPage)
-        .limit(data.perPage)
-        .lean() as IUserPlaylists[]
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async getUserPlaylist(data: { userId: string, page: number, perPage: number }):Promise<IUserPlaylists[]> {
+  //   try {
+  //     return await this._playlistModel.find({ userId: data.userId })
+  //       .skip((data.page - 1) * data.perPage)
+  //       .limit(data.perPage)
+  //       .lean() as IUserPlaylists[]
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
-  async getAllPlaylistUser(data: { userId: string, page: number, perPage: number }) {
-    try {
-      return await this._playlistModel.find({ userId:data.userId })
-        .skip((data.page - 1) * data.perPage)
-        .limit(data.perPage)
-        .lean() as IUserPlaylists[]
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async getAllPlaylistUser(data: { userId: string, page: number, perPage: number }):Promise<IUserPlaylists[]> {
+  //   try {
+  //     return await this._playlistModel.find({ userId:data.userId })
+  //       .skip((data.page - 1) * data.perPage)
+  //       .limit(data.perPage)
+  //       .lean() as IUserPlaylists[]
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
-  async getPlaylists(data: { userId: string, page: number, perPage: number }) {
-    try {
-      return await this._playlistModel.find({
-        $and: [
-          { userId: new mongoose.Types.ObjectId(data.userId)  },
-          { access: 'public' }       
-        ]
-      })
-        .skip((data.page - 1) * data.perPage)
-        .limit(data.perPage)
-        .lean() as IUserPlaylists[]
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async getPlaylists(data: { userId: string, page: number, perPage: number }):Promise<IUserPlaylists[]> {
+  //   try {
+  //     return await this._playlistModel.find({
+  //       $and: [
+  //         { userId: new mongoose.Types.ObjectId(data.userId)  },
+  //         { access: 'public' }       
+  //       ]
+  //     })
+  //       .skip((data.page - 1) * data.perPage)
+  //       .limit(data.perPage)
+  //       .lean() as IUserPlaylists[]
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
   async recommendedPlaylists(): Promise<IUserPlaylists[]> {
     try {
@@ -70,19 +73,19 @@ export class PlaylistRepository {
   }
 
 
-  async searchPlaylist(query: string) {
-    try {
-      return await this._playlistModel.find({
-        $and:[
-         { title: { $regex: `^${query}`, $options: 'i' }},
-         {access:'public'}
-        ]
+  // async searchPlaylist(query: string):Promise<IUserPlaylists[]> {
+  //   try {
+  //     return await this._playlistModel.find({
+  //       $and:[
+  //        { title: { $regex: `^${query}`, $options: 'i' }},
+  //        {access:'public'}
+  //       ]
        
-         }).lean() as IUserPlaylists[]
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  //        }).lean() as IUserPlaylists[]
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
   async addToPlaylsit(playlistId: string, songId: string): Promise<boolean> {
     try {
@@ -124,7 +127,7 @@ export class PlaylistRepository {
       console.error(error)
     }
   }
-  async getUserPublicPlaylist(userId: string) {
+  async getUserPublicPlaylist(userId: string):Promise<IUserPlaylists[]> {
     try {
       return await this._playlistModel.find({ userId: userId, access: 'public' }).limit(4)
         .lean() as IUserPlaylists[]

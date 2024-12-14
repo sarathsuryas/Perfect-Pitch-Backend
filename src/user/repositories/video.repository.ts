@@ -7,16 +7,20 @@ import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
 import { IVideoList } from "src/user/interfaces/IVideoList";
 import { User } from "src/user/schema/user.schema";
 import { Video } from "src/user/schema/video.schema";
+import { BaseRepository } from "./base.repository";
 
 @Injectable()
 export class VideoRepository {
+  public userRepo = new BaseRepository<User>(this._userModel)
+  public videoRepo = new BaseRepository<Video>(this._videoModel)
   constructor(@InjectModel('Video') private readonly _videoModel: Model<Video>,
     @InjectModel('User') private readonly _userModel: Model<User>,
-
   ) { }
-  async uploadVideo(videoName: string, videoDescription: string, genreId: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
+  
+
+  async uploadVideo(videoName: string, videoDescription: string, genreId: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string){
     try {
-      const result = await this._videoModel.create({
+      const result = await this.videoRepo.create({
         artist: artist,
         title: videoName,
         description: videoDescription,
@@ -110,21 +114,24 @@ export class VideoRepository {
         { $match: { viewers: userId } }
       ])
       if (viewer.length === 0) {
-        await this._videoModel.findByIdAndUpdate(id, { $push: { viewers: userId } })
+        await this.videoRepo.update(id, { $push: { viewers: userId } })
       }
       const data = await this._videoModel.findById(id)
         .populate('artistId', 'subscribers profileImage fullName')
         .lean() as IVideoDetails
 
-      const filter = await this._videoModel.find(
+      const filter = await this.videoRepo.findWithPopulate<IVideoDetails>(
         {
           $and: [
             { _id: { $ne: data._id } },
             { genreId: data.genreId }
           ]
-        })
-        .populate('artistId', 'subscribers profileImage fullName')
-        .lean() as IVideoDetails[]
+        },
+        {},
+        {path:'artistId',select:'subscribers profileImage fullName'},
+        true
+      )
+        
       const userProfileImage = await this._userModel.findById(userId, { _id: 1, profileImage: 1 })
         .lean() as IUserData
 
@@ -140,21 +147,21 @@ export class VideoRepository {
       console.error(error)
     }
   }
-
+ // const dislike = await this.videoRepo.findOneAndUpdate(videoId as string |any, { $pull: { like: userId } })
   async likeVideo(videoId: string, userId: string) {
     try {
       const data = await this._videoModel.aggregate([{
         $match: { _id: new mongoose.Types.ObjectId(videoId) }
       }, { $match: { like: userId } }])
       if (data.length) {
-        const dislike = await this._videoModel.findByIdAndUpdate(videoId, { $pull: { like: userId } }).lean() as IVideoDetails
+        const dislike = await this.videoRepo.update(videoId, { $pull: { like: userId } })
         return {
           videoId: dislike._id,
           likeCount: dislike.like.length
         }
       }
       if (data.length === 0) {
-        const liked = await this._videoModel.findByIdAndUpdate(videoId, { like: userId })
+        const liked = await this.videoRepo.update(videoId, { like: userId })
         return {
           videoId: liked._id,
           likeCount: liked.like.length

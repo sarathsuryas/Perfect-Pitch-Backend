@@ -9,6 +9,7 @@ import { ICreateLive } from 'src/user/interfaces/ICreateLive';
 import { LiveStreamingService } from 'src/user/services/live-streaming/live-streaming.service';
 import { UploadService } from 'src/user/services/upload/upload.service';
 const webrtc = require("wrtc");
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('live-streaming')
 export class LiveStreamingController {
@@ -33,7 +34,8 @@ export class LiveStreamingController {
         thumbNailLink: url.url,
         artistId: req.user._id,
         description: dto.description,
-        genreId: dto.genreId
+        genreId: dto.genreId,
+        uuid:uuidv4()
       }
       const streamId = await this._liveStreamingService.createLive(obj)
       res.status(HttpStatus.OK).json({ success: true, streamId })

@@ -2,16 +2,18 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { EditProfileDto } from "src/user/dtos/editProfile.dto";
-import { IAlbumData } from "src/user/interfaces/IAlbumData";
 import { IReturnEdit } from "src/user/interfaces/IReturnEdit";
 import { IUserData } from "src/user/interfaces/IUserData";
 import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
 import { User } from "src/user/schema/user.schema";
+import { BaseRepository } from "./base.repository";
 
 
 @Injectable() 
-export class UserRepository {
-  constructor( @InjectModel('User') private readonly _userModel: Model<User>) {}
+export class UserRepository extends BaseRepository<User> {
+  constructor( @InjectModel('User') private readonly _userModel: Model<User>) {
+    super(_userModel)
+  }
   async updateProfileImage(_id: string, link: string): Promise<string> {
     try {
       const data = await this._userModel.findById({ _id: _id })
@@ -25,7 +27,7 @@ export class UserRepository {
   }
   async editProfile(data: EditProfileDto, email: string): Promise<IReturnEdit> {
     try {
-      const update = await this._userModel.findOneAndUpdate({ email: email }, { fullName: data.fullName, phone: data.phone }).lean()
+      const update = await this.findOneAndUpdate({ email: email }, { fullName: data.fullName, phone: data.phone })
       return {
         fullName: update.fullName,
       }
@@ -34,9 +36,9 @@ export class UserRepository {
     }
   }
 
-  async resetPassword(_id: string, password: string) {
+  async resetPassword(_id: string, password: string): Promise<IUserData> {
     try {
-      const user = await this._userModel.findOneAndUpdate({ _id: _id }, { password: password })
+      const user = await this.findOneAndUpdate({ _id: _id }, { password: password }) as IUserData
       return user
     } catch (error) {
       console.error(error)
@@ -45,7 +47,7 @@ export class UserRepository {
 
   async getUser(id: string): Promise<IUserData> {
     try {
-      const data = await this._userModel.findOne({ _id: id + '' }).lean() as IUserData
+      const data = await this.findOneByQuery({ _id: id + '' }) as IUserData
       if (data) {
         return data
       }
@@ -55,7 +57,7 @@ export class UserRepository {
     }
   }
 
-  async subscribeArtist(subscribedUserId: string, artistId: string) {
+  async subscribeArtist(subscribedUserId: string, artistId: string):Promise<void> {
     try {
 
       const data = await this._userModel.aggregate([{
@@ -63,13 +65,10 @@ export class UserRepository {
       }, { $match: { subscribers: subscribedUserId } }])
 
       if (data.length) {
-        const unsubscribe = await this._userModel.findByIdAndUpdate(artistId, { $pull: { subscribers: subscribedUserId } }).lean() as IVideoDetails
-        return {
-
-        }
+        const unsubscribe = await this.update(artistId, { $pull: { subscribers: subscribedUserId } })
       }
       if (data.length === 0) {
-        const subscribed = await this._userModel.findByIdAndUpdate(artistId, { subscribers: subscribedUserId })
+        const subscribed = await this.update(artistId, { subscribers: subscribedUserId })
       }
 
     } catch (error) {
@@ -79,17 +78,17 @@ export class UserRepository {
 
   async getArtists(data:{page:number,perPage:number}): Promise<IUserData[]> {
     try {
-      return await this._userModel.find()
-                    .skip((data.page - 1) * data.perPage)
-                     .limit(data.perPage)
-                     .lean()
+      return await this.findAll(false,(data.page - 1) * data.perPage,data.perPage,false)
+                    // .skip((data.page - 1) * data.perPage)
+                    //  .limit(data.perPage)
+                    //  .lean()
     } catch (error) {
       console.error(error)
     }
   }
   async searchArtists(query: string): Promise<IUserData[]> {
     try {
-      return await this._userModel.find({ fullName: { $regex: `^${query}`, $options: 'i' } })
+      return await this.findByQuery({ fullName: { $regex: `^${query}`, $options: 'i' } })
     } catch (error) {
       console.error(error)
     }

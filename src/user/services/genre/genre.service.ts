@@ -8,7 +8,7 @@ export class GenreService {
   constructor(private _genreRepository:GenreRepository) {}
   async getGenres(): Promise<IGenres[]> {
     try {
-      return await this._genreRepository.getGenres()
+      return await this._genreRepository.find<IGenres>()
     } catch (error) {
       console.error(error)
     }

@@ -5,19 +5,22 @@ import { IGenres } from "src/admin/interfaces/IGenres";
 import { ISongsSameGenre } from "src/user/interfaces/ISongsSameGenre";
 import { Genres } from "src/user/schema/genres.schema";
 import { Audio } from "src/user/schema/audio.schema";
+import { BaseRepository } from "./base.repository";
 @Injectable()
-export class GenreRepository {
+export class GenreRepository extends BaseRepository<Genres>{
   constructor(@InjectModel('Genre') private readonly _genreModel: Model<Genres>,
   @InjectModel('Audio') private readonly _audioModel: Model<Audio>,
 
-) {}
-async getGenres(): Promise<IGenres[]> {
-  try {
-    return await this._genreModel.find().lean()
-  } catch (error) {
-    console.error(error)
-  }
+) {
+  super(_genreModel)
 }
+// async getGenres(): Promise<IGenres[]> {
+//   try {
+//     return await this._genreModel.find().lean()
+//   } catch (error) {
+//     console.error(error)
+//   }
+// }
 
 
 async getSameGenreSongs(genreId: string): Promise<ISongsSameGenre[]> {

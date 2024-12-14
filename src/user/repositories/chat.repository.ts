@@ -4,11 +4,15 @@ import { Model } from "mongoose";
 import { IMessageDto } from "src/user/dtos/IMessageDto";
 import { IChats } from "src/user/interfaces/IChats";
 import { LiveChat } from "src/user/schema/liveChat.schema";
+import { BaseRepository } from "./base.repository";
+import { IChat } from "../interfaces/IChat";
 
 @Injectable()
-export class ChatRepository {
+export class ChatRepository extends BaseRepository<IChat> {
   constructor(@InjectModel('LiveChat') private _chatModel: Model<LiveChat>
-) {}
+) {
+  super(_chatModel)
+}
   async getChat(streamKey: string): Promise<IChats[]> {
     try {
       const chats = await this._chatModel.aggregate([
@@ -41,7 +45,7 @@ export class ChatRepository {
       console.error(error)
     }
   }
-  async StoreChat(data: IMessageDto) {
+  async StoreChat(data: IMessageDto):Promise<void> {
     try {
       await this._chatModel.create({
         streamKey: data.streamKey,

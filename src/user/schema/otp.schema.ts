@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from "mongoose";
 
 @Schema()
-export class Otp{
+export class Otp extends Document{ 
   @Prop()
   storedOtp:string
 } 

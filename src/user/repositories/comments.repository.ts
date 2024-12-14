@@ -10,24 +10,33 @@ import { IReplyToReply } from "src/user/interfaces/IReplyToReply";
 import { CommentReply } from "src/user/schema/commentReply.schema";
 import { ReplyToReply } from "src/user/schema/replyToReply.schema";
 import { VideoComment } from "src/user/schema/videoComment.schema";
+import { BaseRepository } from "./base.repository";
+import { IVideoCommon } from "../interfaces/IVideoCommon";
 
 @Injectable()
 export class CommentsRepository {
+  public videoCommentRepo: BaseRepository<IVideoCommon>;
+  public commentReplyRepo: BaseRepository<CommentReply>;
+  public replyToReplyRepo: BaseRepository<ReplyToReply>;
   constructor(
     @InjectModel('VideoComment') private readonly _videoCommentModel: Model<VideoComment>,
     @InjectModel('CommentReply') private readonly _commentReplyModel: Model<CommentReply>,
     @InjectModel('ReplyToReply') private _replyToReplyModel: Model<ReplyToReply>,
-  ) {}
-  async addVideoComment(comment: IVideoCommentDto): Promise<Object> {
-    try {
-      const data = await this._videoCommentModel.create({ videoId: comment.videoId, userId: comment.userId, comment: comment.comment })
-      return data._id
-    } catch (error) {
-      console.error(error)
-    }
+  ) {
+    this.videoCommentRepo = new BaseRepository(_videoCommentModel);
+    this.commentReplyRepo = new BaseRepository(_commentReplyModel);
+    this.replyToReplyRepo = new BaseRepository(_replyToReplyModel);
   }
+  // async addVideoComment(comment: IVideoCommentDto): Promise<Object> {
+  //   try {
+  //     const data = await this._videoCommentModel.create({ videoId: comment.videoId, userId: comment.userId, comment: comment.comment })
+  //     return data._id
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
-  async likeComment(commentId: string, userId: string) {
+  async likeComment(commentId: string, userId: string):Promise<void> {
     try {
 
       const data = await this._videoCommentModel.aggregate([{
@@ -47,36 +56,27 @@ export class CommentsRepository {
     }
   }
 
-  async getComments(videoId: string): Promise<ICommentResponse[]> {
-    try {
-      return await this._videoCommentModel.find({ videoId: videoId })
-        .sort({ createdAt: -1 })
-        .populate('userId', 'fullName profileImage')
-        .lean()
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  
 
-  async replyComment(data: ICommentReplyDto) {
-    try {
-      await this._commentReplyModel.create({ commentId: data.commentId, userId: data.userId, reply: data.reply })
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async replyComment(data: ICommentReplyDto):Promise<void> {
+  //   try {
+  //     await this._commentReplyModel.create({ commentId: data.commentId, userId: data.userId, reply: data.reply })
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
-  async getReplies(commentId: string): Promise<ICommentReply[]> {
-    try {
-      return await this._commentReplyModel.find({ commentId: commentId })
-        .populate('userId', 'fullName profileImage').sort({ createdAt: -1 })
-        .lean()
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async getReplies(commentId: string): Promise<ICommentReply[]> {
+  //   try {
+  //     return await this._commentReplyModel.find({ commentId: commentId })
+  //       .populate('userId', 'fullName profileImage').sort({ createdAt: -1 })
+  //       .lean()
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
-  async likeReply(replyId: string, userId: string) {
+  async likeReply(replyId: string, userId: string):Promise<void> {
     try {
       const data = await this._commentReplyModel.aggregate([{
         $match: { _id: new mongoose.Types.ObjectId(replyId) }
@@ -94,7 +94,7 @@ export class CommentsRepository {
       console.error(error)
     }
   }
-  async likeReplyToReply(replyToReplyId: string, userId: string) {
+  async likeReplyToReply(replyToReplyId: string, userId: string):Promise<void> {
     try {
       const data = await this._replyToReplyModel.aggregate([{
         $match: { _id: new mongoose.Types.ObjectId(replyToReplyId) }
@@ -114,7 +114,7 @@ export class CommentsRepository {
     }
   }
 
-  async replyToReply(replyToReply: IReplyToReplyDto) {
+  async replyToReply(replyToReply: IReplyToReplyDto):Promise<IReplyToReply | unknown> {
     try {
       return await this._replyToReplyModel.create({
         replyId: replyToReply.replyId,

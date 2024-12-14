@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ICommentReplyDto } from 'src/user/dtos/ICommentReply.dto';
 import { IReplyToReplyDto } from 'src/user/dtos/IReplyToReply.dto';
 import { IVideoCommentDto } from 'src/user/dtos/IVideoComment.dto';
+import { ICommentReply } from 'src/user/interfaces/ICommentReplies';
 import { ICommentResponse } from 'src/user/interfaces/ICommentResponse';
 import { IReplyToReply } from 'src/user/interfaces/IReplyToReply';
 import { CommentsRepository } from 'src/user/repositories/comments.repository';
@@ -11,7 +12,7 @@ export class CommentsService {
    constructor(private _commentsRepository:CommentsRepository) {}
   async addVideoComment(comment: IVideoCommentDto) {
     try {
-      return await this._commentsRepository.addVideoComment(comment)
+      return await this._commentsRepository.videoCommentRepo.create(comment)
     } catch (error) {
       console.error(error)
     }
@@ -27,23 +28,33 @@ export class CommentsService {
 
   async getComments(videoId: string): Promise<ICommentResponse[]> {
     try {
-      return await this._commentsRepository.getComments(videoId)
+      return await this._commentsRepository.videoCommentRepo.findWithPopulate<ICommentResponse>({ videoId }, // Filter
+        { createdAt: -1 }, // Sort by `createdAt` descending
+        { path: 'userId', select: 'fullName profileImage' }, // Populate `userId` with fields
+        true )
+        
     } catch (error) {
       console.error(error)
     }
   }
+
+  async getReplies(commentId: string):Promise<ICommentReply[]> {
+    try {
+      return await this._commentsRepository.commentReplyRepo.findWithPopulate<ICommentReply>(
+        {commentId},
+        {createdAt:-1},
+        {path:'userId',select: 'fullName profileImage'},
+        true
+      )
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
   async replyComment(data: ICommentReplyDto) {
     try {
-      await this._commentsRepository.replyComment(data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  async getReplies(commentId: string) {
-    try {
-      return await this._commentsRepository.getReplies(commentId)
+      await this._commentsRepository.commentReplyRepo.create(data)
     } catch (error) {
       console.error(error)
     }
@@ -63,9 +74,9 @@ export class CommentsService {
       console.error(error)
     }
   }  
-  async replyToReply(data: IReplyToReplyDto) {
+  async replyToReply(data: IReplyToReplyDto):Promise<IReplyToReply | unknown> {
     try {
-      return await this._commentsRepository.replyToReply(data)
+      return await this._commentsRepository.replyToReplyRepo.create(data)
     } catch (error) {
       console.error(error)
     }

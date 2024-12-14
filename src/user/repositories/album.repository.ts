@@ -6,11 +6,14 @@ import { IAlbumData } from "src/user/interfaces/IAlbumData";
 import { Album } from "src/user/schema/album.schema";
 import { v4 as uuidv4 } from 'uuid';
 import { Audio } from "src/user/schema/audio.schema";
+import { BaseRepository } from "./base.repository";
 @Injectable()
-export class AlbumRepository {
+export class AlbumRepository  extends BaseRepository<Album> {
 constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
 @InjectModel('Audio') private readonly _audioModel: Model<Audio>,
-) {}
+) {
+  super(_albumModel)
+}
   async submitAlbumDetails(details: IAlbumDetails, uuids: string[]) {
     try {
       const result = await this._albumModel.create({ title: details.title, artistId: details.artistId, thumbNailLink: details.thumbNailLink, genreId: details.genreId, uuid: uuidv4(), songs: uuids })
@@ -98,9 +101,7 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
   }
   async getIndividualAlbums(data: { page: number, perPage: number,artistId:string }): Promise<IAlbumData[]> {
     try {
-      // const result = await this._albumModel.find({ artistId: artistId }, { title: 1, artistName: 1, visibility: 1, thumbNailLink: 1, uuid: 1 })
-      //   .populate('artistId', "fullName")
-      //   .lean() as IAlbumData[]
+   
       const result = await this._albumModel.aggregate([
         {$match:{artistId:new mongoose.Types.ObjectId(data.artistId)}},
         {

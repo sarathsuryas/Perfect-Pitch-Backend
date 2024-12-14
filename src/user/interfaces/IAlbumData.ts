@@ -1,5 +1,6 @@
+import { Document } from "mongoose"
 
-export interface IAlbumData {
+export interface IAlbumData extends Document {
   _id:string;
   title:string;
   uuid:string

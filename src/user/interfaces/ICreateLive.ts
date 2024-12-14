@@ -4,4 +4,5 @@ export interface ICreateLive {
   artistId:string;
   description:string;
   genreId:string;
+  uuid:string
 }

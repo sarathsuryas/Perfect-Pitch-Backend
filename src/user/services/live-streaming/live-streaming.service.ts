@@ -9,9 +9,9 @@ export class LiveStreamingService {
   constructor(private _liveStreamingRepository:LiveStreamingRepository) {}
   async createLive(data: ICreateLive): Promise<string> {
     try {
-      return await this._liveStreamingRepository.createLive(data)
+      return (await this._liveStreamingRepository.create(data)).uuid 
     } catch (error) {
-      console.error(error)
+      console.error(error) 
     }
   }
 

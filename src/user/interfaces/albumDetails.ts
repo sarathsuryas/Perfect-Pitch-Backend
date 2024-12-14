@@ -1,4 +1,5 @@
 import { IAudioDto } from "../dtos/IAudio.dto";
+import { Document } from "mongoose"
 
 export interface IAlbumDetails {
   title:string;

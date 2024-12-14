@@ -5,6 +5,7 @@ import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { ICreatePlaylistDto } from 'src/user/dtos/ICreatePlaylist.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PlaylistService } from 'src/user/services/playlist/playlist.service';
+import { IUserPlaylists } from 'src/user/interfaces/IUserPlaylists';
 
 @Controller('playlist')
 export class PlaylistController {
@@ -16,12 +17,12 @@ export class PlaylistController {
     try {
       const obj: ICreatePlaylistDto = {
         userId: req.user._id,
-        songId: req.body.songId,
+        songsId: req.body.songId,
         title: req.body.title,
-        visibility: req.body.visibility,
+        access: req.body.visibility,
         thumbNailLink: req.body.thumbNailLink
       }
-      const data = await this._playlistService.createPlaylist(obj)
+      const data = await this._playlistService.createPlaylist(obj) as IUserPlaylists
       res.status(HttpStatus.OK).json({ success: true, playlistId: data._id })
     } catch (error) {
       console.error(error)

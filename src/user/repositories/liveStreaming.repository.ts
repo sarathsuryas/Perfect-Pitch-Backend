@@ -5,27 +5,30 @@ import { ICreateLive } from "src/user/interfaces/ICreateLive";
 import { ILive } from "src/user/interfaces/ILive";
 import { ILiveStreams } from "src/user/interfaces/ILiveStreams";
 import { Live } from "src/user/schema/live.schema";
-import { v4 as uuidv4 } from 'uuid';
+import { BaseRepository } from "./base.repository";
+
 
 @Injectable()
-export class LiveStreamingRepository {
+export class LiveStreamingRepository extends BaseRepository<Live> {
   constructor(@InjectModel('Live') private _liveModel: Model<Live>,
-) {}
-  async createLive(data: ICreateLive): Promise<string> {
-    try {
-      const result = await this._liveModel.create({
-        uuid: uuidv4(),
-        title: data.title,
-        description: data.description,
-        artistId: data.artistId,
-        genreId: data.genreId,
-        thumbNailLink: data.thumbNailLink
-      })
-      return result.uuid
-    } catch (error) {
-      console.error(error)
-    }
-  }
+) {
+  super(_liveModel)
+}
+  // async createLive(data: ICreateLive): Promise<string> {
+  //   try {
+  //     const result = await this._liveModel.create({
+  //       uuid: uuidv4(),
+  //       title: data.title,
+  //       description: data.description,
+  //       artistId: data.artistId,
+  //       genreId: data.genreId,
+  //       thumbNailLink: data.thumbNailLink
+  //     })
+  //     return result.uuid
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
   async getLiveStreams(): Promise<ILiveStreams[]> {
     try {
@@ -89,7 +92,7 @@ export class LiveStreamingRepository {
       console.error(error)
     }
   }
-  async stopStream(streamKey: string) {
+  async stopStream(streamKey: string):Promise<void> {
     try {
       console.log(streamKey)
       await this._liveModel.deleteOne({ uuid: streamKey })

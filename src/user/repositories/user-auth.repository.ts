@@ -11,18 +11,22 @@ import { IUserResetToken } from "src/user/interfaces/IUserResetToken"
 import { Otp } from "src/user/schema/otp.schema"
 import { User } from "src/user/schema/user.schema"
 import { UserPasswordResetToken } from "src/user/schema/userResetToken"
+import { BaseRepository } from "./base.repository"
 
 @Injectable()
-export class UserAuthRepository {
+export class UserAuthRepository  {
 constructor(
   @InjectModel('User') private readonly _userModel: Model<User>,
   @InjectModel('Otp') private readonly _otpModel: Model<Otp>,
   @InjectModel('UserResetToken') private readonly _resetTokenModel: Model<UserPasswordResetToken>,
 ) {}
+public userRepo = new BaseRepository<User>(this._userModel)
+public otpRepo = new BaseRepository<Otp>(this._otpModel)
+public resetTokenRepo = new BaseRepository<UserPasswordResetToken>(this._resetTokenModel)
 
   async checkUser(userData: RegisterUserDto): Promise<boolean> {
     try {
-      const result = await this._userModel.findOne({ email: { $regex: `^${userData.email}`, $options: 'i'  }})
+      const result = await this.userRepo.findOneByQuery({ email: { $regex: `^${userData.email}`, $options: 'i'  }})
       if (!result) {
         return true
       } else {
@@ -43,7 +47,7 @@ constructor(
 
   async returnOtp(): Promise<IStoredOtp> {
     try {
-      return await this._otpModel.findOne({}, { _id: 0, storedOtp: 1 })
+      return await this.otpRepo.findOneWithProjection<IStoredOtp>({}, { _id: 0, storedOtp: 1 })
     } catch (error) {
       console.error(error)
     }
@@ -51,7 +55,7 @@ constructor(
 
   async createUser(data: CreateUserDto, password: string): Promise<ICreatedUser> {
     try {
-      const result = await this._userModel.create({
+      const result = await this.userRepo.create({
         fullName: data.data.fullName,
         email: data.data.email,
         password: password
@@ -81,7 +85,7 @@ constructor(
   async existUser(email: string): Promise<IUserData | null> {
     try {
 
-      const exist = await this._userModel.findOne({ email: { $regex: `^${email}`, $options: 'i' } })
+      const exist = await this.userRepo.findOneByQuery<IUserData | null>({ email: { $regex: `^${email}`, $options: 'i' } })
 
       if (exist) {
         const obj: IUserData = {
@@ -104,7 +108,7 @@ constructor(
   async createUserUsingGoogleLogin(data: IGoogleLoginDto): Promise<ICreatedUser> {
 
     try {
-      const result = await this._userModel.create({
+      const result = await this.userRepo.create({
         fullName: data.name,
         email: data.email,
         profileImage: data.photoUrl
@@ -127,7 +131,7 @@ constructor(
 
   async getRefreshToken(email: string): Promise<string> {
     try {
-      const userData = await this._userModel.findOne({ email: email })
+      const userData = await this.userRepo.findOneByQuery<IUserData>({ email: email })
       const { refreshToken } = userData
       console.log(refreshToken)
       return refreshToken
@@ -137,7 +141,7 @@ constructor(
   }
 
   async getUserId(email: string): Promise<string> {
-    const user = await this._userModel.findOne({ email: { $regex: `^${email}`, $options: 'i' } }).lean()
+    const user = await  this.userRepo.findOneByQuery<{_id:string}>({ email: { $regex: `^${email}`, $options: 'i' } })
     return user?._id + ""
   }
 
@@ -151,17 +155,17 @@ constructor(
       console.error(error)
     }
   }
-  async getResetPasswordToken(resetToken: string) {
+  async getResetPasswordToken(resetToken: string):Promise<IUserResetToken> {
     try {
-      const data = await this._resetTokenModel.findOne({ resetToken: resetToken })
-      return data
+      const data = await  this.resetTokenRepo.findOneByQuery<IUserResetToken>({ resetToken: resetToken }) 
+      return data  
     } catch (error) {
       console.error(error)
     }
   }
   async newPassword(password: string, AdminId: string): Promise<IUserResetToken | boolean> {
     try {
-      const data = await this._resetTokenModel.findOne({ _adminId: AdminId }).lean() as IUserResetToken
+      const data = await this.resetTokenRepo.findOneByQuery<IUserResetToken>({ _adminId: AdminId }) 
       const expirationTime = new Date(data.createdAt.getTime() + 3600 * 1000);
       const currentTime = new Date();
       if (currentTime < expirationTime) {
@@ -175,7 +179,7 @@ constructor(
   }
   async updatePassword(id: string, password: string): Promise<IUserData> {
     try {
-      const data = await this._userModel.findByIdAndUpdate(id, { password: password }).lean() as IUserData
+      const data = await this.userRepo.update(id, { password: password }) as IUserData
       if (data) {
         return data
       } else {
@@ -189,7 +193,7 @@ constructor(
 
   async getUser(id: string): Promise<IUserData> {
     try {
-      const data = await this._userModel.findOne({ _id: id + '' }).lean() as IUserData
+      const data = await this.userRepo.findOneByQuery({ _id: id + '' }) as IUserData
       if (data) {
         return data
       }

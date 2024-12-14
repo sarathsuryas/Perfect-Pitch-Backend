@@ -5,6 +5,7 @@ import { UserRepository } from "../repositories/user.repository";
 import { IMessageDto } from "src/user/dtos/IMessageDto";
 import { ChatRepository } from "../repositories/chat.repository";
 import { iceConfiguration } from "src/turnconfig";
+import { IChat } from "../interfaces/IChat";
 
 @WebSocketGateway({ cors: true })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -32,7 +33,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { key: string, sdp: any }
   ) {
     try {
-      console.log("broadcast started '/////////////////////")
       socket.join(data.key)
       console.log(this.server.of('/').adapter.rooms.has(data.key))
 
@@ -114,7 +114,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     console.log(body)
    console.log(this.server.of('/').adapter.rooms.has(body.streamKey))
-    await this._chatRepository.StoreChat(body)
+    await this._chatRepository.create(body)
     socket.to(body.streamKey).emit("message",body)    
   }
 

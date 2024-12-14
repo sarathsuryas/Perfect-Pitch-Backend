@@ -7,6 +7,7 @@ import { IUserData } from "src/user/interfaces/IUserData";
 import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
 import { User } from "src/user/schema/user.schema";
 import { Video } from "src/user/schema/video.schema";
+import { BaseRepository } from "./base.repository";
 
 @Injectable()
 export class ShortsRepository {
@@ -14,20 +15,25 @@ export class ShortsRepository {
   @InjectModel('User') private readonly _userModel: Model<User>,
 
   ) { }
-  async submitShortsDetails(data: IShortsDto) {
+  public userRepo = new BaseRepository<User>(this._userModel)
+  public videoRepo = new BaseRepository<Video>(this._videoModel)
+
+  async submitShortsDetails(data: IShortsDto):Promise<void> {
     try {
-      await this._videoModel.create({ artist: data.fullName, title: data.caption, description: data.description, shorts: true, link: data.link, artistId: data.artistId })
+      await this.videoRepo.create({ artist: data.fullName, title: data.caption, description: data.description, shorts: true, link: data.link, artistId: data.artistId })
     } catch (error) {
       console.error(error)
     }
   }
   async getShorts(userId: string): Promise<IResponseShorts> {
     try {
-      const videos = await this._videoModel.find({ shorts: true })
-        .populate('artistId', 'subscribers profileImage fullName')
-        .lean() as IVideoDetails[]
-      const userData = await this._userModel.findById(userId, { _id: 1, profileImage: 1, fullName: 1 })
-        .lean() as IUserData
+
+      const videos = await this.videoRepo.findWithPopulate(
+        { shorts: true },
+        {},
+        {path:'artistId',select:'subscribers profileImage fullName'}   
+      ) as IVideoDetails[]
+      const userData = await this.userRepo.findById<IUserData>(userId, { _id: 1, profileImage: 1, fullName: 1 })
       const data: IResponseShorts = {
         shorts: videos,
         user: {

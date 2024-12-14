@@ -7,6 +7,7 @@ import { Album } from "src/user/schema/album.schema";
 import { v4 as uuidv4 } from 'uuid';
 import { Audio } from "src/user/schema/audio.schema";
 import { BaseRepository } from "./base.repository";
+import { IAlbumDetailsDto } from "../dtos/IAlbumDetails.dto";
 @Injectable()
 export class AlbumRepository  extends BaseRepository<Album> {
 constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
@@ -16,7 +17,7 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
 }
   async submitAlbumDetails(details: IAlbumDetails, uuids: string[]) {
     try {
-      const result = await this._albumModel.create({ title: details.title, artistId: details.artistId, thumbNailLink: details.thumbNailLink, genreId: details.genreId, uuid: uuidv4(), songs: uuids })
+      const result = await this.create({ title: details.title, artistId: details.artistId, thumbNailLink: details.thumbNailLink, genreId: details.genreId, uuid: uuidv4(), songs: uuids })
       return result
     } catch (error) {
       console.error(error)
@@ -56,7 +57,7 @@ constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
     }
   }
 
-  async submitAudioDetails(songs: IAlbumDetails) {
+  async submitAudioDetails(songs: IAlbumDetails):Promise<void> {
     try {
       const result = await this._audioModel.insertMany(songs.songs)
     } catch (error) {

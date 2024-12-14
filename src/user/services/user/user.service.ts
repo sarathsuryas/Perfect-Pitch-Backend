@@ -74,7 +74,7 @@ export class UserService {
       console.error(error)
     }
   }
-  async submitProfileImageDetails(uniqueKey: string, userId: string) {
+  async submitProfileImageDetails(uniqueKey: string, userId: string):Promise<void> {
     try {
       const uniqueUrl = this._presignedUrlService.getFileUrl(uniqueKey)
       await this._userRepository.updateProfileImage(userId, uniqueUrl)
@@ -83,7 +83,7 @@ export class UserService {
     }
   }
 
-  async subscribeArtist(subscribedUserId: string, artistId: string) {
+  async subscribeArtist(subscribedUserId: string, artistId: string):Promise<void> {
     try {
       await this._userRepository.subscribeArtist(subscribedUserId, artistId)
     } catch (error) {

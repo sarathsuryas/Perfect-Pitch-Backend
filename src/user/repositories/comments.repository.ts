@@ -45,11 +45,11 @@ export class CommentsRepository {
 
       if (data.length) {
         console.log('dislike')
-        const dislike = await this._videoCommentModel.findByIdAndUpdate(commentId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } }).lean()
+        const dislike = await this.videoCommentRepo.update(commentId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } })
       }
       if (data.length === 0) {
         console.log('like')
-        const liked = await this._videoCommentModel.findByIdAndUpdate(commentId, { likes: new mongoose.Types.ObjectId(userId) })
+        const liked = await this.videoCommentRepo.update(commentId, { likes: new mongoose.Types.ObjectId(userId) })
       }
     } catch (error) {
       console.error(error)
@@ -83,11 +83,11 @@ export class CommentsRepository {
       }, { $match: { likes: new mongoose.Types.ObjectId(userId) } }])
       if (data.length) {
         console.log("dislike")
-        const dislike = await this._commentReplyModel.findByIdAndUpdate(replyId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } }).lean()
+        const dislike = await this.commentReplyRepo.update(replyId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } })
       }
       if (data.length === 0) {
         console.log("like")
-        const liked = await this._commentReplyModel.findByIdAndUpdate(replyId, { likes: new mongoose.Types.ObjectId(userId) })
+        const liked = await this.commentReplyRepo.update(replyId, { likes: new mongoose.Types.ObjectId(userId) })
       }
 
     } catch (error) {
@@ -101,11 +101,11 @@ export class CommentsRepository {
       }, { $match: { likes: new mongoose.Types.ObjectId(userId) } }])
       if (data.length) {
         console.log("dislike")
-        const dislike = await this._replyToReplyModel.findByIdAndUpdate(replyToReplyId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } }).lean()
+        const dislike = await this.replyToReplyRepo.update(replyToReplyId, { $pull: { likes: new mongoose.Types.ObjectId(userId) } })
       }
       if (data.length === 0) {
         console.log("like")
-        const liked = await this._replyToReplyModel.findByIdAndUpdate(replyToReplyId, { likes: new mongoose.Types.ObjectId(userId) })
+        const liked = await this.replyToReplyRepo.update(replyToReplyId, { likes: new mongoose.Types.ObjectId(userId) })
 
       }
 
@@ -116,7 +116,7 @@ export class CommentsRepository {
 
   async replyToReply(replyToReply: IReplyToReplyDto):Promise<IReplyToReply | unknown> {
     try {
-      return await this._replyToReplyModel.create({
+      return await this.replyToReplyRepo.create({
         replyId: replyToReply.replyId,
         likes: replyToReply.likes,
         replyToReply: replyToReply.replyToReply,

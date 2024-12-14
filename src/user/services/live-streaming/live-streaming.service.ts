@@ -33,7 +33,7 @@ export class LiveStreamingService {
     }
   }
 
-  async stopStreaming(streamKey: string) {
+  async stopStreaming(streamKey: string):Promise<void>  {
     try {
       return await this._liveStreamingRepository.stopStream(streamKey)
     } catch (error) {

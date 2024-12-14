@@ -8,6 +8,7 @@ import { IVideoList } from "src/user/interfaces/IVideoList";
 import { User } from "src/user/schema/user.schema";
 import { Video } from "src/user/schema/video.schema";
 import { BaseRepository } from "./base.repository";
+import { IVideoDto } from "../dtos/IVideo.dto";
 
 @Injectable()
 export class VideoRepository {

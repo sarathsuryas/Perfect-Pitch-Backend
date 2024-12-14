@@ -1,7 +1,10 @@
 export interface IVideoDto {
-  videoName:string;
-  videoDescription:string;
-  genre:string;
-  link:string;
-  userId:string
+  title:string
+  videoName: string
+   description: string
+    genreId: string
+     artistId: string
+      link: string 
+      thumbNailLink: string
+       artist: string
 }

@@ -305,7 +305,7 @@ export class UserAuthService {
       console.error(error)
     }
   }
-  async getResetPasswordToken(resetToken: string) {
+  async getResetPasswordToken(resetToken: string):Promise<IUserResetToken>  {
     try {
       const data = await this._userAuthRepository.getResetPasswordToken(resetToken)
       return data

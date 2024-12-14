@@ -94,7 +94,7 @@ export class LiveStreamingRepository extends BaseRepository<Live> {
   }
   async stopStream(streamKey: string):Promise<void> {
     try {
-      console.log(streamKey)
+      //console.log(streamKey)
       await this._liveModel.deleteOne({ uuid: streamKey })
     } catch (error) {
       console.error(error)

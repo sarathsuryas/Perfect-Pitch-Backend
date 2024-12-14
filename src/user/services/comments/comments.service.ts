@@ -18,7 +18,7 @@ export class CommentsService {
     }
   }
 
-  async likeComment(commentId: string, userId: string) {
+  async likeComment(commentId: string, userId: string):Promise<void> {
     try {
       return await this._commentsRepository.likeComment(commentId, userId)
     } catch (error) {
@@ -52,7 +52,7 @@ export class CommentsService {
   }
 
 
-  async replyComment(data: ICommentReplyDto) {
+  async replyComment(data: ICommentReplyDto):Promise<void> {
     try {
       await this._commentsRepository.commentReplyRepo.create(data)
     } catch (error) {
@@ -60,14 +60,14 @@ export class CommentsService {
     }
   }
 
-  async likeReply(replyId: string, userId: string) {
+  async likeReply(replyId: string, userId: string):Promise<void> {
     try {
       await this._commentsRepository.likeReply(replyId, userId)
     } catch (error) {
       console.error(error)
     }
   }
-  async likeReplyToReply(replyToReplyId: string, userId: string) {
+  async likeReplyToReply(replyToReplyId: string, userId: string):Promise<void> {
     try {
       await this._commentsRepository.likeReplyToReply(replyToReplyId, userId)
     } catch (error) {

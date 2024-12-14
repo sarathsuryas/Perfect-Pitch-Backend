@@ -61,7 +61,7 @@ export class PlaylistService {
   }
 
 
-  async addToPlaylist(playlistId: string, songId: string) {
+  async addToPlaylist(playlistId: string, songId: string): Promise<boolean>  {
     try {
       return await this._playlistRepository.addToPlaylsit(playlistId, songId)
     } catch (error) {

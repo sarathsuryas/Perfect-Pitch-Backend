@@ -43,7 +43,7 @@ export class VideoService {
       console.error(error)
     }
   }
-async IndividualVideos(data: { page: number, perPage: number,artistId:string }) {
+async IndividualVideos(data: { page: number, perPage: number,artistId:string }): Promise<IVideoList[]>  {
  try {
     return await this._videoRepository.IndividualVideos(data)
   } catch (error) {

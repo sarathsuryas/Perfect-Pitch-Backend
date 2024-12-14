@@ -89,11 +89,11 @@ export class PlaylistRepository extends BaseRepository<Playlist> {
 
   async addToPlaylsit(playlistId: string, songId: string): Promise<boolean> {
     try {
-      const data = await this._playlistModel.findOne({ _id: playlistId, songsId: { $in: [songId] } })
+      const data = await this.findOneByQuery({ _id: playlistId, songsId: { $in: [songId] } })
       if (data) {
         return true
       } else {
-        await this._playlistModel.findOneAndUpdate({ _id: playlistId }, { $push: { songsId: songId } })
+        await this.findOneAndUpdate({ _id: playlistId }, { $push: { songsId: songId } })
         return false
       }
 
@@ -109,7 +109,7 @@ export class PlaylistRepository extends BaseRepository<Playlist> {
         { $match: { viewers: userId } }
       ])
       if (viewer.length === 0) {
-        await this._playlistModel.findByIdAndUpdate(playlistId, { $push: { viewers: userId } })
+        await this.update(playlistId, { $push: { viewers: userId } })
       }
       const data = await this._playlistModel.findOne({ _id: playlistId })
         .populate({

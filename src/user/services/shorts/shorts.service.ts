@@ -6,7 +6,7 @@ import { ShortsRepository } from 'src/user/repositories/shorts.repository';
 @Injectable()
 export class ShortsService {
   constructor(private _shortsRepository: ShortsRepository) { }
-  async submitShortsDetails(data: IShortsDto) {
+  async submitShortsDetails(data: IShortsDto):Promise<void> {
     try {
       await this._shortsRepository.submitShortsDetails(data)
     } catch (error) {

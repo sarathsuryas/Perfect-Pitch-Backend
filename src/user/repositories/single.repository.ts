@@ -6,8 +6,9 @@ import { Audio } from "src/user/schema/audio.schema";
 import { IAudioData } from "../interfaces/IAudioData";
 import { IAudioDto } from "../dtos/IAudio.dto";
 import { BaseRepository } from "./base.repository";
+import { ISingleRepository } from "../interfaces/ISingleRepository";
 @Injectable()
-export class SingleRepository extends BaseRepository<Audio>{
+export class SingleRepository extends BaseRepository<Audio> implements ISingleRepository{
   constructor(@InjectModel('Audio') private readonly _audioModel: Model<Audio>,
 ) { 
   super(_audioModel)

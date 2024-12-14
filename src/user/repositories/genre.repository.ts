@@ -6,8 +6,9 @@ import { ISongsSameGenre } from "src/user/interfaces/ISongsSameGenre";
 import { Genres } from "src/user/schema/genres.schema";
 import { Audio } from "src/user/schema/audio.schema";
 import { BaseRepository } from "./base.repository";
+import { IGenreRepository } from "../interfaces/IGenreRepository";
 @Injectable()
-export class GenreRepository extends BaseRepository<Genres>{
+export class GenreRepository extends BaseRepository<Genres> implements IGenreRepository{
   constructor(@InjectModel('Genre') private readonly _genreModel: Model<Genres>,
   @InjectModel('Audio') private readonly _audioModel: Model<Audio>,
 

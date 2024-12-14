@@ -6,9 +6,10 @@ import { IChats } from "src/user/interfaces/IChats";
 import { LiveChat } from "src/user/schema/liveChat.schema";
 import { BaseRepository } from "./base.repository";
 import { IChat } from "../interfaces/IChat";
+import { IChatRepository } from "../interfaces/IChatRepository";
 
 @Injectable()
-export class ChatRepository extends BaseRepository<IChat> {
+export class ChatRepository extends BaseRepository<IChat> implements IChatRepository{
   constructor(@InjectModel('LiveChat') private _chatModel: Model<LiveChat>
 ) {
   super(_chatModel)

@@ -12,9 +12,10 @@ import { Otp } from "src/user/schema/otp.schema"
 import { User } from "src/user/schema/user.schema"
 import { UserPasswordResetToken } from "src/user/schema/userResetToken"
 import { BaseRepository } from "./base.repository"
+import { IUserAuthRepository } from "../interfaces/IUserAuthRepository"
 
 @Injectable()
-export class UserAuthRepository  {
+export class UserAuthRepository implements IUserAuthRepository  {
 constructor(
   @InjectModel('User') private readonly _userModel: Model<User>,
   @InjectModel('Otp') private readonly _otpModel: Model<Otp>,

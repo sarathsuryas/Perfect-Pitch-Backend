@@ -8,9 +8,10 @@ import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
 import { User } from "src/user/schema/user.schema";
 import { Video } from "src/user/schema/video.schema";
 import { BaseRepository } from "./base.repository";
+import { IShortsRepository } from "../interfaces/IShortsRepository";
 
 @Injectable()
-export class ShortsRepository {
+export class ShortsRepository implements IShortsRepository {
   constructor(@InjectModel('Video') private readonly _videoModel: Model<Video>,
   @InjectModel('User') private readonly _userModel: Model<User>,
 

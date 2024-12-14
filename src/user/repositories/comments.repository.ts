@@ -12,9 +12,10 @@ import { ReplyToReply } from "src/user/schema/replyToReply.schema";
 import { VideoComment } from "src/user/schema/videoComment.schema";
 import { BaseRepository } from "./base.repository";
 import { IVideoCommon } from "../interfaces/IVideoCommon";
+import { ICommentsRepository } from "../interfaces/ICommentRepository";
 
 @Injectable()
-export class CommentsRepository {
+export class CommentsRepository implements ICommentsRepository {
   public videoCommentRepo: BaseRepository<IVideoCommon>;
   public commentReplyRepo: BaseRepository<CommentReply>;
   public replyToReplyRepo: BaseRepository<ReplyToReply>;

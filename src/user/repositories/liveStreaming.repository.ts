@@ -6,10 +6,11 @@ import { ILive } from "src/user/interfaces/ILive";
 import { ILiveStreams } from "src/user/interfaces/ILiveStreams";
 import { Live } from "src/user/schema/live.schema";
 import { BaseRepository } from "./base.repository";
+import { ILiveStreamingRepository } from "../interfaces/ILiveStreamingRepository";
 
 
 @Injectable()
-export class LiveStreamingRepository extends BaseRepository<Live> {
+export class LiveStreamingRepository extends BaseRepository<Live> implements ILiveStreamingRepository {
   constructor(@InjectModel('Live') private _liveModel: Model<Live>,
 ) {
   super(_liveModel)

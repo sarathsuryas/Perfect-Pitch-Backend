@@ -5,9 +5,10 @@ import { MemberShip } from "src/user/schema/membership.schema";
 import { Payment } from "src/user/schema/payment.schema";
 import { User } from "src/user/schema/user.schema";
 import { BaseRepository } from "./base.repository";
+import { IMemberShipRepository } from "../interfaces/IMemberShipRepository";
 
 @Injectable()
-export class MemberShipRepository {
+export class MemberShipRepository implements IMemberShipRepository  {
   constructor(@InjectModel('MemberShip') private _memberShipModel: Model<MemberShip>,
   @InjectModel('Payment') private _paymentModel: Model<Payment>, @InjectModel('User') private readonly _userModel: Model<User>) { 
   }

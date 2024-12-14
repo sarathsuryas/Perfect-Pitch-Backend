@@ -7,9 +7,9 @@ import { Album } from "src/user/schema/album.schema";
 import { v4 as uuidv4 } from 'uuid';
 import { Audio } from "src/user/schema/audio.schema";
 import { BaseRepository } from "./base.repository";
-import { IAlbumDetailsDto } from "../dtos/IAlbumDetails.dto";
+import { IAlbumRepository } from "../interfaces/IAlbumRepository";
 @Injectable()
-export class AlbumRepository  extends BaseRepository<Album> {
+export class AlbumRepository  extends BaseRepository<Album> implements IAlbumRepository {
 constructor(@InjectModel('Album') private readonly _albumModel: Model<Album>,
 @InjectModel('Audio') private readonly _audioModel: Model<Audio>,
 ) {

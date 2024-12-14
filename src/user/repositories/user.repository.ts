@@ -7,10 +7,11 @@ import { IUserData } from "src/user/interfaces/IUserData";
 import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
 import { User } from "src/user/schema/user.schema";
 import { BaseRepository } from "./base.repository";
+import { IUserRepository } from "../interfaces/IUserRepository";
 
 
 @Injectable() 
-export class UserRepository extends BaseRepository<User> {
+export class UserRepository extends BaseRepository<User> implements IUserRepository{
   constructor( @InjectModel('User') private readonly _userModel: Model<User>) {
     super(_userModel)
   }

@@ -5,9 +5,10 @@ import { ICreatePlaylistDto } from "src/user/dtos/ICreatePlaylist.dto";
 import { IUserPlaylists } from "src/user/interfaces/IUserPlaylists";
 import { Playlist } from "src/user/schema/playlist.schema";
 import { BaseRepository } from "./base.repository";
+import { IPlaylistRepository } from "../interfaces/IPlaylistRepository";
 
 @Injectable()
-export class PlaylistRepository extends BaseRepository<Playlist> {
+export class PlaylistRepository extends BaseRepository<Playlist> implements IPlaylistRepository {
  constructor(@InjectModel('Playlist') private readonly _playlistModel: Model<Playlist>,
 ){
   super(_playlistModel)

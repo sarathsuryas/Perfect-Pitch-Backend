@@ -9,9 +9,10 @@ import { User } from "src/user/schema/user.schema";
 import { Video } from "src/user/schema/video.schema";
 import { BaseRepository } from "./base.repository";
 import { IVideoDto } from "../dtos/IVideo.dto";
+import { IVideoRepository } from "../interfaces/IVideoRepository";
 
 @Injectable()
-export class VideoRepository {
+export class VideoRepository implements IVideoRepository {
   public userRepo = new BaseRepository<User>(this._userModel)
   public videoRepo = new BaseRepository<Video>(this._videoModel)
   constructor(@InjectModel('Video') private readonly _videoModel: Model<Video>,

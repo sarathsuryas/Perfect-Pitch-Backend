@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       PORT: ${{ secrets.PORT }}
       MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
@@ -73,6 +73,18 @@ jobs:
       - name: Build Application
         run: npm run build --if-present
         
-      - name: Start Application
-        run: pm2 restart init
+      # - name: Start Application
+      #   run: pm2 restart init
+      name: Deploy to EC2 Instance
+        uses: easingthemes/ssh-deploy@v2.1.5
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "dist/"
+          REMOTE_HOST: "ec2-13-203-120-226.ap-south-1.compute.amazonaws.com"
+          REMOTE_USER: "ubuntu"
+          TARGET: "home/ubuntu/backend/" 
+
+       - name: Restart Application with PM2
+  run: |
+    ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ubuntu@ec2-13-203-120-226.ap-south-1.compute.amazonaws.com "pm2 restart init"   
           

@@ -8,6 +8,7 @@ import { transports, format } from 'winston';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
 
 async function bootstrap() {
+  
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [

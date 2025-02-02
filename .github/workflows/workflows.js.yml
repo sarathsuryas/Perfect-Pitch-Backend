@@ -1,4 +1,4 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code, and run tests across different versions of Node.js.
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
 name: Node.js CI
@@ -35,7 +35,8 @@ jobs:
         node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -43,7 +44,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
 
-      - name: Set up environment variables
+      - name: Set up Environment Variables
         run: |
           echo "PORT=${{ env.PORT }}" >> .env
           echo "MONGODB_CONNECTION_STRING=${{ env.MONGODB_CONNECTION_STRING }}" >> .env    
@@ -72,9 +73,6 @@ jobs:
       - name: Build Application
         run: npm run build --if-present
 
-      # - name: Start Application
-      #   run: pm2 restart init
-
       - name: Deploy to EC2 Instance
         uses: easingthemes/ssh-deploy@v2.1.5
         with:
@@ -83,6 +81,10 @@ jobs:
           REMOTE_HOST: "ec2-13-203-120-226.ap-south-1.compute.amazonaws.com"
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/backend"
+
+      - name: Install Dependencies on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ubuntu@ec2-13-203-120-226.ap-south-1.compute.amazonaws.com "cd /home/ubuntu/backend && npm ci"
 
       - name: Restart Application with PM2
         run: |

@@ -82,7 +82,7 @@ jobs:
           SOURCE: "dist/"
           REMOTE_HOST: "ec2-13-203-120-226.ap-south-1.compute.amazonaws.com"
           REMOTE_USER: "ubuntu"
-          TARGET: "home/ubuntu/backend/"
+          TARGET: "/home/ubuntu/backend"
 
       - name: Restart Application with PM2
         run: |

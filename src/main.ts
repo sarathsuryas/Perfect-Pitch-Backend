@@ -41,7 +41,7 @@ async function bootstrap() {
   const port = configService.get<number>('port');
   // kfjfjdsdgjdfdfgfojgdfdoji
   app.enableCors({
-    origin: 'https://perfect-pitch.site',    
+    origin: ['https://perfect-pitch.site','http://localhost:4200'],    
     credentials:true   
   });                            
   // fjdsfjkdjfdfggdjkfvfjkdhbbjkbjkhjjfjj

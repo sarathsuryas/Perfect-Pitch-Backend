@@ -123,6 +123,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   viewers = new Map();
   broadcasterStream = null;
   // When a broadcaster connects
+// When a broadcaster connects
 @SubscribeMessage('broadcaster')
 broadCasterConnect(client: ISocket, data: any) {
   // If there's already a broadcaster, disconnect the previous one

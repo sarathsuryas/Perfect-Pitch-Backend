@@ -10,19 +10,93 @@ interface ISocket extends Socket {
 @WebSocketGateway({ cors: true })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private _chatRepository:ChatRepository) { }
-  number = 1
+  
   handleDisconnect(socket: Socket) {
     console.log('Client disconnected:', socket.id);
   }
   handleConnection(socket: Socket) {
     console.log('Client connected:', socket.id);
   }
+  streamArray = []
   count: number = -1
   private streamKey: string
-   
+  handleTrackEvent(event) {
+    this.count++
+    console.log(this.count)
+    console.log(this.streamKey, "key")
+    this.streamArray.push({ stream: event.streams[0], key: this.streamKey })
+  }
   @WebSocketServer()
   server: Server;
- 
+  // @SubscribeMessage('broadcast')
+  // async broadcast(
+  //   @ConnectedSocket() socket: Socket,
+  //   @MessageBody() data: { key: string, sdp: any }
+  // ) {
+  //   try {
+  //     socket.join(data.key)
+  //     console.log(this.server.of('/').adapter.rooms.has(data.key))
+
+  //     this.streamKey = data.key
+  //     const peer = new webrtc.RTCPeerConnection(iceConfiguration)
+  //     peer.ontrack = (e) => this.handleTrackEvent(e)
+  //     const desc = new webrtc.RTCSessionDescription(data.sdp)
+  //     await peer.setRemoteDescription(desc)
+  //     const answer = await peer.createAnswer()
+  //     await peer.setLocalDescription(answer)
+  //     const payload = {
+  //       sdp: peer.localDescription
+  //     }
+  //     socket.emit('payload', payload)
+  //     console.log('joined')
+
+  //   } catch (error) { 
+  //     console.error(error)
+  //   }
+  // }
+
+  // @SubscribeMessage('watch live')
+  // async consumer(
+  //   @ConnectedSocket() socket: Socket,
+  //   @MessageBody() data: { key: string, sdp: any }) {
+  //   try {
+  //     if (!this.server.of('/').adapter.rooms.has(data.key)) {
+  //       console.log("no such room")
+  //       return false
+  //     }
+  //     console.log(this.streamArray)
+  //     console.log('count', this.count)
+  //     let stream
+  //     let testCount = 0
+  //     for (let i = 0; i < this.streamArray.length; i++) {
+  //       if (data.key === this.streamArray[i].key) {
+  //         testCount++
+  //       }
+  //       if (testCount === 2) {
+  //         stream = this.streamArray[i].stream
+  //         console.log("break", i)
+  //         console.log("my stream key and stream is", this.streamArray[i].key)
+  //         testCount = 0
+  //         break
+  //       }
+  //     }
+  //     socket.join(data.key)
+  //     const peer = new wrtc.RTCPeerConnection(iceConfiguration);
+  //     const desc = new wrtc.RTCSessionDescription(data.sdp);
+  //     await peer.setRemoteDescription(desc);
+  //     console.log(stream, 'stream data')
+  //     stream.getTracks().forEach(track => peer.addTrack(track, stream));
+  //     console.log("after")
+  //     const answer = await peer.createAnswer();
+  //     await peer.setLocalDescription(answer);
+  //     const payload = {
+  //       sdp: peer.localDescription
+  //     }
+  //     this.server.to(data.key).emit('result', payload)
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
   @SubscribeMessage('removeFromRoom')
   removeFromRoom(@MessageBody() room: string) {
     try {
@@ -51,17 +125,18 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // When a broadcaster connects
 @SubscribeMessage('broadcaster')
 broadCasterConnect(client: ISocket, data: any) {
- console.log('broadcaster',this.number)
+  // If there's already a broadcaster, disconnect the previous one
+  if (this.broadcaster) {
+    this.server.to(this.broadcaster).emit('broadcaster_exists');
+  }
   this.broadcaster = client.id;
   console.log('Broadcaster connected:', this.broadcaster);
-
+    
   // Let all viewers know a broadcaster is available
   client.broadcast.emit('broadcaster_connected')
 }
 @SubscribeMessage('broadcaster_offer')
 async BroadCasterOffer(client:ISocket,description:any) {
-  console.log('broadcaster_offer',++this.number)
-
   if (client.id !== this.broadcaster) return;
   try {
     if (client.peerConnection) {
@@ -90,7 +165,6 @@ async BroadCasterOffer(client:ISocket,description:any) {
   // Set up ICE handling
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
-      console.log("emit ice",++this.number)
       client.emit('broadcaster_ice_candidate', event.candidate);
     }
   };
@@ -125,7 +199,6 @@ async BroadCasterOffer(client:ISocket,description:any) {
   // Handle ICE candidates from broadcaster
 @SubscribeMessage('broadcaster_ice_candidate')
 broadcasterIceCandidate(client:ISocket,candidate:any) {
-  console.log('recive ice candidate',++this.number)
   if (client.id !== this.broadcaster || !client.peerConnection) return;
     
   try {

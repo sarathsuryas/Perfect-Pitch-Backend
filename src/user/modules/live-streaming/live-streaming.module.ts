@@ -6,6 +6,7 @@ import { LiveStreamingController } from 'src/user/controllers/live-streaming/liv
 import { LiveStreamingRepository } from 'src/user/repositories/liveStreaming.repository';
 import { LiveStreamingService } from 'src/user/services/live-streaming/live-streaming.service';
 import { UploadService } from 'src/user/services/upload/upload.service';
+import { SocketGateway } from 'src/user/socket-gateway/socket.gateway';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:'Live',schema:liveSchema}]),JwtModule],

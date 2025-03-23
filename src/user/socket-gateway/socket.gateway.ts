@@ -98,7 +98,7 @@ async handleViewerRequest(
    @MessageBody() candidate: RTCIceCandidateInit,
    @ConnectedSocket() client: Socket,
  ) {
-   console.log(`Received ICE candidate from viewer: ${client.id}`);
+   await this._webrtcService.handleViewerIceCandidate(client,candidate)
 
  }
 

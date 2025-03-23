@@ -152,10 +152,10 @@ async handleBroadcasterOffer(broadcasters:IStream[],client:Socket,streamKey:stri
     }
 }
 
-handleBroadcasterIceCandidate(candidate:RTCIceCandidate,streamKey:string) {
+async handleBroadcasterIceCandidate(candidate:RTCIceCandidate,streamKey:string) {
     try {
         const room = this.broadcasters.find(room=>room.streamKey === streamKey)
-         room.peerConnection.addIceCandidate(new wrtc.RTCIceCandidate(candidate));
+       await room.peerConnection.addIceCandidate(new wrtc.RTCIceCandidate(candidate));
       } catch (error) {
         console.error('Error adding broadcaster ICE candidate:', error);
       }
@@ -186,12 +186,12 @@ async handleViewerAnswer(client:Socket, answer:RTCSessionDescriptionInit) {
     }
 }
 
-async handleViewerIceCandidate(client:Socket,candidate:RTCIceCandidate) {
+async handleViewerIceCandidate(client:Socket,candidate:RTCIceCandidateInit) {
     const viewerPC = this.viewers.get(client.id);
     if (!viewerPC) return;
     
     try {
-      viewerPC.addIceCandidate(new wrtc.RTCIceCandidate(candidate));
+     await viewerPC.addIceCandidate(new wrtc.RTCIceCandidate(candidate));
     } catch (error) {
       console.error('Error adding viewer ICE candidate:', error);
     }

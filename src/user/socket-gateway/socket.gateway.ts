@@ -128,7 +128,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       
       const viewerPC = new wrtc.RTCPeerConnection({
         
-          ice_servers: [
+          iceServers: [
             {
               urls: "stun:global.stun.twilio.com:3478"
             },

@@ -16,7 +16,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
   constructor(
     private _chatRepository: ChatRepository,
-    private _webrtcService: WebrtcService
   ) {
 
   }
@@ -27,26 +26,37 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
 
-  // @SubscribeMessage('removeFromRoom')
-  // removeFromRoom(@MessageBody() room: string) {
-  //   try {
-  //     console.log(this.server.of('/').adapter.rooms, `users in room ${room}`)
-  //     this.server.socketsLeave(room)
-  //     console.log(this.server.of('/').adapter.rooms, `no users in room ${room}`)
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
+  @SubscribeMessage('removeFromRoom')
+  removeFromRoom(@MessageBody() room: string) {
+    try {
+      console.log(this.server.of('/').adapter.rooms, `users in room ${room}`)
+      this.server.socketsLeave(room)
+      console.log(this.server.of('/').adapter.rooms, `no users in room ${room}`)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  @SubscribeMessage('join_room')
+  async joinRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() streamKey:string
+  ) {
+   try {
+     socket.join(streamKey)
+   } catch (error) {
+    console.error(error)
+   }
+  }
 
-  // @SubscribeMessage('message')
-  // async message(
-  //   @ConnectedSocket() socket: Socket,
-  //   @MessageBody() body:IMessageDto
-  // ) {
-  //  console.log(this.server.of('/').adapter.rooms.has(body.streamKey))
-  //   await this._chatRepository.create(body)
-  //   socket.to(body.streamKey).emit("message",body)    
-  // }
+  @SubscribeMessage('message')
+  async message(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() body:IMessageDto
+  ) {
+   console.log(this.server.of('/').adapter.rooms.has(body.streamKey))
+    await this._chatRepository.create(body)
+    socket.to(body.streamKey).emit("message",body)    
+  }
 
   @SubscribeMessage('start_broadcast')
   handleStartBroadcast(client: Socket) {
@@ -59,8 +69,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
+      console.log(data.streamKey) 
       /// create individual peer to server from browser
       console.log('offer/////////////////////////////////////////////////////')
+      client.join(data.streamKey)
       this.createPeerConnection(data.streamKey, client)
       const stream = this.broadcasters.find(stream => stream.streamKey === data.streamKey)
       stream.peerConnection.ontrack = (event) => {
@@ -237,7 +249,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const viewerPC = this.viewers.get(client.id);
     if (!viewerPC) return;
-    
     try {
       viewerPC.addIceCandidate(new wrtc.RTCIceCandidate(candidate));
     } catch (error) {

@@ -145,23 +145,23 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
           },
           {
             urls: "turn:global.relay.metered.ca:80",
-            username: "3a7178428310d4e9f39ecf1f",
-            credential: "R/apDit6x6FYU9QI",
+            username: "d7c189f94b86d6627755bceb",
+            credential: "trJydRnuyHLZIqhV",
           },
           {
             urls: "turn:global.relay.metered.ca:80?transport=tcp",
-            username: "3a7178428310d4e9f39ecf1f",
-            credential: "R/apDit6x6FYU9QI",
+            username: "d7c189f94b86d6627755bceb",
+            credential: "trJydRnuyHLZIqhV",
           },
           {
             urls: "turn:global.relay.metered.ca:443",
-            username: "3a7178428310d4e9f39ecf1f",
-            credential: "R/apDit6x6FYU9QI",
+            username: "d7c189f94b86d6627755bceb",
+            credential: "trJydRnuyHLZIqhV",
           },
           {
             urls: "turns:global.relay.metered.ca:443?transport=tcp",
-            username: "3a7178428310d4e9f39ecf1f",
-            credential: "R/apDit6x6FYU9QI",
+            username: "d7c189f94b86d6627755bceb",
+            credential: "trJydRnuyHLZIqhV",
           },
       ],
       });

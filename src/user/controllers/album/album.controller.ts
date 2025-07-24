@@ -13,9 +13,13 @@ import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.
 
 @Controller('album')
 export class AlbumController {
-  constructor(@Inject('IAlbumService')
-    private readonly _albumService: IAlbumService,@Inject('IPresignedUrlService')
-    private readonly _presignedUrlService: IPresignedUrlService,){}
+  constructor(
+    @Inject('IAlbumService')
+    private readonly _albumService: IAlbumService,
+    @Inject('IPresignedUrlService')
+    private readonly _presignedUrlService: IPresignedUrlService){}
+
+  
   @UseGuards(UserAuthenticationGuard)
   @Post('submit-album-details')
   async submitAlbumDetails(@Req() req: ICustomRequest, @Res() res: Response) {

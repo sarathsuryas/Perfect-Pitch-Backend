@@ -1,5 +1,5 @@
 import { ISongData } from "./ISongData";
 
-export interface IAudioRepostory {
+export interface IAudioRepository {
   getSong(songId: string): Promise<ISongData>
 }

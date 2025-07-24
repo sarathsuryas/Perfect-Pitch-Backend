@@ -9,6 +9,15 @@ import { AudioService } from 'src/user/services/audio/audio.service';
 @Module({
   imports:[MongooseModule.forFeature([{name:'Audio',schema:audioSchema}]),JwtModule],
   controllers:[AudioController],
-  providers:[AudioService,AudioRepository]
+  providers:[
+    {
+      provide: 'IAudioRepository',
+      useClass: AudioRepository, 
+    },
+    {
+      provide: 'IAudioService', 
+      useClass: AudioService, 
+    },
+    ]
 })
 export class AudioModule {}

@@ -3,9 +3,9 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { ISongData } from "src/user/interfaces/ISongData";
 import { Audio } from "src/user/schema/audio.schema";
-import { IAudioRepostory } from "../interfaces/IAudioRepository";
+import { IAudioRepository } from "../interfaces/IAudioRepository";
 @Injectable()
-export class AudioRepository implements IAudioRepostory {
+export class AudioRepository implements IAudioRepository {
   constructor(@InjectModel('Audio') private readonly _audioModel: Model<Audio>,
 ) {}
   async getSong(songId: string): Promise<ISongData> {

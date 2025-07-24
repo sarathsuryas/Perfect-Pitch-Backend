@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
+import { IAlbumService } from 'src/user/interfaces/album-service.interface';
 import { IAlbumDetails } from 'src/user/interfaces/albumDetails';
 import { IAlbumData } from 'src/user/interfaces/IAlbumData';
+import { IAlbumRepository } from 'src/user/interfaces/IAlbumRepository';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 
 @Injectable()
-export class AlbumService {
-  constructor(private _albumRepository: AlbumRepository) { }
+export class AlbumService implements IAlbumService{
+  constructor(
+    @Inject('IAlbumRepository') 
+    private readonly _albumRepository: IAlbumRepository,
+  ) {}
 
   async submitAlbumDetails(details: IAlbumDetails, uuids: string[]) {
     try {

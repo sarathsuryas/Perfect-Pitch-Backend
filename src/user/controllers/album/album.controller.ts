@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IAlbumDetailsDto } from 'src/user/dtos/IAlbumDetails.dto';
@@ -8,10 +8,14 @@ import { IAlbumDetails } from 'src/user/interfaces/albumDetails';
 import { AlbumService } from 'src/user/services/album/album.service';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { v4 as uuidv4 } from 'uuid';
+import { IAlbumService } from 'src/user/interfaces/album-service.interface';
+import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
 
 @Controller('album')
 export class AlbumController {
-  constructor(private _albumService:AlbumService,private _presignedUrlService:PresignedUrlService){}
+  constructor(@Inject('IAlbumService')
+    private readonly _albumService: IAlbumService,@Inject('IPresignedUrlService')
+    private readonly _presignedUrlService: IPresignedUrlService,){}
   @UseGuards(UserAuthenticationGuard)
   @Post('submit-album-details')
   async submitAlbumDetails(@Req() req: ICustomRequest, @Res() res: Response) {
@@ -47,6 +51,7 @@ export class AlbumController {
   @Get('get-albums')
   async getAlbums(@Req() req: ICustomRequest, @Res() res: Response) {
     try {
+      console.log("////")
       const { page, perPage } = req.query;
       if (!req.query.album || req.query.album === "undefined" && page && page!=='undefined' && perPage) {
         console.log('from the albums')

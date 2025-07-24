@@ -1,7 +1,9 @@
+import { Album } from "../schema/album.schema";
 import { IAlbumDetails } from "./albumDetails";
 import { IAlbumData } from "./IAlbumData";
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface IAlbumRepository {
+export interface IAlbumRepository extends IBaseRepository<Album> {
   submitAlbumDetails(details: IAlbumDetails, uuids: string[])
   getAlbums(data: { page: number, perPage: number }): Promise<IAlbumData[]> 
   submitAudioDetails(songs: IAlbumDetails):Promise<void>

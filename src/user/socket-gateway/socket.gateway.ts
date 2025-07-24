@@ -18,8 +18,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private _chatRepository: ChatRepository,
   ) {
 
-  }
-
+  } 
 
   handleConnection(socket: Socket) {
     console.log('Client connected:', socket.id);

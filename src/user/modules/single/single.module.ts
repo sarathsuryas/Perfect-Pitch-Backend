@@ -8,8 +8,21 @@ import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-u
 import { SingleService } from 'src/user/services/single/single.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Audio',schema:audioSchema}]),JwtModule],
-  controllers:[SingleController],
-  providers:[SingleService,SingleRepository,PresignedUrlService]
+  imports: [MongooseModule.forFeature([{ name: 'Audio', schema: audioSchema }]), JwtModule],
+  controllers: [SingleController],
+  providers: [
+     {
+      provide: 'ISingleService',
+      useClass: SingleService,
+    },
+    {
+      provide: 'ISingleRepository',
+      useClass: SingleRepository,
+    },
+    {
+      provide: 'IPresignedUrlService',
+      useClass: PresignedUrlService,
+    }
+  ]
 })
-export class SingleModule {}
+export class SingleModule { }

@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { ISubmitSongDetailsDto } from 'src/user/dtos/ISubmitSongDetails.dto';
@@ -6,10 +6,14 @@ import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentic
 import { ISubmitSongDetails } from 'src/user/interfaces/ISubmitSongDetails';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { SingleService } from 'src/user/services/single/single.service';
+import { ISingleService } from 'src/user/interfaces/ISingleService';
+import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
 
 @Controller('single')
 export class SingleController {
-  constructor(private _singleService: SingleService,private _presignedUrlService:PresignedUrlService) { }
+  constructor( @Inject('ISingleService')
+    private readonly _singleService: ISingleService,@Inject('IPresignedUrlService')
+    private readonly _presignedUrlService:IPresignedUrlService) { }
   @UseGuards(UserAuthenticationGuard)
   @Post('submit-single-details')
   async submitSingleDetails(@Req() req: ICustomRequest, @Res() res: Response) {

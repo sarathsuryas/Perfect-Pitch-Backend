@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IAudioData } from 'src/user/interfaces/IAudioData';
+import { ISingleRepository } from 'src/user/interfaces/ISingleRepository';
+import { ISingleService } from 'src/user/interfaces/ISingleService';
 import { ISubmitSongDetails } from 'src/user/interfaces/ISubmitSongDetails';
 import { SingleRepository } from 'src/user/repositories/single.repository';
 
 @Injectable()
-export class SingleService {
-constructor(private _singleRepository:SingleRepository){}
+export class SingleService implements ISingleService {
+  constructor(
+    @Inject('ISingleRepository')
+    private readonly _singleRepository: ISingleRepository,
+  ) {}
   async submitSingleDetails(data: ISubmitSongDetails):Promise<IAudioData | unknown> {
     try {
       return await this._singleRepository.submitSingleDetails(data)

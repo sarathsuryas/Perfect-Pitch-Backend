@@ -15,9 +15,34 @@ import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-u
 import { UserService } from 'src/user/services/user/user.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'Video',schema:videoSchema},
-    {name:'Playlist',schema:playlistSchema}]),JwtModule], 
-  controllers:[UserController], 
-  providers:[UserService,UserRepository,PresignedUrlService,AlbumRepository,VideoRepository,PlaylistRepository]
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: userSchema }, { name: 'Album', schema: albumSchema }, { name: 'Audio', schema: audioSchema }, { name: 'Video', schema: videoSchema },
+  { name: 'Playlist', schema: playlistSchema }]), JwtModule],
+  controllers: [UserController],
+  providers: [
+    {
+      provide: 'IUserService',
+      useClass: UserService,
+    },
+    {
+      provide: 'IPresignedUrlService',
+      useClass: PresignedUrlService,
+    },
+    {
+      provide: 'IUserRepository',
+      useClass: UserRepository,
+    },
+    {
+      provide: 'IAlbumRepository',
+      useClass: AlbumRepository,
+    },
+    {
+      provide: 'IVideoRepository',
+      useClass: VideoRepository,
+    },
+    {
+      provide: 'IPlaylistRepository',
+      useClass: PlaylistRepository,
+    },
+  ]
 })
-export class UserModule {}
+export class UserModule { }

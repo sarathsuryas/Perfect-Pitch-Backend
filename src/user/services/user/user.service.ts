@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs'
 import * as crypto from 'crypto'
 import { EditProfileDto } from 'src/user/dtos/editProfile.dto';
@@ -10,9 +10,31 @@ import { IUserMedia } from 'src/user/interfaces/IUserMedia';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
 import { VideoRepository } from 'src/user/repositories/video.repository';
+import { IUserRepository } from 'src/user/interfaces/IUserRepository';
+import { IAlbumRepository } from 'src/user/interfaces/IAlbumRepository';
+import { IVideoRepository } from 'src/user/interfaces/IVideoRepository';
+import { IPlaylistRepository } from 'src/user/interfaces/IPlaylistRepository';
+import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
+import { IUserService } from 'src/user/interfaces/IUserService';
 @Injectable()
-export class UserService {
-  constructor(private _userRepository:UserRepository,private _presignedUrlService:PresignedUrlService,private _albumRepository:AlbumRepository,private _playlistRepository:PlaylistRepository,private _videoRepository:VideoRepository) {}
+export class UserService implements IUserService{
+  constructor(
+    @Inject('IUserRepository')
+    private readonly _userRepository: IUserRepository,
+
+    @Inject('IAlbumRepository')
+    private readonly _albumRepository: IAlbumRepository,
+
+    @Inject('IVideoRepository')
+    private readonly _videoRepository: IVideoRepository,
+
+    @Inject('IPlaylistRepository')
+    private readonly _playlistRepository: IPlaylistRepository,
+
+    @Inject('IPresignedUrlService')
+    private readonly _presignedUrlService: IPresignedUrlService,
+  ) {}
+
   async getUserData(id: string): Promise<IUserData> {
     try {
       const user = await this._userRepository.getUser(id)

@@ -1,8 +1,10 @@
 import { EditProfileDto } from "../dtos/editProfile.dto"
+import { User } from "../schema/user.schema"
+import { IBaseRepository } from "./IBaseRepository"
 import { IReturnEdit } from "./IReturnEdit"
 import { IUserData } from "./IUserData"
 
-export interface IUserRepository {
+export interface IUserRepository extends IBaseRepository<User> {
   updateProfileImage(_id: string, link: string): Promise<string>
    editProfile(data: EditProfileDto, email: string): Promise<IReturnEdit>
     resetPassword(_id: string, password: string): Promise<IUserData> 

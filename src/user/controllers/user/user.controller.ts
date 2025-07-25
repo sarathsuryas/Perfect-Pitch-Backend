@@ -1,4 +1,4 @@
-import { Body, Controller, FileTypeValidator, Get, HttpStatus, InternalServerErrorException, ParseFilePipe, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpStatus, Inject, InternalServerErrorException, ParseFilePipe, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
@@ -6,11 +6,14 @@ import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { EditProfileDto } from 'src/user/dtos/editProfile.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { UserService } from 'src/user/services/user/user.service';
+import { IUserService } from 'src/user/interfaces/IUserService';
 
 @Controller('user')
 export class UserController {
-   constructor(private _userService:UserService){}
-
+constructor(
+  @Inject('IUserService')
+  private readonly _userService: IUserService,
+) {}
   @UseGuards(UserAuthenticationGuard)
   @Get('get-user-data')
   async userData(@Req() req: ICustomRequest, @Res() res: Response) {

@@ -3,7 +3,6 @@ import { Server, Socket } from 'socket.io';
 import { IMessageDto } from "src/user/dtos/IMessageDto";
 import { ChatRepository } from "../repositories/chat.repository";
 import { iceConfiguration } from "src/turnconfig";
-import { WebrtcService } from "../services/webrtc/webrtc.service";
 import { IStream } from "../interfaces/IStream";
 import * as wrtc from 'wrtc';
 import { Stream } from "stream";

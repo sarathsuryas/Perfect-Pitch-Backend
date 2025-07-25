@@ -11,6 +11,15 @@ import { CommentsService } from 'src/user/services/comments/comments.service';
 @Module({
   imports:[MongooseModule.forFeature([{name:'VideoComment',schema:videoCommentSchema},{name:'CommentReply',schema:commentReplySchema},{name:'ReplyToReply',schema:replyToReplySchema}]),JwtModule],
   controllers:[CommentsController],
-  providers:[CommentsRepository,CommentsService,CommentsRepository]
+  providers:[
+    {
+      provide:'ICommentsRepository',
+      useClass: CommentsRepository,
+    },
+     {
+      provide: 'ICommentsService',
+      useClass: CommentsService,
+    },
+  ]
 }) 
 export class CommentsModule {}

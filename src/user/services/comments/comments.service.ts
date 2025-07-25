@@ -1,15 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ICommentReplyDto } from 'src/user/dtos/ICommentReply.dto';
 import { IReplyToReplyDto } from 'src/user/dtos/IReplyToReply.dto';
 import { IVideoCommentDto } from 'src/user/dtos/IVideoComment.dto';
+import { ICommentsService } from 'src/user/interfaces/comments-service.interface';
 import { ICommentReply } from 'src/user/interfaces/ICommentReplies';
 import { ICommentResponse } from 'src/user/interfaces/ICommentResponse';
 import { IReplyToReply } from 'src/user/interfaces/IReplyToReply';
 import { CommentsRepository } from 'src/user/repositories/comments.repository';
 
 @Injectable()
-export class CommentsService {
-   constructor(private _commentsRepository:CommentsRepository) {}
+export class CommentsService implements ICommentsService {
+   constructor(@Inject('ICommentsRepository') private _commentsRepository:CommentsRepository) {}
   async addVideoComment(comment: IVideoCommentDto) {
     try {
       return await this._commentsRepository.videoCommentRepo.create(comment)

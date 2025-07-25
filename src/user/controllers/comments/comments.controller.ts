@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, InternalServerErrorException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Inject, InternalServerErrorException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
@@ -6,10 +6,14 @@ import { IReplyToReplyDto } from 'src/user/dtos/IReplyToReply.dto';
 import { IVideoCommentDto } from 'src/user/dtos/IVideoComment.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { CommentsService } from 'src/user/services/comments/comments.service';
+import { ICommentsService } from 'src/user/interfaces/comments-service.interface';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private _commentsService:CommentsService) {}
+  constructor(
+    @Inject('ICommentsService')
+    private readonly _commentsService: ICommentsService,
+  ) {}
   @UseGuards(UserAuthenticationGuard)
   @Post('add-video-comment')
   async addVideoComment(@Req() req: ICustomRequest, @Res() res: Response) {

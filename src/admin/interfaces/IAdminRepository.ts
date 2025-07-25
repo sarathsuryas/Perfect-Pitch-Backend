@@ -3,19 +3,21 @@ import { IAdminData } from "./IAdminData";
 import { RegisterUserDto } from "src/user/dtos/registerUser.dto";
 import { EditUserDto } from "src/admin/dtos/editUser.dto";
 import { IResetToken } from "./IResetToken";
+import { IGenres } from "./IGenres";
+import { AddMemberShipDto } from "../dtos/addMembership.dto";
 
 export interface IAdminRepository {
-  exist(email:string):Promise<IAdminData|null>;
+  exist(email: string): Promise<IAdminData | null>;
 
-  refreshTokenSetup(refreshToken: string, _id: string):Promise<void> 
+  refreshTokenSetup(refreshToken: string, _id: string): Promise<void>
 
-  getUsers(): Promise<IUserData[]> 
+  getUsers(): Promise<IUserData[]>
 
-  blockUser(email: string):Promise<void>
+  blockUser(email: string): Promise<void>
 
-  addUser(userData:RegisterUserDto,hash:string):Promise<string>
+  addUser(userData: RegisterUserDto, hash: string): Promise<string>
 
-  editUser(userData:EditUserDto):Promise<string>
+  editUser(userData: EditUserDto): Promise<string>
 
   blockUser(email: string): Promise<void>
 
@@ -23,13 +25,25 @@ export interface IAdminRepository {
 
   getRefreshToken(email: string): Promise<string>
 
-  searchUsers(search: string): Promise<IUserData[]> 
+  searchUsers(search: string): Promise<IUserData[]>
 
   existUser(email: string): Promise<string>
 
   savePasswordResetToken(id: string, resetToken: string): Promise<boolean>
 
-  newPassword(password: string, AdminId: string): Promise<IResetToken | boolean> 
+  newPassword(password: string, AdminId: string): Promise<IResetToken | boolean>
 
   updatePassword(id: string, password: string): Promise<IAdminData>
+
+  getResetPasswordToken(resetToken: string)
+
+  addGenre(genre: string, newId: number, color: string)
+
+  getGenre(): Promise<IGenres[]>
+
+  createMemberShip(data: AddMemberShipDto)
+
+  getMemberShip()
+
+  blockUnblockMemberShip(id: string, isBlocked: boolean)
 }

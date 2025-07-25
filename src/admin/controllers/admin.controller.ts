@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, InternalServerErrorException, NotFoundException, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Inject, InternalServerErrorException, NotFoundException, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { AdminService } from '../services/admin.service';
 import { Request, Response } from 'express';
@@ -7,11 +7,14 @@ import { ICustomRequest } from '../interfaces/ICustomRequest';
 import { EditUserDto } from '../dtos/editUser.dto';
 import { RegisterUserDto } from '../../user/dtos/registerUser.dto';
 import { AddMemberShipDto } from '../dtos/addMembership.dto';
+import { IAdminService } from '../interfaces/IAdminService';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly _adminService: AdminService) { }
-  @Post('login')
+ constructor(
+    @Inject('IAdminService')
+    private readonly _adminService: IAdminService,
+  ) {}  @Post('login')
   async login(@Res() res: Response, @Body() adminData: AdminLoginDto) {
     try {
       const data = await this._adminService.login(adminData.email, adminData.password)

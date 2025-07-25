@@ -12,11 +12,20 @@ import { genresSchema } from '../user/schema/genres.schema';
 import { memebershipSchema } from '../user/schema/membership.schema';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Admin',schema:adminSchema}]),MongooseModule.forFeature([{name:'User',schema:userSchema}]),MongooseModule.forFeature([{name:'ResetToken',schema:ResetTokenSchema},{name:'Genre',schema:genresSchema},{name:'MemberShip',schema:memebershipSchema}]),JwtModule],
+  imports: [MongooseModule.forFeature([{ name: 'Admin', schema: adminSchema }]), MongooseModule.forFeature([{ name: 'User', schema: userSchema }]), MongooseModule.forFeature([{ name: 'ResetToken', schema: ResetTokenSchema }, { name: 'Genre', schema: genresSchema }, { name: 'MemberShip', schema: memebershipSchema }]), JwtModule],
   controllers: [AdminController],
-  providers: [AdminService,AdminRepository,AuthenticationGuard],
-  
+  providers: [
+    {
+      provide: 'IAdminService',
+      useClass: AdminService
+    },
+    {
+      provide: 'IAdminRepository',
+      useClass: AdminRepository,
+    },
+    AuthenticationGuard],
+
 })
 export class AdminModule {
-  constructor() {}
+  constructor() { }
 }

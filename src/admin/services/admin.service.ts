@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { AdminRepository } from '../repositories/admin.repository';
 import * as bcrypt from 'bcryptjs'
 import { IAdminData } from '../interfaces/IAdminData';
@@ -14,11 +14,13 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { IResetToken } from '../interfaces/IResetToken';
 import { IGenres } from '../interfaces/IGenres';
 import { AddMemberShipDto } from '../dtos/addMembership.dto';
+import { IAdminRepository } from '../interfaces/IAdminRepository';
 
 @Injectable()
 export class AdminService implements IAdminService {
   constructor(
-    private readonly _adminRepository: AdminRepository,
+   @Inject('IAdminRepository')
+    private readonly _adminRepository: IAdminRepository,
     private readonly _jwtService: JwtService,
     private readonly _mailService: MailerService,
   ) { }

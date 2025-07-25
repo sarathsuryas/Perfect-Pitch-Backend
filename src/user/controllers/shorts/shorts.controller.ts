@@ -1,14 +1,17 @@
-import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IShortsDto } from 'src/user/dtos/IShorts.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { ShortsService } from 'src/user/services/shorts/shorts.service';
+import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
+import { IShortsService } from 'src/user/interfaces/IShortsService';
 
 @Controller('shorts')
 export class ShortsController {
-  constructor(private _shortsService:ShortsService,private _presignedUrlService:PresignedUrlService) {}
+  constructor(@Inject('IShortsService') private readonly _shortsService: IShortsService, @Inject('IPresignedUrlService')
+  private readonly _presignedUrlService: IPresignedUrlService) {}
   @UseGuards(UserAuthenticationGuard)
   @Post('submit-shorts-details')
   async submitShortsDetails(@Req() req: ICustomRequest, @Res() res: Response) {

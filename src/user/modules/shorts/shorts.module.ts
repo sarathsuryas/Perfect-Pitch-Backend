@@ -9,10 +9,23 @@ import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-u
 import { ShortsService } from 'src/user/services/shorts/shorts.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
-    {name:'Video',schema:videoSchema}]),JwtModule],
-  controllers:[ShortsController],
-  providers:[ShortsService,ShortsRepository,PresignedUrlService]
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: userSchema },
+  { name: 'Video', schema: videoSchema }]), JwtModule],
+  controllers: [ShortsController],
+  providers: [
+    {
+      provide: 'IShortsService',
+      useClass: ShortsService,
+    },
+    {
+      provide: 'IShortsRepository',
+      useClass: ShortsRepository,
+    },
+    {
+      provide: 'IPresignedUrlService',
+      useClass: PresignedUrlService,
+    }
+
+  ]
 })
-export class ShortsModule {}
- 
+export class ShortsModule { }

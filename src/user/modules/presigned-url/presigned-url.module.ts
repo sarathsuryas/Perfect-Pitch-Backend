@@ -11,7 +11,6 @@ import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-u
       provide: 'IPresignedUrlService',
       useClass: PresignedUrlService,
     }
-
   ]
 })
 export class PresignedUrlModule { }

@@ -17,10 +17,27 @@ import { RecommendedService } from 'src/user/services/recommended/recommended.se
   imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
    {name:'Video',schema:videoSchema},{name:'Album',schema:albumSchema},{name:'Audio',schema:audioSchema},{name:'Playlist',schema:playlistSchema}]),JwtModule],
   controllers:[RecommendedController],
-  providers:[RecommendedService,
-    UserRepository,
-    AlbumRepository,
-    VideoRepository,
-    PlaylistRepository]
+  providers:[
+     {
+      provide: 'IRecommendedService',
+      useClass: RecommendedService,
+    },
+     {
+      provide: 'IAlbumRepository',
+      useClass: AlbumRepository,
+    },
+    {
+      provide: 'IUserRepository',
+      useClass: UserRepository,
+    },
+    {
+      provide: 'IVideoRepository',
+      useClass: VideoRepository,
+    },
+    {
+      provide: 'IPlaylistRepository',
+      useClass: PlaylistRepository,
+    }, 
+  ]
 })
 export class RecommendedModule {}

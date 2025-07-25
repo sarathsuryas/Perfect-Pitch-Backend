@@ -1,12 +1,16 @@
-import { Controller, Get, HttpStatus, InternalServerErrorException, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { RecommendedService } from 'src/user/services/recommended/recommended.service';
+import { IRecommendedService } from 'src/user/interfaces/IRecommendedService';
 
 @Controller('recommended')
 export class RecommendedController {
-  constructor (private _recommendedService:RecommendedService) {}
+  constructor(
+    @Inject('IRecommendedService')
+    private readonly _recommendedService: IRecommendedService,
+  ) {}
   @UseGuards(UserAuthenticationGuard)
   @Get('recomended')
   async recommendedAlbums(@Req() req: ICustomRequest, @Res() res: Response) {

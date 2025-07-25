@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
@@ -6,10 +6,15 @@ import { ICreatePlaylistDto } from 'src/user/dtos/ICreatePlaylist.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PlaylistService } from 'src/user/services/playlist/playlist.service';
 import { IUserPlaylists } from 'src/user/interfaces/IUserPlaylists';
+import { IPlaylistService } from 'src/user/interfaces/IPlaylistService';
 
 @Controller('playlist')
 export class PlaylistController {
-  constructor(private _playlistService:PlaylistService) {}
+ constructor(
+  @Inject('IPlaylistService')
+  private readonly _playlistService: IPlaylistService,
+) {}
+
   
   @UseGuards(UserAuthenticationGuard)
   @Post('create-Playlist')

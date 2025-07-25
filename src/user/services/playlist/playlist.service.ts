@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { ICreatePlaylistDto } from 'src/user/dtos/ICreatePlaylist.dto';
+import { IPlaylistRepository } from 'src/user/interfaces/IPlaylistRepository';
+import { IPlaylistService } from 'src/user/interfaces/IPlaylistService';
 import { IUserPlaylists } from 'src/user/interfaces/IUserPlaylists';
-import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
 
 @Injectable()
-export class PlaylistService {
-  constructor(private _playlistRepository:PlaylistRepository) {}
+export class PlaylistService implements IPlaylistService {
+ constructor(
+    @Inject('IPlaylistRepository')
+    private readonly _playlistRepository: IPlaylistRepository,
+  ) {}
+
   async createPlaylist(data: ICreatePlaylistDto):Promise<IUserPlaylists | unknown>  {
     try {
       return await this._playlistRepository.create<ICreatePlaylistDto>(data)

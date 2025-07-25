@@ -7,9 +7,18 @@ import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
 import { PlaylistService } from 'src/user/services/playlist/playlist.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Playlist',schema:playlistSchema}]),JwtModule],
-  controllers:[PlaylistController],
-  providers:[PlaylistRepository,PlaylistService]
+  imports: [MongooseModule.forFeature([{ name: 'Playlist', schema: playlistSchema }]), JwtModule],
+  controllers: [PlaylistController],
+  providers: [
+    {
+      provide: 'IPlaylistRepository',
+      useClass: PlaylistRepository,
+    },
+    {
+      provide: 'IPlaylistService',
+      useClass: PlaylistService,
+    }
+
+  ]
 })
-export class PlaylistModule {}
-  
+export class PlaylistModule { }

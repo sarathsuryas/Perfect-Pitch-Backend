@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import configuration from 'src/config/configuration';
 import { PaymentSuccessDto } from 'src/user/dtos/paymentSuccess.dto';
 import { IMemberShip } from 'src/user/interfaces/IMemberShip';
+import { IMembershipService } from 'src/user/interfaces/IMembershipService';
 import { MemberShipRepository } from 'src/user/repositories/membership.repository';
 import Stripe from 'stripe';
 
 @Injectable()
-export class MembershipService {
+export class MembershipService implements IMembershipService {
   private stripe: Stripe;
 
-  constructor(private _memberShipRepository:MemberShipRepository) {}
+  constructor(
+    @Inject('MembershipRepository')
+    private readonly _memberShipRepository: MemberShipRepository,
+  ) {}
   async getMemberShip():Promise<IMemberShip[]> {
     try {
       return await this._memberShipRepository.membershipRepo.findByQuery<IMemberShip>({isBlocked:false})

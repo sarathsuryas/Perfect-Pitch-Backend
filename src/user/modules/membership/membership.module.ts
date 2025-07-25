@@ -9,9 +9,19 @@ import { MemberShipRepository } from 'src/user/repositories/membership.repositor
 import { MembershipService } from 'src/user/services/membership/membership.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'User',schema:userSchema},
-    {name:'MemberShip',schema:memebershipSchema},{name:'Payment',schema:paymentSchema}]),JwtModule],
-  controllers:[MembershipController],
-  providers:[MemberShipRepository,MembershipService]
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: userSchema },
+  { name: 'MemberShip', schema: memebershipSchema }, { name: 'Payment', schema: paymentSchema }]), JwtModule],
+  controllers: [MembershipController],
+  providers: [
+    {
+      provide: 'MembershipRepository',
+      useClass: MemberShipRepository
+    },
+    {
+      provide: 'IMembershipService',
+      useClass: MembershipService,
+    }
+
+  ]
 })
-export class MembershipModule {}
+export class MembershipModule { }

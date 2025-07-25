@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import configuration from 'src/config/configuration';
 import { storeError } from 'src/errorStore/storeError';
@@ -7,10 +7,12 @@ import { PaymentSuccessDto } from 'src/user/dtos/paymentSuccess.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { MembershipService } from 'src/user/services/membership/membership.service';
 import Stripe from 'stripe';
+import { IMembershipService } from 'src/user/interfaces/IMembershipService';
 
 @Controller('membership')
 export class MembershipController {
-  constructor(private _memberShipService:MembershipService) {}
+ constructor(@Inject('IMembershipService') private readonly _memberShipService: IMembershipService) {}
+
   @UseGuards(UserAuthenticationGuard)
   @Post('create-checkout-session')
   async StripePayment(@Req() req: ICustomRequest, @Res() res: Response) {

@@ -12,7 +12,7 @@ export interface IBaseRepository<T> {
 
   findOneByQuery(query: FilterQuery<T>): Promise<T | null>;
 
-  create(item: Partial<T>): Promise<T>;
+  create<R>(item: R): Promise<T> 
 
   update(id: string, item: UpdateQuery<T>): Promise<T | null>;
 

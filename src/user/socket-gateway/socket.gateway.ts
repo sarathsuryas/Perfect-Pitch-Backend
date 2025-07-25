@@ -7,6 +7,8 @@ import { WebrtcService } from "../services/webrtc/webrtc.service";
 import { IStream } from "../interfaces/IStream";
 import * as wrtc from 'wrtc';
 import { Stream } from "stream";
+import { Inject } from "@nestjs/common";
+import { IChatRepository } from "../interfaces/IChatRepository";
 
 @WebSocketGateway({ cors: true })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -14,11 +16,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private viewers = new Map(); // Map to store viewer connections
   @WebSocketServer()
   server: Server;
-  constructor(
-    private _chatRepository: ChatRepository,
-  ) {
-
-  } 
+   constructor (@Inject('IChatRepository')
+      private readonly _chatRepository: IChatRepository) {}
 
   handleConnection(socket: Socket) {
     console.log('Client connected:', socket.id);

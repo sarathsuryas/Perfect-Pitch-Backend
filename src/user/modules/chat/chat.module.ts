@@ -11,7 +11,16 @@ import { WebrtcService } from 'src/user/services/webrtc/webrtc.service';
 @Module({
   imports:[MongooseModule.forFeature([{name:'LiveChat',schema:LiveChatSchema}]),JwtModule],
   controllers:[ChatController],
-  providers:[SocketGateway,ChatService,ChatRepository,WebrtcService]
+  providers:[SocketGateway,
+      {
+      provide: 'IChatService',
+      useClass: ChatService,
+    },
+     {
+      provide:'IChatRepository',
+      useClass: ChatRepository,
+    },
+    WebrtcService]
 })
 export class ChatModule {}
  

@@ -9,8 +9,21 @@ import { UploadService } from 'src/user/services/upload/upload.service';
 import { SocketGateway } from 'src/user/socket-gateway/socket.gateway';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Live',schema:liveSchema}]),JwtModule],
-  controllers:[LiveStreamingController],
-  providers:[LiveStreamingService,LiveStreamingRepository,UploadService]
+  imports: [MongooseModule.forFeature([{ name: 'Live', schema: liveSchema }]), JwtModule],
+  controllers: [LiveStreamingController],
+  providers: [
+    {
+      provide: 'ILiveStreamingService',
+      useClass: LiveStreamingService,
+    },
+    {
+      provide: 'ILiveStreamingRepository',
+      useClass: LiveStreamingRepository,
+    },
+      {
+      provide: 'IUploadService',
+      useClass: UploadService,
+    },
+  ]
 })
-export class LiveStreamingModule {}
+export class LiveStreamingModule { }

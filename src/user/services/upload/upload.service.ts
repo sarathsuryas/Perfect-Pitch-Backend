@@ -2,10 +2,11 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import configuration from 'src/config/configuration';
+import { IUploadService } from 'src/user/interfaces/IUploadService';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class UploadService {
+export class UploadService implements IUploadService{
   
   private client: S3Client;
   private bucketName = configuration().aws_bucket_name

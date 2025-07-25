@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, InternalServerErrorException, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
@@ -10,10 +10,14 @@ import { LiveStreamingService } from 'src/user/services/live-streaming/live-stre
 import { UploadService } from 'src/user/services/upload/upload.service';
 const webrtc = require("wrtc");
 import { v4 as uuidv4 } from 'uuid';
+import { ILiveStreamingService } from 'src/user/interfaces/ILiveStreamingService';
+import { IUploadService } from 'src/user/interfaces/IUploadService';
 
 @Controller('live-streaming')
 export class LiveStreamingController {
-  constructor(private _liveStreamingService: LiveStreamingService, private _uploadService: UploadService) { }
+  constructor( @Inject('ILiveStreamingService')
+  private readonly _liveStreamingService: ILiveStreamingService,  @Inject('IUploadService')
+    private readonly _uploadService: IUploadService) { }
   @UseGuards(UserAuthenticationGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post('create-live')

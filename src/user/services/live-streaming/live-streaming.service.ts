@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ICreateLive } from 'src/user/interfaces/ICreateLive';
 import { ILive } from 'src/user/interfaces/ILive';
+import { ILiveStreamingRepository } from 'src/user/interfaces/ILiveStreamingRepository';
+import { ILiveStreamingService } from 'src/user/interfaces/ILiveStreamingService';
 import { ILiveStreams } from 'src/user/interfaces/ILiveStreams';
 import { LiveStreamingRepository } from 'src/user/repositories/liveStreaming.repository';
 
 @Injectable()
-export class LiveStreamingService {
-  constructor(private _liveStreamingRepository:LiveStreamingRepository) {}
+export class LiveStreamingService implements ILiveStreamingService {
+  constructor(
+    @Inject('ILiveStreamingRepository')
+    private readonly _liveStreamingRepository: ILiveStreamingRepository,
+  ) {}
   async createLive(data: ICreateLive): Promise<string> {
     try {
       return (await this._liveStreamingRepository.create(data)).uuid 

@@ -1,15 +1,19 @@
-import { Body, Controller, HttpStatus, InternalServerErrorException, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IGoogleLoginDto } from 'src/user/dtos/IGoogleLogin.dto';
 import { LoginUserDto } from 'src/user/dtos/loginUser.dto';
 import { RegisterUserDto } from 'src/user/dtos/registerUser.dto';
 import { VerifyOtpDto } from 'src/user/dtos/verifyOtp.dto';
+import { IUserAuthService } from 'src/user/interfaces/IUserAuthService';
 import { UserAuthService } from 'src/user/services/user-auth/user-auth.service';
 
 @Controller('user-auth')
 export class UserAuthController {
-constructor(private _userAuthService:UserAuthService) {}
+ constructor(
+    @Inject('IUserAuthService')
+    private readonly _userAuthService: IUserAuthService,
+  ) {}
 
   @Post('register')
   async registerUser(@Res() res:Response, @Body() userData: RegisterUserDto) {

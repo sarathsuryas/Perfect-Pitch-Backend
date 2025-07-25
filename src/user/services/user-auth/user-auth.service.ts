@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -14,10 +14,13 @@ import { LoginUserDto } from 'src/user/dtos/loginUser.dto';
 import { IReturnUserData } from 'src/admin/interfaces/IReturnUserData';
 import { IGoogleLoginDto } from 'src/user/dtos/IGoogleLogin.dto';
 import { IUserResetToken } from 'src/user/interfaces/IUserResetToken';
+import { IUserAuthRepository } from 'src/user/interfaces/IUserAuthRepository';
+import { IUserAuthService } from 'src/user/interfaces/IUserAuthService';
 @Injectable()
-export class UserAuthService {
+export class UserAuthService implements IUserAuthService{
   constructor(
-    private _userAuthRepository:UserAuthRepository,
+    @Inject('IUserAuthRepository')
+    private readonly _userAuthRepository: IUserAuthRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService,
   ){}

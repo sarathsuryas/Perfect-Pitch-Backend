@@ -48,10 +48,7 @@ constructor(
       new ParseFilePipe({
         validators: [
           new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
-          // new MaxFileSizeValidator({
-          //   maxSize: MAX_FILE_SIZE, // 10MB
-          //   message: 'File is too large. Max file size is 10MB',
-          // }),
+         
         ],
         fileIsRequired: true,
       }),

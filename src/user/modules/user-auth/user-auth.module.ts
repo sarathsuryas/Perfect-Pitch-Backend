@@ -9,11 +9,20 @@ import { UserAuthRepository } from 'src/user/repositories/user-auth.repository';
 import { UserAuthService } from 'src/user/services/user-auth/user-auth.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([
-    {name:'User',schema:userSchema},
-    {name:'Otp',schema:otpScema},
-    {name:'UserResetToken',schema:UserResetTokenSchema}]),JwtModule],
-    controllers:[UserAuthController],
-    providers:[UserAuthService,UserAuthRepository]
+  imports: [MongooseModule.forFeature([
+    { name: 'User', schema: userSchema },
+    { name: 'Otp', schema: otpScema },
+    { name: 'UserResetToken', schema: UserResetTokenSchema }]), JwtModule],
+  controllers: [UserAuthController],
+  providers: [
+    {
+      provide: 'IUserAuthService',
+      useClass: UserAuthService
+    },
+    {
+      provide: 'IUserAuthRepository',
+      useClass: UserAuthRepository,
+    },
+  ]
 })
-export class UserAuthModule {}
+export class UserAuthModule { }

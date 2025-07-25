@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IGenres } from 'src/admin/interfaces/IGenres';
+import { IGenreRepository } from 'src/user/interfaces/IGenreRepository';
+import { IGenreService } from 'src/user/interfaces/IGenreService';
 import { ISongsSameGenre } from 'src/user/interfaces/ISongsSameGenre';
-import { GenreRepository } from 'src/user/repositories/genre.repository';
 
 @Injectable()
-export class GenreService {
-  constructor(private _genreRepository:GenreRepository) {}
+export class GenreService implements IGenreService{
+  constructor(
+    @Inject('IGenreRepository')
+    private readonly _genreRepository: IGenreRepository,
+  ) {}
   async getGenres(): Promise<IGenres[]> {
     try {
       return await this._genreRepository.find<IGenres>()

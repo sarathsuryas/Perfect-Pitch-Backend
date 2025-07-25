@@ -1,20 +1,41 @@
-import { FilterQuery, UpdateQuery } from "mongoose";
+// interfaces/IBaseRepository.ts
 
-export interface IBaseRepository<T> {
-  findAll(
-    filter: Record<string, unknown>,
-    skip: number,
-    sort: any,
-    limit?: number
-  ): Promise<T[]>;
+import {
+  Document,
+  FilterQuery,
+  PopulateOptions,
+  UpdateQuery,
+} from 'mongoose';
 
-  findById(id: string): Promise<T | null>;
+export interface IBaseRepository<T extends Document> {
+  findAll<R>(
+    filter: any,
+    skip?: number,
+    limit?: number,
+    sort?: any,
+  ): Promise<R[]>;
 
-  findOneByQuery(query: FilterQuery<T>): Promise<T | null>;
+  findById<R>(id: string, projection?: Record<string, unknown>): Promise<R | null>;
+  find<R>(): Promise<R[]>;
+  findByQuery<R>(query: FilterQuery<T>): Promise<R[]>;
+  findOneByQuery<R>(query: FilterQuery<T>): Promise<R>;
+  findOneWithProjection<R>(
+    filter: Record<string, any>,
+    projection: Record<string, number>,
+  ): Promise<R>;
+  findOneAndUpdate(
+    filter: Record<string, any>,
+    update: Record<string, any>,
+  ): Promise<T | null>;
 
-  create<R>(item: R): Promise<T> 
-
+  create<R>(item: R): Promise<T>;
   update(id: string, item: UpdateQuery<T>): Promise<T | null>;
-
   delete(id: string): Promise<boolean>;
+
+  findWithPopulate<R>(
+    filter: FilterQuery<T>,
+    sort?: Record<string, 1 | -1>,
+    populate?: string | PopulateOptions | (string | PopulateOptions)[],
+    lean?: boolean,
+  ): Promise<R[]>;
 }

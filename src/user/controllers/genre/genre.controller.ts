@@ -1,12 +1,14 @@
-import { Controller, Get, HttpStatus, InternalServerErrorException, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { GenreService } from 'src/user/services/genre/genre.service';
+import { IGenreService } from 'src/user/interfaces/IGenreService';
 
 @Controller('genre')
 export class GenreController {
-  constructor(private _genreService:GenreService) {}
+  constructor(@Inject('IGenreService') private readonly _genreService: IGenreService) {}
+
   @UseGuards(UserAuthenticationGuard)
   @Get('get-genres')
   async getGenres() {

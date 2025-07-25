@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IResponseVideo } from 'src/user/interfaces/IResponseVideo';
 import { IVideoList } from 'src/user/interfaces/IVideoList';
+import { IVideoRepository } from 'src/user/interfaces/IVideoRepository';
+import { IVideoService } from 'src/user/interfaces/IVideoService';
 import { VideoRepository } from 'src/user/repositories/video.repository';
 
 @Injectable()
-export class VideoService {
-  constructor(private _videoRepository:VideoRepository){}
+export class VideoService implements IVideoService{
+   constructor(
+    @Inject('IVideoRepository')
+    private readonly _videoRepository: IVideoRepository,
+  ) {}
   async SubmitVideoDetails(videoName: string, videoDescription: string, genreId: string, artistId: string, videoLink: string, thumbNailLink: string, artist: string) {
     try {
       const data = await this._videoRepository.uploadVideo(videoName, videoDescription, genreId, artistId, videoLink, thumbNailLink, artist)

@@ -1,14 +1,20 @@
-import { Controller, Get, HttpStatus, InternalServerErrorException, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { VideoService } from 'src/user/services/video/video.service';
+import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
+import { IVideoService } from 'src/user/interfaces/IVideoService';
 
 @Controller('video')
 export class VideoController {
-  constructor(private _presignedUrlService: PresignedUrlService, private _videoService: VideoService) { }
+  constructor(
+    @Inject('IPresignedUrlService')
+    private readonly _presignedUrlService: IPresignedUrlService,
+    @Inject('IVideoService')
+    private readonly _videoService: IVideoService,) { }
   @UseGuards(UserAuthenticationGuard)
   @Post('post-video-details')
   async submitVideoDetails(@Req() req: ICustomRequest, @Res() res: Response) {

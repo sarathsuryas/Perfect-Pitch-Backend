@@ -9,8 +9,21 @@ import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-u
 import { VideoService } from 'src/user/services/video/video.service';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Video',schema:videoSchema},{name:'User',schema:userSchema}]),JwtModule],
-  controllers:[VideoController],
-  providers:[VideoRepository,VideoService,PresignedUrlService]
+  imports: [MongooseModule.forFeature([{ name: 'Video', schema: videoSchema }, { name: 'User', schema: userSchema }]), JwtModule],
+  controllers: [VideoController],
+  providers: [
+    {
+      provide: 'IVideoService',
+      useClass: VideoService
+    },
+    {
+      provide: 'IVideoRepository',
+      useClass: VideoRepository,
+    },
+    {
+      provide: 'IPresignedUrlService',
+      useClass: PresignedUrlService,
+    },
+  ]
 })
-export class VideoModule {}
+export class VideoModule { }

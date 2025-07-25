@@ -4,9 +4,14 @@ import { PresignedUrlController } from 'src/user/controllers/presigned-url/presi
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 
 @Module({
-  imports:[JwtModule],
-  controllers:[PresignedUrlController],
-  providers:[PresignedUrlService]
+  imports: [JwtModule],
+  controllers: [PresignedUrlController],
+  providers: [
+    {
+      provide: 'IPresignedUrlService',
+      useClass: PresignedUrlService,
+    }
+
+  ]
 })
-export class PresignedUrlModule {}
- 
+export class PresignedUrlModule { }

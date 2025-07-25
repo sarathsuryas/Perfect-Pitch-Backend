@@ -4,7 +4,7 @@ import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { ICreatePlaylistDto } from 'src/user/dtos/ICreatePlaylist.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { PlaylistService } from 'src/user/services/playlist/playlist.service';
+
 import { IUserPlaylists } from 'src/user/interfaces/IUserPlaylists';
 import { IPlaylistService } from 'src/user/interfaces/IPlaylistService';
 

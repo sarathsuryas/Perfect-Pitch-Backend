@@ -1,13 +1,18 @@
-import { Controller, HttpStatus, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, HttpStatus, Inject, InternalServerErrorException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IAlbumGenPresignedUrlDto } from 'src/user/dtos/IAlbumGenPresignedUrl.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
+import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
 
 @Controller('presigned-url')
 export class PresignedUrlController {
-  constructor(private _presignedUrlService:PresignedUrlService){}
+ constructor(
+  @Inject('IPresignedUrlService')
+  private readonly _presignedUrlService: IPresignedUrlService,
+) {}
+
   @UseGuards(UserAuthenticationGuard)
   @Post('generate-presigned-url')
   async generatePresignedUrl(@Req() req: ICustomRequest, @Res() res: Response) {

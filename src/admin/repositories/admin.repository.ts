@@ -29,7 +29,7 @@ export class AdminRepository implements IAdminRepository {
   }
   async exist(email: string): Promise<IAdminData | null> {
     try {
-      const exist = await this._adminModel.findOne({  email: { $regex: `^${email}`, $options: 'i' }}, { _id: 1, fullName: 1, password: 1, isAdmin: 1, isBlocked: 1, email: 1 })
+      const exist = await this._adminModel.findOne({ email: { $regex: `^${email}`, $options: 'i' } }, { _id: 1, fullName: 1, password: 1, isAdmin: 1, isBlocked: 1, email: 1 })
       if (exist) {
         const obj: IAdminData = {
           _id: exist._id + '',
@@ -149,7 +149,7 @@ export class AdminRepository implements IAdminRepository {
 
   async existUser(email: string): Promise<string> {
     try {
-      const user = await this._adminModel.findOne({ email: { email: { $regex: `^${email}`, $options: 'i' }  } }).lean() as IAdminData
+      const user = await this._adminModel.findOne({ email: { email: { $regex: `^${email}`, $options: 'i' } } }).lean() as IAdminData
       if (user) {
         return user._id + ''
       }
@@ -206,8 +206,11 @@ export class AdminRepository implements IAdminRepository {
 
   async addGenre(genre: string, newId: number, color: string) {
     try {
-      const data = await this._genreModel.findOne({ Genre: { $regex: `^${genre}$`, $options: '' } });
+      const data = await this._genreModel.findOne({
+        Genre: { $regex: `^${genre}$`, $options: 'i' }
+      });
       if (data) {
+      
         return false
       } else {
         await this._genreModel.create({ Genre: genre, newId: newId, color: color })
@@ -243,14 +246,14 @@ export class AdminRepository implements IAdminRepository {
     try {
       return await this._membershipModel.find()
     } catch (error) {
-     console.error(error)
+      console.error(error)
     }
   }
 
-  async blockUnblockMemberShip(id:string,isBlocked:boolean) {
-    try { 
-      console.log(id,isBlocked)
-      return await this._membershipModel.findOneAndUpdate({_id:id},{isBlocked:isBlocked})
+  async blockUnblockMemberShip(id: string, isBlocked: boolean) {
+    try {
+      console.log(id, isBlocked)
+      return await this._membershipModel.findOneAndUpdate({ _id: id }, { isBlocked: isBlocked })
     } catch (error) {
       console.error(error)
     }

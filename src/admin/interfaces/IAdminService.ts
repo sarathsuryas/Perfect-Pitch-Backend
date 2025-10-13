@@ -1,15 +1,13 @@
 import { RegisterUserDto } from 'src/user/dtos/registerUser.dto';
 import { EditUserDto } from 'src/admin/dtos/editUser.dto';
-import { AddMemberShipDto } from 'src/admin/dtos/addMemberShip.dto';
 import { IReturnAdminData } from 'src/admin/interfaces/IReturnAdminData';
 import { IUserData } from 'src/user/interfaces/IUserData';
 import { IAdminData } from 'src/admin/interfaces/IAdminData';
 import { IGenres } from 'src/admin/interfaces/IGenres';
+import { AddMemberShipDto } from '../dtos/addMembership.dto';
 
 export interface IAdminService {
-  /**
-   
-   */
+  
   login(email: string, password: string): Promise<IReturnAdminData | string>;
 
   

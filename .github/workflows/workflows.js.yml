@@ -30,6 +30,7 @@ jobs:
       CURRENCY: ${{ secrets.CURRENCY }}
       SUCCESS_URL: ${{ secrets.SUCCESS_URL }}
       CANCEL_URL: ${{ secrets.CANCEL_URL }}
+      CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
     strategy:
       matrix:
         node-version: [22.x]
@@ -63,6 +64,7 @@ jobs:
           echo "CURRENCY=${{ env.CURRENCY }}" >> .env
           echo "SUCCESS_URL=${{ env.SUCCESS_URL }}" >> .env
           echo "CANCEL_URL=${{ env.CANCEL_URL }}" >> .env
+          echo "CORS_ORIGIN=${{ env.CORS_ORIGIN }}" >> .env
           
       - name: Verify Environment Variables
         run: node verify-env.js

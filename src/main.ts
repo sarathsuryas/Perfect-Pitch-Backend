@@ -8,11 +8,11 @@ import { transports, format } from 'winston';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
 
 async function bootstrap() {
-  
+
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [
-     // let's log errors into its own file
+        // let's log errors into its own file
         new transports.File({
           filename: `logs/error.log`,
           level: 'error',
@@ -25,34 +25,33 @@ async function bootstrap() {
         }),
         // we also want to see logs in our console
         new transports.Console({
-         format: format.combine(
-           format.cli(),
-           format.splat(),
-           format.timestamp(),
-           format.printf((info) => {
-             return `${info.timestamp} ${info.level}: ${info.message}`;
-           }),
-          ), 
-      }),
+          format: format.combine(
+            format.cli(),
+            format.splat(),
+            format.timestamp(),
+            format.printf((info) => {
+              return `${info.timestamp} ${info.level}: ${info.message}`;
+            }),
+          ),
+        }),
       ],
     }),
   });
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
-  // kfjfjdsdgjdfdfgfojgdfdoji
+  const corsOrigins = configService.get<string>('CORS_ORIGIN')?.split(',') || [];
   app.enableCors({
-    origin: ['https://perfect-pitch.site','http://localhost:4200'],    
-    credentials:true   
-  });                            
-  // fjdsfjkdjfdfggdjkfvfjkdhbbjkbjkhjjfjj
+    origin: corsOrigins,
+    credentials: true
+  });
   app.use(cookieParser())
   app.useGlobalFilters(new HttpExceptionFilter());
- 
+
   await app.listen(port);
   Logger.log(`~ Application is running on: ${await app.getUrl()}`);
 }
-bootstrap();      
- 
+bootstrap();
+
 
 
 

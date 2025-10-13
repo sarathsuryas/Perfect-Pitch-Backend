@@ -16,3 +16,5 @@ console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Set' : 'Not S
 console.log('CURRENCY:', process.env.CURRENCY ? 'Set' : 'Not Set');
 console.log('SUCCESS_URL:', process.env.SUCCESS_URL ? 'Set' : 'Not Set');
 console.log('CANCEL_URL:', process.env.CANCEL_URL ? 'Set' : 'Not Set');
+console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN ? 'Set' : 'Not Set');
+

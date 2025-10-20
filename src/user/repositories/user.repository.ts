@@ -89,7 +89,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
   }
   async searchArtists(query: string): Promise<IUserData[]> {
     try {
-      return await this.findByQuery({ fullName: { $regex: `^${query}`, $options: 'i' } })
+      return await this.findByQuery({ fullName: { $regex: `^${query}`, $options: 'i' },isBlocked:false })
     } catch (error) {
       console.error(error)
     }

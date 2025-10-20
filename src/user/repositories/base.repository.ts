@@ -13,7 +13,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
       //   return await this._model.find(filter) as R[];
       // }
       if (!filter) {
-        return await this._model.find().skip(skip).limit(limit) as R[];
+        return await this._model.find({isBlocked:false}).skip(skip).limit(limit) as R[];
       }
       if (sort) {
         return await this._model.find(filter).sort(sort).skip(skip).limit(limit) as R[];

@@ -39,8 +39,8 @@ export class AdminService implements IAdminService {
             isAdmin: admin.isAdmin,
             isBlocked: admin.isBlocked
           }
-          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1m" })
-          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10m" })
+          const accessToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "1d" })
+          const refreshToken = await this._jwtService.signAsync(payload, { secret: configuration().jwtSecret, expiresIn: "10d" })
           await this._adminRepository.refreshTokenSetup(refreshToken, admin._id)
           const obj = {
             accessToken: accessToken,

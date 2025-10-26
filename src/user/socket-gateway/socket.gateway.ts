@@ -1,11 +1,8 @@
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { IMessageDto } from "src/user/dtos/IMessageDto";
-import { ChatRepository } from "../repositories/chat.repository";
-import { iceConfiguration } from "src/turnconfig";
 import { IStream } from "../interfaces/IStream";
 import * as wrtc from 'wrtc';
-import { Stream } from "stream";
 import { Inject } from "@nestjs/common";
 import { IChatRepository } from "../interfaces/IChatRepository";
 

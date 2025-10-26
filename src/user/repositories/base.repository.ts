@@ -1,6 +1,6 @@
 import { Document, UpdateQuery, FilterQuery, PopulateOptions } from "mongoose";
 import { IBaseRepository } from "../interfaces/IBaseRepository";
-import mongoose, { Model } from "mongoose";
+import { Model } from "mongoose";
 
 export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   constructor(private _model: Model<T>) {

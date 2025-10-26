@@ -3,8 +3,6 @@ import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
-import { VideoService } from 'src/user/services/video/video.service';
 import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
 import { IVideoService } from 'src/user/interfaces/IVideoService';
 

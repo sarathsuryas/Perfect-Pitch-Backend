@@ -1,11 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
-import { ICommentReplyDto } from "src/user/dtos/ICommentReply.dto";
 import { IReplyToReplyDto } from "src/user/dtos/IReplyToReply.dto";
-import { IVideoCommentDto } from "src/user/dtos/IVideoComment.dto";
-import { ICommentReply } from "src/user/interfaces/ICommentReplies";
-import { ICommentResponse } from "src/user/interfaces/ICommentResponse";
 import { IReplyToReply } from "src/user/interfaces/IReplyToReply";
 import { CommentReply } from "src/user/schema/commentReply.schema";
 import { ReplyToReply } from "src/user/schema/replyToReply.schema";

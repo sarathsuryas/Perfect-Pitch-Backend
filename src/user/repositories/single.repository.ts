@@ -3,7 +3,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { ISubmitSongDetails } from "src/user/interfaces/ISubmitSongDetails";
 import { Audio } from "src/user/schema/audio.schema";
-import { IAudioData } from "../interfaces/IAudioData";
 import { IAudioDto } from "../dtos/IAudio.dto";
 import { BaseRepository } from "./base.repository";
 import { ISingleRepository } from "../interfaces/ISingleRepository";

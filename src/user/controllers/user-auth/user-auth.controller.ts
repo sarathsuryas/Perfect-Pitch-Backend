@@ -6,7 +6,6 @@ import { LoginUserDto } from 'src/user/dtos/loginUser.dto';
 import { RegisterUserDto } from 'src/user/dtos/registerUser.dto';
 import { VerifyOtpDto } from 'src/user/dtos/verifyOtp.dto';
 import { IUserAuthService } from 'src/user/interfaces/IUserAuthService';
-import { UserAuthService } from 'src/user/services/user-auth/user-auth.service';
 
 @Controller('user-auth')
 export class UserAuthController {

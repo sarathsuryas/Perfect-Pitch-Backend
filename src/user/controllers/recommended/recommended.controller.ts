@@ -2,7 +2,6 @@ import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Req,
 import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { RecommendedService } from 'src/user/services/recommended/recommended.service';
 import { IRecommendedService } from 'src/user/interfaces/IRecommendedService';
 
 @Controller('recommended')

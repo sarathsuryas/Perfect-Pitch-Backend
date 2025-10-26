@@ -2,12 +2,10 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { readFileSync } from 'fs';
-import { join } from 'path';
 import configuration from 'src/config/configuration';
 import { CreateUserDto } from 'src/admin/dtos/createUser.dto';
 import { RegisterUserDto } from 'src/user/dtos/registerUser.dto';
 import { IUserData } from 'src/user/interfaces/IUserData';
-import { UserAuthRepository } from 'src/user/repositories/user-auth.repository';
 import * as bcrypt from 'bcryptjs'
 import * as crypto from 'crypto'
 import { LoginUserDto } from 'src/user/dtos/loginUser.dto';

@@ -4,7 +4,6 @@ import { ILive } from 'src/user/interfaces/ILive';
 import { ILiveStreamingRepository } from 'src/user/interfaces/ILiveStreamingRepository';
 import { ILiveStreamingService } from 'src/user/interfaces/ILiveStreamingService';
 import { ILiveStreams } from 'src/user/interfaces/ILiveStreams';
-import { LiveStreamingRepository } from 'src/user/repositories/liveStreaming.repository';
 
 @Injectable()
 export class LiveStreamingService implements ILiveStreamingService {

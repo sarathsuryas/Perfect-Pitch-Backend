@@ -3,7 +3,6 @@ import { IShortsDto } from 'src/user/dtos/IShorts.dto';
 import { IResponseShorts } from 'src/user/interfaces/IResponseShorts';
 import { IShortsRepository } from 'src/user/interfaces/IShortsRepository';
 import { IShortsService } from 'src/user/interfaces/IShortsService';
-import { ShortsRepository } from 'src/user/repositories/shorts.repository';
 
 @Injectable()
 export class ShortsService implements IShortsService {

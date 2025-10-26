@@ -3,7 +3,6 @@ import { IAudioData } from 'src/user/interfaces/IAudioData';
 import { ISingleRepository } from 'src/user/interfaces/ISingleRepository';
 import { ISingleService } from 'src/user/interfaces/ISingleService';
 import { ISubmitSongDetails } from 'src/user/interfaces/ISubmitSongDetails';
-import { SingleRepository } from 'src/user/repositories/single.repository';
 
 @Injectable()
 export class SingleService implements ISingleService {

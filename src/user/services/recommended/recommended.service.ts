@@ -5,10 +5,7 @@ import { IPlaylistRepository } from 'src/user/interfaces/IPlaylistRepository';
 import { IRecommendedService } from 'src/user/interfaces/IRecommendedService';
 import { IUserRepository } from 'src/user/interfaces/IUserRepository';
 import { IVideoRepository } from 'src/user/interfaces/IVideoRepository';
-import { AlbumRepository } from 'src/user/repositories/album.repository';
-import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
-import { UserRepository } from 'src/user/repositories/user.repository';
-import { VideoRepository } from 'src/user/repositories/video.repository';
+
 
 @Injectable()
 export class RecommendedService implements IRecommendedService {

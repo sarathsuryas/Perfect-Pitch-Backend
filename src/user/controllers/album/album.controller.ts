@@ -5,8 +5,6 @@ import { IAlbumDetailsDto } from 'src/user/dtos/IAlbumDetails.dto';
 import { IAudioDto } from 'src/user/dtos/IAudio.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { IAlbumDetails } from 'src/user/interfaces/albumDetails';
-import { AlbumService } from 'src/user/services/album/album.service';
-import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { v4 as uuidv4 } from 'uuid';
 import { IAlbumService } from 'src/user/interfaces/album-service.interface';
 import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';

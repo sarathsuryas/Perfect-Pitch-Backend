@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { ICreateLive } from "src/user/interfaces/ICreateLive";
 import { ILive } from "src/user/interfaces/ILive";
 import { ILiveStreams } from "src/user/interfaces/ILiveStreams";
 import { Live } from "src/user/schema/live.schema";

@@ -4,8 +4,6 @@ import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { ISubmitSongDetailsDto } from 'src/user/dtos/ISubmitSongDetails.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
 import { ISubmitSongDetails } from 'src/user/interfaces/ISubmitSongDetails';
-import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
-import { SingleService } from 'src/user/services/single/single.service';
 import { ISingleService } from 'src/user/interfaces/ISingleService';
 import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
 

@@ -3,7 +3,6 @@ import { Response } from 'express';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IAlbumGenPresignedUrlDto } from 'src/user/dtos/IAlbumGenPresignedUrl.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
 import { IPresignedUrlService } from 'src/user/interfaces/presigned-url-service.interface';
 
 @Controller('presigned-url')

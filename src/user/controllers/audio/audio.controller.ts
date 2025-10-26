@@ -2,7 +2,6 @@ import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Quer
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { AudioService } from 'src/user/services/audio/audio.service';
 import { IAudioService } from 'src/user/interfaces/audio-service.interface';
 
 @Controller('audio')

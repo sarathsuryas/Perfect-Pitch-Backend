@@ -4,7 +4,6 @@ import mongoose, { Model } from "mongoose";
 import { EditProfileDto } from "src/user/dtos/editProfile.dto";
 import { IReturnEdit } from "src/user/interfaces/IReturnEdit";
 import { IUserData } from "src/user/interfaces/IUserData";
-import { IVideoDetails } from "src/user/interfaces/IVideoDetails";
 import { User } from "src/user/schema/user.schema";
 import { BaseRepository } from "./base.repository";
 import { IUserRepository } from "../interfaces/IUserRepository";

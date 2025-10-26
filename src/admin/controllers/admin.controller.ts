@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Inject, InternalServerErrorException, NotFoundException, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AdminLoginDto } from '../dtos/adminLogin.dto';
-import { AdminService } from '../services/admin.service';
 import { Request, Response } from 'express';
 import { AuthenticationGuard } from '../admin-auth-guard/authentication.guard';
 import { ICustomRequest } from '../interfaces/ICustomRequest';

@@ -5,7 +5,6 @@ import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { IReplyToReplyDto } from 'src/user/dtos/IReplyToReply.dto';
 import { IVideoCommentDto } from 'src/user/dtos/IVideoComment.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { CommentsService } from 'src/user/services/comments/comments.service';
 import { ICommentsService } from 'src/user/interfaces/comments-service.interface';
 
 @Controller('comments')

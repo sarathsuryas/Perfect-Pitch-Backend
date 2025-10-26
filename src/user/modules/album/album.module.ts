@@ -7,7 +7,6 @@ import { AlbumController } from 'src/user/controllers/album/album.controller';
 import { AlbumRepository } from 'src/user/repositories/album.repository';
 import { AlbumService } from 'src/user/services/album/album.service';
 import { PresignedUrlService } from 'src/user/services/presigned-url/presigned-url.service';
-import { ALBUM_REPOSITORY, ALBUM_SERVICE } from 'src/user/Tokens/album.tokens';
 
 @Module({
   imports:[MongooseModule.forFeature([

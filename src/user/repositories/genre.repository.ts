@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { IGenres } from "src/admin/interfaces/IGenres";
 import { ISongsSameGenre } from "src/user/interfaces/ISongsSameGenre";
 import { Genres } from "src/user/schema/genres.schema";
 import { Audio } from "src/user/schema/audio.schema";

@@ -1,7 +1,6 @@
 // interfaces/album-service.interface.ts
 import { IAlbumDetails } from './albumDetails';
 import { IAlbumData } from './IAlbumData';
-import { ObjectId } from 'mongodb';
 
 export interface IAlbumService {
   submitAlbumDetails(details: IAlbumDetails, uuids: string[]): Promise<any>;

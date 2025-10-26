@@ -5,7 +5,6 @@ import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { PaymentSuccessDto } from 'src/user/dtos/paymentSuccess.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { MembershipService } from 'src/user/services/membership/membership.service';
 import Stripe from 'stripe';
 import { IMembershipService } from 'src/user/interfaces/IMembershipService';
 

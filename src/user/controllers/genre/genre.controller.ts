@@ -2,7 +2,6 @@ import { Controller, Get, HttpStatus, Inject, InternalServerErrorException, Quer
 import { Response } from 'express';
 import { storeError } from 'src/errorStore/storeError';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { GenreService } from 'src/user/services/genre/genre.service';
 import { IGenreService } from 'src/user/interfaces/IGenreService';
 
 @Controller('genre')

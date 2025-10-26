@@ -1,15 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs'
-import * as crypto from 'crypto'
 import { EditProfileDto } from 'src/user/dtos/editProfile.dto';
 import { IReturnEdit } from 'src/user/interfaces/IReturnEdit';
 import { IUserData } from 'src/user/interfaces/IUserData';
-import { UserRepository } from 'src/user/repositories/user.repository';
-import { PresignedUrlService } from '../presigned-url/presigned-url.service';
 import { IUserMedia } from 'src/user/interfaces/IUserMedia';
-import { AlbumRepository } from 'src/user/repositories/album.repository';
-import { PlaylistRepository } from 'src/user/repositories/playlist.repository';
-import { VideoRepository } from 'src/user/repositories/video.repository';
 import { IUserRepository } from 'src/user/interfaces/IUserRepository';
 import { IAlbumRepository } from 'src/user/interfaces/IAlbumRepository';
 import { IVideoRepository } from 'src/user/interfaces/IVideoRepository';

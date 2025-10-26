@@ -5,7 +5,6 @@ import { storeError } from 'src/errorStore/storeError';
 import { ICustomRequest } from 'src/admin/interfaces/ICustomRequest';
 import { EditProfileDto } from 'src/user/dtos/editProfile.dto';
 import { UserAuthenticationGuard } from 'src/user/user-auth-guard/user-authentication.guard';
-import { UserService } from 'src/user/services/user/user.service';
 import { IUserService } from 'src/user/interfaces/IUserService';
 
 @Controller('user')

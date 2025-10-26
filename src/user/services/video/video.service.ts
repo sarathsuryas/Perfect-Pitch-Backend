@@ -3,7 +3,6 @@ import { IResponseVideo } from 'src/user/interfaces/IResponseVideo';
 import { IVideoList } from 'src/user/interfaces/IVideoList';
 import { IVideoRepository } from 'src/user/interfaces/IVideoRepository';
 import { IVideoService } from 'src/user/interfaces/IVideoService';
-import { VideoRepository } from 'src/user/repositories/video.repository';
 
 @Injectable()
 export class VideoService implements IVideoService{

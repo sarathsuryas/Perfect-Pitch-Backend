@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IChatService } from 'src/user/interfaces/chat-service.interface';
 import { IChatRepository } from 'src/user/interfaces/IChatRepository';
 import { IChats } from 'src/user/interfaces/IChats';
-import { ChatRepository } from 'src/user/repositories/chat.repository';
 
 @Injectable()
 export class ChatService implements IChatService {

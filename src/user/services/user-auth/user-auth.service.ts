@@ -15,13 +15,13 @@ import { IUserResetToken } from 'src/user/interfaces/IUserResetToken';
 import { IUserAuthRepository } from 'src/user/interfaces/IUserAuthRepository';
 import { IUserAuthService } from 'src/user/interfaces/IUserAuthService';
 @Injectable()
-export class UserAuthService implements IUserAuthService{
+export class UserAuthService implements IUserAuthService {
   constructor(
     @Inject('IUserAuthRepository')
     private readonly _userAuthRepository: IUserAuthRepository,
     private readonly _mailService: MailerService,
     private readonly _jwtService: JwtService,
-  ){}
+  ) { }
   async checkUser(userData: RegisterUserDto): Promise<string | RegisterUserDto> {
     try {
       const result = await this._userAuthRepository.checkUser(userData)
@@ -306,7 +306,7 @@ export class UserAuthService implements IUserAuthService{
       console.error(error)
     }
   }
-  async getResetPasswordToken(resetToken: string):Promise<IUserResetToken>  {
+  async getResetPasswordToken(resetToken: string): Promise<IUserResetToken> {
     try {
       const data = await this._userAuthRepository.getResetPasswordToken(resetToken)
       return data

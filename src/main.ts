@@ -8,7 +8,6 @@ import { transports, format } from 'winston';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [
@@ -39,20 +38,18 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
-  const corsOrigins = configService.get<string>('CORS_ORIGIN')?.split(',') || [];
+  const corsOrigins =
+    configService.get<string>('CORS_ORIGIN')?.split(',') || [];
+
+  console.log('app running');
   app.enableCors({
     origin: corsOrigins,
-    credentials: true
+    credentials: true,
   });
-  app.use(cookieParser())
+  app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(port);
   Logger.log(`~ Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
-
-
-
-
-
